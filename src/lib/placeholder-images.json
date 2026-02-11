@@ -1,0 +1,24 @@
+{
+  "placeholderImages": [
+    {
+      "id": "project-1",
+      "description": "Abstract neon fluid motion",
+      "imageUrl": "https://images.unsplash.com/photo-1710993243754-508e64db698d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxuZW9uJTIwbW90aW9ufGVufDB8fHx8MTc3MDQ3MjQwMnww&ixlib=rb-4.1.0&q=80&w=1080"
+    },
+    {
+      "id": "project-2",
+      "description": "Metallic geometric animation",
+      "imageUrl": "https://images.unsplash.com/photo-1750727770129-6f4e79d9e620?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtZXRhbGxpYyUyMGFuaW1hdGlvbnxlbnwwfHx8fDE3NzA0NzI0MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+    },
+    {
+      "id": "project-3",
+      "description": "Liquid chrome typography",
+      "imageUrl": "https://images.unsplash.com/photo-1747942748191-d55d70a113ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsaXF1aWQlMjBjaHJvbWV8ZW58MHx8fHwxNzcwNDcyNDAyfDA&ixlib=rb-4.1.0&q=80&w=1080"
+    },
+    {
+      "id": "project-4",
+      "description": "Cyberpunk light streaks",
+      "imageUrl": "https://images.unsplash.com/photo-1643761227186-ad4e32453e95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjeWJlcnB1bmslMjBsaWdodHxlbnwwfHx8fDE3NzA0NzI0MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "about": {
+    "label": "ABOUT DANIEL",
+    "headline": "CRAFTING DIGITAL MOVEMENT",
+    "body": "I transform static ideas into dynamic visual narratives. Specializing in high-end motion graphics and immersive 3D experiences that bridge the gap between imagination and reality.",
+    "skills": [
+      "AFTER EFFECTS",
+      "CINEMA 4D",
+      "BLENDER",
+      "UNREAL ENGINE",
+      "HOUDINI",
+      "NUKE"
+    ]
+  },
+  "projects": [
+    {
+      "id": "chrome-flow",
+      "name": "CHROME FLOW",
+      "year": "2024",
+      "color": "#DFFF00",
+      "imageUrl": "/images/chrome-flow-1770637988826.jpeg",
+      "videoUrl": "/videos/chrome-flow-1770637980869.mp4",
+      "description": "Experimental fluid simulation using high-viscosity liquid metal. Exploring the interplay between light and motion through procedural generation techniques.",
+      "tools": "C4D / OCTANE / AE",
+      "category": "MOTION DESIGN",
+      "media": [
+        {
+          "type": "image",
+          "url": "/images/chrome-flow-1770669889128.png"
+        },
+        {
+          "type": "video",
+          "url": "/videos/chrome-flow-1770637980869.mp4"
+        },
+        {
+          "type": "image",
+          "url": "/images/chrome-flow-1770637988826.jpeg"
+        },
+        {
+          "type": "image",
+          "url": "/images/chrome-flow-1770637994132.jpeg"
+        },
+        {
+          "type": "image",
+          "url": "/images/chrome-flow-1770638001028.png"
+        }
+      ]
+    },
+    {
+      "id": "silver-shift",
+      "name": "SILVER SHIFT",
+      "year": "2024",
+      "color": "#DFFF00",
+      "imageUrl": "/images/silver-shift-1770669927082.png",
+      "videoUrl": "",
+      "description": "A study on light dispersion and brushed aluminum reflections. Combining real-time rendering with post-production grading.",
+      "tools": "BLENDER / NUKE / AE",
+      "category": "EXPERIMENTAL",
+      "media": [
+        {
+          "type": "image",
+          "url": "/images/silver-shift-1770669927082.png"
+        }
+      ]
+    },
+    {
+      "id": "dark-mercury",
+      "name": "DARK MERCURY",
+      "year": "2023",
+      "color": "#DFFF00",
+      "imageUrl": "/images/dark-mercury-1770669944830.png",
+      "videoUrl": "",
+      "description": "Minimalist motion study in a low-gravity vacuum environment. Abstract forms that challenge perception of space and time.",
+      "tools": "C4D / REDSHIFT / AE",
+      "category": "ART DIRECTION",
+      "media": [
+        {
+          "type": "image",
+          "url": "/images/dark-mercury-1770669944830.png"
+        }
+      ]
+    },
+    {
+      "id": "void-geometry",
+      "name": "VOID GEOMETRY",
+      "year": "2023",
+      "color": "#DFFF00",
+      "imageUrl": "/images/void-geometry-1770669952540.png",
+      "videoUrl": "",
+      "description": "Procedural generation of monolithic architectural structures. Where mathematics meets cinematic visual storytelling.",
+      "tools": "HOUDINI / UNREAL / AE",
+      "category": "GENERATIVE",
+      "media": [
+        {
+          "type": "image",
+          "url": "/images/void-geometry-1770669952540.png"
+        }
+      ]
+    }
+  ]
+}
