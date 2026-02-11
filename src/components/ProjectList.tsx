@@ -171,39 +171,29 @@ export function ProjectList({
             className="w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_50px_rgba(223,255,0,0.1)] hidden md:block"
           >
             {(() => {
-              const showError = errorPreviewId === activeProject.id || failedImages.has(activeProject.id) || !activeProject.imageUrl;
+              const showError =
+                errorPreviewId === activeProject.id ||
+                failedImages.has(activeProject.id) ||
+                !activeProject.imageUrl;
               const showLoading = loadingPreviewId === activeProject.id && !showError;
               const src = activeProject.imageUrl ? `${activeProject.imageUrl}?r=${retryNonce}` : '';
 
               if (showLoading) {
                 return (
-                  <div className="w-full h-full skeleton-shimmer bg-white/5 rounded-sm" role="status" aria-live="polite" />
+                  <div
+                    className="w-full h-full preview-surface flex items-center justify-center"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <div className="loader-ring" />
+                  </div>
                 );
               }
 
               if (showError) {
                 return (
-                  <div className="w-full h-full flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-                    <div className="text-center space-y-2">
-                      <div className="text-[#ff9f43] text-sm font-headline tracking-widest">PREVIEW</div>
-                      <div className="text-white/50 text-xs">Not available</div>
-                      <button
-                        type="button"
-                        className="text-[11px] px-3 py-1 border border-[#ff9f43]/60 text-[#ff9f43] rounded-full hover:bg-[#ff9f43]/10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRetryNonce((n) => n + 1);
-                          startPreviewLoad(activeProject.id);
-                          setFailedImages((prev) => {
-                            const next = new Set(prev);
-                            next.delete(activeProject.id);
-                            return next;
-                          });
-                        }}
-                      >
-                        Retry
-                      </button>
-                    </div>
+                  <div className="w-full h-full flex items-center justify-center bg-black/80">
+                    <div className="loader-ring" />
                   </div>
                 );
               }

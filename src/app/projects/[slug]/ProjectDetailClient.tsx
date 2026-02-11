@@ -115,7 +115,7 @@ export function ProjectDetailClient({ project }: { project: Project }) {
           <div>
             <p className="text-[10px] tracking-[0.4em] text-[#DFFF00] font-headline">SELECTED WORK</p>
             <h1 className="font-headline text-3xl md:text-6xl text-white tracking-tight mt-2">{project.name}</h1>
-            <p className="text-white/60 font-body mt-2">{project.category}  {project.year}</p>
+            <p className="text-white/60 font-body mt-2">{project.category} • {project.year}</p>
           </div>
         </div>
       </motion.div>
