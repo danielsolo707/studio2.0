@@ -18,7 +18,19 @@ function getMongoUri(): string {
 export function getMongoClient(): Promise<MongoClient> {
   if (!clientPromise) {
     const uri = getMongoUri();
-    client = new MongoClient(uri);
+    const isSrv = uri.startsWith('mongodb+srv://');
+    client = new MongoClient(uri, {
+      // Keep resource usage low on small/weak servers
+      maxPoolSize: 10,
+      minPoolSize: 0,
+      retryWrites: true,
+      retryReads: true,
+      serverSelectionTimeoutMS: 15_000,
+      connectTimeoutMS: 30_000,
+      socketTimeoutMS: 180_000,
+      tls: isSrv ? true : undefined,
+      directConnection: !isSrv ? true : undefined, // direct for single-host URIs
+    });
     clientPromise = client.connect();
   }
   return clientPromise;
@@ -42,4 +54,3 @@ export async function getDb(): Promise<Db> {
     return client.db('portfolio');
   }
 }
-
