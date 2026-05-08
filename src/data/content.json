@@ -1,46 +1,20 @@
 {
+  "hero": {
+    "headline": "CREATIVE\nDEVELOPER",
+    "description": "Creative developer specializing in motion design (After Effects, Cinema 4D) and machine learning. Building interactive web experiences that blend visual storytelling with intelligent systems."
+  },
   "about": {
     "label": "ABOUT DANIEL",
     "headline": "CREATIVE DEVELOPER IN MOTION",
     "body": "I build small visual systems that connect motion graphics, interactive code, and early ML/data experiments. My work is still growing, but it is grounded in curiosity, clear process, and a love for turning abstract ideas into moving, usable things.",
     "skills": [
       "AFTER EFFECTS",
-      "BLENDER",
       "CINEMA 4D",
-      "REACT",
-      "NEXT.JS",
       "PYTHON",
-      "DATA VISUALIZATION",
-      "ML BASICS"
+      "DATA VISUALIZATION"
     ]
   },
   "projects": [
-    {
-      "id": "signal-motion-lab",
-      "name": "SIGNAL MOTION LAB",
-      "year": "2026",
-      "color": "#DFFF00",
-      "imageUrl": "",
-      "videoUrl": "",
-      "description": "A small creative coding prototype that turns simple data signals into motion-led visual states. Built as a bridge between my motion design background and my newer data/ML practice.",
-      "tools": "NEXT.JS / PYTHON / DATA VIZ",
-      "category": "HYBRID SYSTEM",
-      "discipline": "hybrid",
-      "status": "prototype",
-      "role": "Creative Developer",
-      "objective": "Show how a simple dataset can become a visual motion system instead of a static chart.",
-      "approach": "Map cleaned signal values to animation states, timing, scale and color so the motion language carries the data.",
-      "outcome": "A small hybrid prototype that explains the direction of my creative developer practice.",
-      "nextStep": "Turn the prototype into a live demo with user-uploaded CSV data and a short technical writeup.",
-      "links": [
-        {
-          "label": "Prototype Notes",
-          "url": "https://github.com",
-          "type": "github"
-        }
-      ],
-      "media": []
-    },
     {
       "id": "chrome-flow",
       "name": "CHROME FLOW",
@@ -125,52 +99,6 @@
       "outcome": "A cinematic motion study that shows pacing and art-direction judgment.",
       "nextStep": "Add a short process note on references, camera movement and lighting constraints.",
       "links": [],
-      "media": []
-    },
-    {
-      "id": "void-geometry",
-      "name": "VOID GEOMETRY",
-      "year": "2023",
-      "color": "#DFFF00",
-      "imageUrl": "",
-      "videoUrl": "",
-      "description": "Procedural generation of monolithic architectural structures. Where mathematics meets cinematic visual storytelling.",
-      "tools": "HOUDINI / UNREAL / AE",
-      "category": "GENERATIVE",
-      "discipline": "motion",
-      "status": "case-study",
-      "role": "Motion Designer",
-      "objective": "Connect procedural generation with cinematic architectural composition.",
-      "approach": "Generate monolithic forms, then treat the output like a designed scene rather than a raw procedural render.",
-      "outcome": "A generative motion project that sits naturally between technical systems and visual storytelling.",
-      "nextStep": "Document the procedural rules and show a few alternative outputs.",
-      "links": [],
-      "media": []
-    },
-    {
-      "id": "learning-data-notebook",
-      "name": "LEARNING DATA NOTEBOOK",
-      "year": "2026",
-      "color": "#DFFF00",
-      "imageUrl": "",
-      "videoUrl": "",
-      "description": "A compact data science learning project for cleaning a small dataset, exploring patterns, and presenting the result visually. The focus is process, interpretation, and honest iteration.",
-      "tools": "PYTHON / PANDAS / NOTEBOOKS",
-      "category": "DATA/ML",
-      "discipline": "data",
-      "status": "learning-project",
-      "role": "ML/Data Experiment",
-      "objective": "Practice the full beginner data workflow: clean, explore, interpret and present a small dataset.",
-      "approach": "Use Python and notebooks to inspect patterns, then translate the result into a concise visual explanation.",
-      "outcome": "A modest but honest data project that shows learning process and interpretation.",
-      "nextStep": "Publish the notebook, add charts and write a one-page case study about what changed after cleaning.",
-      "links": [
-        {
-          "label": "Notebook",
-          "url": "https://github.com",
-          "type": "notebook"
-        }
-      ],
       "media": []
     }
   ]

@@ -19,99 +19,142 @@ export function AddProjectForm() {
 
   return (
     <form action={formAction} className="grid gap-3 md:grid-cols-2">
-      <input 
-        name="id" 
-        placeholder="slug (e.g. my-project)" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="name" 
-        placeholder="name" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="year" 
-        placeholder="year" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="category" 
-        placeholder="category" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <select
-        name="discipline"
-        defaultValue="motion"
-        className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      >
-        {DISCIPLINE_OPTIONS.map((option) => (
-          <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
-        ))}
-      </select>
-      <select
-        name="status"
-        defaultValue="prototype"
-        className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      >
-        {STATUS_OPTIONS.map((option) => (
-          <option key={option} value={option}>{STATUS_LABELS[option]}</option>
-        ))}
-      </select>
-      <input
-        name="role"
-        placeholder="role (e.g. Creative Developer)"
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      />
-      <input 
-        name="tools" 
-        placeholder="tools" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="color" 
-        placeholder="#DFFF00" 
-        className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="imageUrl" 
-        placeholder="image URL" 
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <input 
-        name="videoUrl" 
-        placeholder="video URL (optional)" 
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <textarea 
-        name="description" 
-        placeholder="description" 
-        rows={3} 
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-      />
-      <textarea
-        name="objective"
-        placeholder="objective / problem"
-        rows={2}
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      />
-      <textarea
-        name="approach"
-        placeholder="approach / process"
-        rows={2}
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      />
-      <textarea
-        name="outcome"
-        placeholder="outcome / result"
-        rows={2}
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      />
-      <textarea
-        name="nextStep"
-        placeholder="next step / what I would improve"
-        rows={2}
-        className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-      />
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">BASIC INFO</p>
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
+        <input 
+          name="id" 
+          placeholder="my-project"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">PROJECT NAME</p>
+        <input 
+          name="name" 
+          placeholder="My Project"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">YEAR</p>
+        <input 
+          name="year" 
+          placeholder="2024"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CATEGORY</p>
+        <input 
+          name="category" 
+          placeholder="Motion Design"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DISCIPLINE</p>
+        <select
+          name="discipline"
+          defaultValue="motion"
+          className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        >
+          {DISCIPLINE_OPTIONS.map((option) => (
+            <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">STATUS</p>
+        <select
+          name="status"
+          defaultValue="prototype"
+          className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        >
+          {STATUS_OPTIONS.map((option) => (
+            <option key={option} value={option}>{STATUS_LABELS[option]}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">TOOLS</p>
+        <input 
+          name="tools" 
+          placeholder="After Effects, Cinema 4D"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">ACCENT COLOR</p>
+        <input 
+          name="color" 
+          placeholder="#DFFF00"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MAIN IMAGE URL</p>
+        <input 
+          name="imageUrl" 
+          placeholder="https://example.com/image.jpg"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">VIDEO URL (OPTIONAL)</p>
+        <input 
+          name="videoUrl" 
+          placeholder="https://youtube.com/..."
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SHORT DESCRIPTION</p>
+        <textarea 
+          name="description" 
+          placeholder="A brief description of the project..."
+          rows={3} 
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OBJECTIVE</p>
+        <textarea
+          name="objective"
+          placeholder="What is the goal or problem?"
+          rows={2}
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">APPROACH</p>
+        <textarea
+          name="approach"
+          placeholder="How did you build it?"
+          rows={2}
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OUTCOME</p>
+        <textarea
+          name="outcome"
+          placeholder="What was the result?"
+          rows={2}
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">NEXT STEP</p>
+        <textarea
+          name="nextStep"
+          placeholder="What would you improve?"
+          rows={2}
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+        />
+      </div>
       <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">
         <p className="font-headline text-[10px] tracking-[0.3em] text-white/50">
           PROJECT LINKS

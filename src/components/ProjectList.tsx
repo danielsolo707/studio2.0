@@ -17,10 +17,8 @@ import {
 
 const FILTERS = [
   { value: 'all', label: 'All' },
-  { value: 'motion', label: DISCIPLINE_LABELS.motion },
-  { value: 'code', label: DISCIPLINE_LABELS.code },
-  { value: 'data', label: DISCIPLINE_LABELS.data },
-  { value: 'hybrid', label: DISCIPLINE_LABELS.hybrid },
+  { value: 'motion', label: 'Motion' },
+  { value: 'data', label: 'Data/ML' },
 ] as const;
 
 type ProjectFilter = (typeof FILTERS)[number]['value'];
@@ -95,7 +93,7 @@ export function ProjectList({
     <section
       id="works"
       aria-labelledby="works-heading"
-      className="relative z-20 min-h-screen py-[20vh] px-6 md:px-24 overflow-hidden"
+      className="relative z-20 min-h-screen py-[12vh] px-6 md:px-16 overflow-hidden"
       onMouseMove={handleMouseMove}
     >
       <div className="max-w-7xl mx-auto">
@@ -103,11 +101,11 @@ export function ProjectList({
           <div>
             <h2
               id="works-heading"
-              className="font-headline text-[10px] tracking-[0.8em] text-[#DFFF00] uppercase opacity-60"
+              className="font-headline text-[14px] tracking-[0.8em] text-[#DFFF00] uppercase opacity-60"
             >
               SELECTED WORKS
             </h2>
-            <p className="mt-4 max-w-xl text-sm md:text-base text-white/45 font-body leading-relaxed">
+            <p className="mt-4 max-w-xl text-base md:text-xl text-white/45 font-body leading-relaxed">
               Motion studies, practical code prototypes, and small data experiments.
             </p>
           </div>
@@ -135,9 +133,7 @@ export function ProjectList({
         </div>
 
         {filteredProjects.map((project) => {
-          const discipline = getProjectDiscipline(project);
           const status = getProjectStatus(project);
-          const role = getProjectRole(project);
 
           return (
             <motion.div
@@ -164,31 +160,28 @@ export function ProjectList({
                 setActiveProject(project);
                 startPreviewLoad(project);
               }}
-              className="group border-b border-white/5 cursor-pointer transition-colors duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-8"
+              className="group relative border-b border-white/5 cursor-pointer transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-6"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
               <TiltCard maxTilt={6} glareOpacity={0.0}>
                 <motion.div
                   whileHover={{ x: -10 }}
                   transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
                   style={{ willChange: 'transform' }}
-                  className="py-8 md:py-12 flex items-center justify-between gap-6"
+                  className="py-6 md:py-10 flex items-center justify-between gap-6 relative"
                 >
-                  <div>
-                    <h3 className="font-headline text-2xl md:text-5xl tracking-tighter text-[#DFFF00] bg-transparent transition-all duration-300 group-hover:drop-shadow-[0_0_10px_rgba(223,255,0,0.8)]">
+                  <h3 className="font-headline text-2xl md:text-5xl tracking-tighter text-white bg-transparent transition-all duration-300 group-hover:text-[#DFFF00]">
                       {project.name}
                     </h3>
-                    <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 mt-1 block md:hidden">
-                      {DISCIPLINE_LABELS[discipline]} / {role}
-                    </span>
-                  </div>
 
-                  <div className="flex items-center gap-8">
-                    <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 hidden md:block">
-                      {DISCIPLINE_LABELS[discipline]} / {STATUS_LABELS[status]}
+                  <div className="flex items-center gap-6">
+                    <span className="font-headline text-[12px] tracking-[0.2em] text-white/70 hidden md:block">
+                      {STATUS_LABELS[status]}
                     </span>
-                    <span className="font-headline text-[10px] tracking-widest text-muted-foreground group-hover:text-[#DFFF00] opacity-50">
+                    <span className="font-headline text-[12px] tracking-widest text-white/70 group-hover:text-[#DFFF00] transition-colors">
                       {project.year}
                     </span>
+                    <div className="w-2 h-2 rounded-full bg-white/40 group-hover:bg-[#DFFF00] transition-colors" />
                   </div>
                 </motion.div>
               </TiltCard>

@@ -21,7 +21,7 @@ export function ContactSection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.6 }}
             viewport={{ once: true }}
-            className="font-headline text-[10px] tracking-[0.5em] uppercase text-[#DFFF00]"
+            className="font-headline text-[12px] tracking-[0.5em] uppercase text-[#DFFF00]"
           >
             GET IN TOUCH
           </motion.p>

@@ -31,6 +31,11 @@ const aboutSchema = z.object({
   skills: z.array(z.string()).min(1, 'At least one skill is required'),
 });
 
+const heroSchema = z.object({
+  headline: z.string().min(1, 'Headline is required'),
+  description: z.string().min(1, 'Description is required'),
+});
+
 const projectSchema = z.object({
   id: z.string().min(1, 'ID is required').regex(/^[a-z0-9-]+$/, 'ID must be lowercase alphanumeric with hyphens'),
   name: z.string().min(1, 'Name is required'),
@@ -232,6 +237,27 @@ export async function updateAboutAction(
 
   const content = await readContent();
   content.about = { label, headline, body, skills };
+  await writeContent(content);
+
+  revalidatePath('/');
+  return { error: undefined };
+}
+
+export async function updateHeroAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireAuth();
+  const headline = String(formData.get('headline') || '').trim();
+  const description = String(formData.get('description') || '').trim();
+
+  const result = heroSchema.safeParse({ headline, description });
+  if (!result.success) {
+    return { error: result.error.errors[0]?.message ?? 'Invalid input' };
+  }
+
+  const content = await readContent();
+  content.hero = { headline, description };
   await writeContent(content);
 
   revalidatePath('/');

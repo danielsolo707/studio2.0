@@ -4,6 +4,10 @@ import type { SiteContent } from '@/types/project';
 
 // Default content for fallback
 const DEFAULT_CONTENT: SiteContent = {
+  hero: {
+    headline: 'CREATIVE\nDEVELOPER',
+    description: 'Creative developer specializing in motion design (After Effects, Cinema 4D) and machine learning. Building interactive web experiences that blend visual storytelling with intelligent systems.'
+  },
   about: {
     label: 'ABOUT',
     headline: 'CREATIVE DEVELOPER',
@@ -77,6 +81,16 @@ export async function writeContent(content: SiteContent): Promise<void> {
 export async function updateAbout(aboutData: Partial<SiteContent['about']>): Promise<void> {
   const content = await readContent();
   content.about = { ...content.about, ...aboutData };
+  await writeContent(content);
+}
+
+export async function updateHero(heroData: Partial<SiteContent['hero']>): Promise<void> {
+  const content = await readContent();
+  content.hero = {
+    headline: content.hero?.headline || '',
+    description: content.hero?.description || '',
+    ...heroData,
+  };
   await writeContent(content);
 }
 

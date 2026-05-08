@@ -49,7 +49,13 @@ export interface AboutSection {
   skills: string[];
 }
 
+export interface HeroSection {
+  headline: string;
+  description: string;
+}
+
 export interface SiteContent {
+  hero?: HeroSection;
   about: AboutSection;
   projects: Project[];
 }

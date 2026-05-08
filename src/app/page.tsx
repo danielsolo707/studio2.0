@@ -35,7 +35,10 @@ export default async function Home() {
 
       {/* Page sections (always in DOM for SEO) */}
       <div id="main-content">
-        <TypographicHero />
+        <TypographicHero 
+          headline={content.hero?.headline || 'CREATIVE\nDEVELOPER'}
+          description={content.hero?.description || ''}
+        />
         <ProjectSection projects={content.projects} />
         <AboutSection
           label={content.about.label}

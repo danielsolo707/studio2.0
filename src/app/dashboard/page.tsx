@@ -18,6 +18,7 @@ import { StatusBadge } from './StatusBadge';
 import { MediaPreview } from './MediaPreview';
 import { AboutForm } from './AboutForm';
 import { AddProjectForm } from './AddProjectForm';
+import { HeroForm } from './HeroForm';
 import {
   DISCIPLINE_LABELS,
   DISCIPLINE_OPTIONS,
@@ -120,6 +121,13 @@ export default async function DashboardPage() {
         <div className="space-y-8">
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg">
             <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00] mb-4">
+              HERO SECTION
+            </h2>
+            <HeroForm initialData={content.hero || { headline: 'CREATIVE\nDEVELOPER', description: '' }} />
+          </section>
+
+          <section className="border border-white/10 p-6 bg-black/30 rounded-lg">
+            <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00] mb-4">
               ABOUT SECTION
             </h2>
             <AboutForm initialData={content.about} />
@@ -160,105 +168,156 @@ export default async function DashboardPage() {
 
           <div className="space-y-8">
             {content.projects.map((project) => (
-              <div key={project.id} className="border border-white/10 p-6 bg-black/30 rounded-lg">
+<div key={project.id} className="border border-white/10 p-6 bg-black/30 rounded-lg">
                 <form action={updateProjectAction} className="grid gap-3 md:grid-cols-2">
-                  <input 
-                    name="id" 
-                    defaultValue={project.id} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="name" 
-                    defaultValue={project.name} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="year" 
-                    defaultValue={project.year} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="category" 
-                    defaultValue={project.category} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <select
-                    name="discipline"
-                    defaultValue={getProjectDiscipline(project)}
-                    className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  >
-                    {DISCIPLINE_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
-                    ))}
-                  </select>
-                  <select
-                    name="status"
-                    defaultValue={getProjectStatus(project)}
-                    className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  >
-                    {STATUS_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{STATUS_LABELS[option]}</option>
-                    ))}
-                  </select>
-                  <input
-                    name="role"
-                    defaultValue={getProjectRole(project)}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
-                  <input 
-                    name="tools" 
-                    defaultValue={project.tools} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="color" 
-                    defaultValue={project.color} 
-                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="imageUrl" 
-                    defaultValue={project.imageUrl} 
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <input 
-                    name="videoUrl" 
-                    defaultValue={project.videoUrl || ''} 
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-                  />
-                  <textarea
-                    name="description"
-                    defaultValue={project.description}
-                    rows={3}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
-                  <textarea
-                    name="objective"
-                    defaultValue={project.objective || ''}
-                    placeholder="objective / problem"
-                    rows={2}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
-                  <textarea
-                    name="approach"
-                    defaultValue={project.approach || ''}
-                    placeholder="approach / process"
-                    rows={2}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
-                  <textarea
-                    name="outcome"
-                    defaultValue={project.outcome || ''}
-                    placeholder="outcome / result"
-                    rows={2}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
-                  <textarea
-                    name="nextStep"
-                    defaultValue={project.nextStep || ''}
-                    placeholder="next step / what I would improve"
-                    rows={2}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                  />
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">BASIC INFO</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
+                    <input 
+                      name="id" 
+                      defaultValue={project.id} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">PROJECT NAME</p>
+                    <input 
+                      name="name" 
+                      defaultValue={project.name} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">YEAR</p>
+                    <input 
+                      name="year" 
+                      defaultValue={project.year} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CATEGORY</p>
+                    <input 
+                      name="category" 
+                      defaultValue={project.category} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DISCIPLINE</p>
+                    <select
+                      name="discipline"
+                      defaultValue={getProjectDiscipline(project)}
+                      className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    >
+                      {DISCIPLINE_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">STATUS</p>
+                    <select
+                      name="status"
+                      defaultValue={getProjectStatus(project)}
+                      className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    >
+                      {STATUS_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{STATUS_LABELS[option]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">ROLE</p>
+                    <input
+                      name="role"
+                      defaultValue={getProjectRole(project)}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">TOOLS</p>
+                    <input 
+                      name="tools" 
+                      defaultValue={project.tools} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">ACCENT COLOR</p>
+                    <input 
+                      name="color" 
+                      defaultValue={project.color} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MAIN IMAGE URL</p>
+                    <input 
+                      name="imageUrl" 
+                      defaultValue={project.imageUrl} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">VIDEO URL (OPTIONAL)</p>
+                    <input 
+                      name="videoUrl" 
+                      defaultValue={project.videoUrl || ''} 
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                    />
+                  </div>
+<div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SHORT DESCRIPTION</p>
+                    <textarea
+                      name="description"
+                      defaultValue={project.description}
+                      rows={3}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
+<div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OBJECTIVE</p>
+                    <textarea
+                      name="objective"
+                      defaultValue={project.objective || ''}
+                      placeholder="What is the goal or problem?"
+                      rows={2}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">APPROACH</p>
+                    <textarea
+                      name="approach"
+                      defaultValue={project.approach || ''}
+                      placeholder="How did you build it?"
+                      rows={2}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OUTCOME</p>
+                    <textarea
+                      name="outcome"
+                      defaultValue={project.outcome || ''}
+                      placeholder="What was the result?"
+                      rows={2}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">NEXT STEP</p>
+                    <textarea
+                      name="nextStep"
+                      defaultValue={project.nextStep || ''}
+                      placeholder="What would you improve?"
+                      rows={2}
+                      className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                    />
+                  </div>
                   <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">
                     <p className="font-headline text-[10px] tracking-[0.3em] text-white/50">
                       PROJECT LINKS
