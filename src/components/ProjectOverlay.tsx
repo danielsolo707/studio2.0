@@ -76,20 +76,20 @@ export function ProjectOverlay({
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
           >
-            {imageLoaded ? (
-              <>
-                <Image
-                  src={project.imageUrl}
-                  alt={`${project.name} — ${project.description}`}
-                  fill
-                  sizes="100vw"
-                  priority
-                  className="object-cover"
-                  onError={() => setImageLoaded(false)}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030305] via-transparent to-transparent" />
+              {imageLoaded && project.imageUrl ? (
+                <>
+                  <Image
+                    src={project.imageUrl}
+                    alt={`${project.name} — ${project.description}`}
+                    fill
+                    sizes="100vw"
+                    priority
+                    className="object-cover"
+                    onError={() => setImageLoaded(false)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#030305] via-transparent to-transparent" />
 
-              </>
+                </>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-[#030305] via-black/40 to-transparent">
                 <div className="text-center">
