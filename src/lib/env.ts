@@ -37,12 +37,12 @@ export const config = {
   adminSessionSecret: getEnvVar('ADMIN_SESSION_SECRET', 'dev-secret-change-me'),
   
   // Email
-  resendApiKey: getEnvVar('RESEND_API_KEY'),
-  resendFrom: getEnvVar('RESEND_FROM'),
-  resendTo: getEnvVar('RESEND_TO'),
+  resendApiKey: getEnvVar('RESEND_API_KEY', ''),
+  resendFrom: getEnvVar('RESEND_FROM', ''),
+  resendTo: getEnvVar('RESEND_TO', ''),
   
   // 2FA
-  totpSecret: getEnvVar('TOTP_SECRET'),
+  totpSecret: getEnvVar('TOTP_SECRET', ''),
 };
 
 // Validate critical environment variables in production

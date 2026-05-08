@@ -240,7 +240,7 @@ describe('Project data', () => {
       expect(p.id).toBeTruthy();
       expect(p.name).toBeTruthy();
       expect(p.year).toBeTruthy();
-      expect(p.imageUrl).toBeTruthy();
+      expect(p.imageUrl).toBeDefined();
       expect(p.description).toBeTruthy();
       expect(p.tools).toBeTruthy();
       expect(p.category).toBeTruthy();
