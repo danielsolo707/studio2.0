@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { clearSession, getSession, setSession } from '@/lib/auth';
 import { readContent, writeContent } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
-import type { Project } from '@/types/project';
+import type { Project, ProjectLink } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
 
 type ActionState = { error?: string };
@@ -41,6 +41,13 @@ const projectSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   tools: z.string().min(1, 'Tools are required'),
   category: z.string().min(1, 'Category is required'),
+  discipline: z.enum(['motion', 'code', 'data', 'hybrid']).default('motion'),
+  status: z.enum(['case-study', 'prototype', 'experiment', 'learning-project']).default('case-study'),
+  role: z.string().optional().default(''),
+  objective: z.string().optional().default(''),
+  approach: z.string().optional().default(''),
+  outcome: z.string().optional().default(''),
+  nextStep: z.string().optional().default(''),
 });
 
 async function requireAuth() {
@@ -242,6 +249,13 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
     description: String(formData.get('description') || existing?.description || '').trim(),
     tools: String(formData.get('tools') || existing?.tools || '').trim(),
     category: String(formData.get('category') || existing?.category || '').trim(),
+    discipline: String(formData.get('discipline') || existing?.discipline || 'motion').trim(),
+    status: String(formData.get('status') || existing?.status || 'case-study').trim(),
+    role: String(formData.get('role') || existing?.role || '').trim(),
+    objective: String(formData.get('objective') || existing?.objective || '').trim(),
+    approach: String(formData.get('approach') || existing?.approach || '').trim(),
+    outcome: String(formData.get('outcome') || existing?.outcome || '').trim(),
+    nextStep: String(formData.get('nextStep') || existing?.nextStep || '').trim(),
   };
 
   const result = projectSchema.safeParse(raw);
@@ -249,10 +263,36 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
     return { error: result.error.errors[0]?.message ?? 'Invalid project data' };
   }
 
+  const links: ProjectLink[] = [];
+  for (let i = 0; i < 3; i += 1) {
+    const label = String(formData.get(`linkLabel${i}`) || '').trim();
+    const url = String(formData.get(`linkUrl${i}`) || '').trim();
+    const type = String(formData.get(`linkType${i}`) || 'demo').trim();
+
+    if (!label && !url) continue;
+    if (!label || !url) {
+      return { error: 'Project links need both label and URL' };
+    }
+
+    const parsedLink = z.object({
+      label: z.string().min(1),
+      url: z.string().url('Project link must be a valid URL'),
+      type: z.enum(['github', 'demo', 'notebook', 'video']),
+    }).safeParse({ label, url, type });
+
+    if (!parsedLink.success) {
+      return { error: parsedLink.error.errors[0]?.message ?? 'Invalid project link' };
+    }
+
+    links.push(parsedLink.data);
+  }
+
   return {
     data: {
       ...result.data,
       videoUrl: result.data.videoUrl ?? '',
+      role: result.data.role || result.data.category,
+      links,
       media: existing?.media || [],
     },
   };

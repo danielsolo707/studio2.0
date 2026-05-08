@@ -18,6 +18,20 @@ import { StatusBadge } from './StatusBadge';
 import { MediaPreview } from './MediaPreview';
 import { AboutForm } from './AboutForm';
 import { AddProjectForm } from './AddProjectForm';
+import {
+  DISCIPLINE_LABELS,
+  DISCIPLINE_OPTIONS,
+  getProjectDiscipline,
+  getProjectLinks,
+  getProjectRole,
+  getProjectStatus,
+  LINK_TYPE_LABELS,
+  LINK_TYPE_OPTIONS,
+  STATUS_LABELS,
+  STATUS_OPTIONS,
+} from '@/lib/project-meta';
+
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   let session;
@@ -168,6 +182,29 @@ export default async function DashboardPage() {
                     defaultValue={project.category} 
                     className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
                   />
+                  <select
+                    name="discipline"
+                    defaultValue={getProjectDiscipline(project)}
+                    className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  >
+                    {DISCIPLINE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
+                    ))}
+                  </select>
+                  <select
+                    name="status"
+                    defaultValue={getProjectStatus(project)}
+                    className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  >
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option} value={option}>{STATUS_LABELS[option]}</option>
+                    ))}
+                  </select>
+                  <input
+                    name="role"
+                    defaultValue={getProjectRole(project)}
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  />
                   <input 
                     name="tools" 
                     defaultValue={project.tools} 
@@ -194,6 +231,67 @@ export default async function DashboardPage() {
                     rows={3}
                     className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
                   />
+                  <textarea
+                    name="objective"
+                    defaultValue={project.objective || ''}
+                    placeholder="objective / problem"
+                    rows={2}
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  />
+                  <textarea
+                    name="approach"
+                    defaultValue={project.approach || ''}
+                    placeholder="approach / process"
+                    rows={2}
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  />
+                  <textarea
+                    name="outcome"
+                    defaultValue={project.outcome || ''}
+                    placeholder="outcome / result"
+                    rows={2}
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  />
+                  <textarea
+                    name="nextStep"
+                    defaultValue={project.nextStep || ''}
+                    placeholder="next step / what I would improve"
+                    rows={2}
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                  />
+                  <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">
+                    <p className="font-headline text-[10px] tracking-[0.3em] text-white/50">
+                      PROJECT LINKS
+                    </p>
+                    {[0, 1, 2].map((linkIndex) => {
+                      const link = getProjectLinks(project)[linkIndex];
+                      return (
+                        <div key={linkIndex} className="grid gap-3 md:grid-cols-[1fr_1fr_160px]">
+                          <input
+                            name={`linkLabel${linkIndex}`}
+                            defaultValue={link?.label || ''}
+                            placeholder="label"
+                            className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                          />
+                          <input
+                            name={`linkUrl${linkIndex}`}
+                            defaultValue={link?.url || ''}
+                            placeholder="https://"
+                            className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                          />
+                          <select
+                            name={`linkType${linkIndex}`}
+                            defaultValue={link?.type || 'demo'}
+                            className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+                          >
+                            {LINK_TYPE_OPTIONS.map((option) => (
+                              <option key={option} value={option}>{LINK_TYPE_LABELS[option]}</option>
+                            ))}
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
                   <button
                     type="submit"
                     className="px-4 py-2 bg-[#DFFF00] text-black text-xs tracking-widest hover:bg-[#d4ff00] transition-colors"

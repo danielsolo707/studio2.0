@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment, Float, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 

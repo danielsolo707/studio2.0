@@ -7,8 +7,8 @@ const DEFAULT_CONTENT: SiteContent = {
   about: {
     label: 'ABOUT',
     headline: 'CREATIVE DEVELOPER',
-    body: 'Building immersive digital experiences with cutting-edge technology.',
-    skills: ['REACT', 'NEXT.JS', 'THREE.JS', 'TYPESCRIPT']
+    body: 'Building small visual systems across motion, creative code, and early ML/data experiments.',
+    skills: ['AFTER EFFECTS', 'BLENDER', 'REACT', 'NEXT.JS', 'PYTHON', 'DATA VISUALIZATION']
   },
   projects: [
     {
@@ -21,6 +21,14 @@ const DEFAULT_CONTENT: SiteContent = {
       description: 'This is a sample project. Add your own projects through the dashboard.',
       tools: 'VARIOUS',
       category: 'DEVELOPMENT',
+      discipline: 'code',
+      status: 'prototype',
+      role: 'Creative Developer',
+      objective: 'Show the purpose of the project and the problem it solves.',
+      approach: 'Explain the tools, process, and decisions behind the build.',
+      outcome: 'Describe what the project proves or makes possible.',
+      nextStep: 'Name the next improvement so the project feels active and honest.',
+      links: [],
       media: []
     }
   ]

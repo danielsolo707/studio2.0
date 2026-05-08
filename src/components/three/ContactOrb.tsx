@@ -137,7 +137,7 @@ function OrbitalRing() {
   return (
     <group ref={groupRef} rotation={[Math.PI * 0.3, 0, 0]}>
       {particles.map((p, i) => (
-        <OrbitalParticle key={i} {...p} index={i} />
+        <OrbitalParticle key={i} {...p} />
       ))}
     </group>
   );
@@ -148,13 +148,11 @@ function OrbitalParticle({
   radius,
   speed,
   size,
-  index,
 }: {
   angle: number;
   radius: number;
   speed: number;
   size: number;
-  index: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
 

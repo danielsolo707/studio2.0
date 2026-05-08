@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { readContent } from '@/lib/content';
+import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/project-meta';
 import { ProjectDetailClient } from './ProjectDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -15,14 +16,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const content = await readContent();
   const project = content.projects.find((p) => p.id === slug);
   if (!project) return { title: 'Project Not Found' };
+  const discipline = DISCIPLINE_LABELS[getProjectDiscipline(project)];
 
   return {
-    title: `${project.name} | MotionVerse`,
-    description: project.description,
+    title: `${project.name} | The Fluid Logic`,
+    description: `${discipline} - ${project.description}`,
     openGraph: {
-      title: `${project.name} | MotionVerse`,
-      description: project.description,
-      images: [{ url: project.imageUrl, width: 1200, height: 630 }],
+      title: `${project.name} | The Fluid Logic`,
+      description: `${discipline} - ${project.description}`,
+      images: project.imageUrl ? [{ url: project.imageUrl, width: 1200, height: 630 }] : [],
     },
   };
 }

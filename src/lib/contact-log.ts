@@ -64,8 +64,8 @@ export async function listMessages(limit = 100): Promise<StoredMessage[]> {
     .limit(limit)
     .toArray();
 
-  return docs.map((doc: any) => {
-    const { _id, replies = [], ...rest } = doc;
+return docs.map((doc: any) => {
+    const { _id: _removed, replies = [], ...rest } = doc;
     return {
       ...rest,
       replies,

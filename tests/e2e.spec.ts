@@ -53,6 +53,8 @@ test.describe('Portfolio Website E2E Tests', () => {
 
   test('contact form validation', async ({ page }) => {
     await page.goto('http://localhost:9002');
+    await page.locator('a[href="#contact"]').first().click();
+    await page.getByRole('button', { name: /let's talk/i }).click();
     
     // Fill invalid data
     await page.fill('input[name="name"]', 'A');
@@ -64,6 +66,22 @@ test.describe('Portfolio Website E2E Tests', () => {
     // Check validation errors appear
     const body = await page.locator('body').textContent();
     expect(body).toMatch(/character|invalid|10/i);
+  });
+
+  test('project filters and detail links work', async ({ page }) => {
+    await page.goto('http://localhost:9002');
+    await page.locator('a[href="#about"]').first().click();
+    await page.getByRole('button', { name: 'Creative Code', exact: true }).click();
+
+    await expect(page.getByRole('heading', { name: 'PORTFOLIO ADMIN SYSTEM' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'CHROME FLOW' })).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'All' }).click();
+    await expect(page.getByRole('heading', { name: 'CHROME FLOW' })).toBeVisible();
+
+    await page.getByRole('button', { name: /View PORTFOLIO ADMIN SYSTEM project/i }).click();
+    await expect(page.getByRole('link', { name: /github/i })).toBeVisible();
+    await expect(page.getByText('Creative Code / 2026')).toBeVisible();
   });
 
   test('dashboard login page loads', async ({ page }) => {

@@ -47,8 +47,8 @@ describe('TypographicHero', () => {
     render(<TypographicHero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('MOTION');
-    expect(heading).toHaveTextContent('DESIGNER');
+    expect(heading).toHaveTextContent('CREATIVE');
+    expect(heading).toHaveTextContent('DEVELOPER');
   });
 
   it('includes a <nav> landmark', () => {
@@ -67,7 +67,7 @@ describe('TypographicHero', () => {
    ProjectList
    ═════════════════════════════════════════════════════════ */
 describe('ProjectList', () => {
-  it('renders all 4 projects', () => {
+  it('renders all projects', () => {
     render(<ProjectList projects={content.projects} onProjectClick={vi.fn()} />);
     content.projects.forEach((p) => {
       // Each name appears twice (heading + sr-only SEO link)
@@ -81,25 +81,36 @@ describe('ProjectList', () => {
     expect(screen.getByText('SELECTED WORKS')).toBeInTheDocument();
   });
 
+  it('filters projects by discipline', () => {
+    render(<ProjectList projects={content.projects} onProjectClick={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Creative Code' }));
+    expect(screen.getByRole('heading', { name: 'PORTFOLIO ADMIN SYSTEM' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'CHROME FLOW' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'All' }));
+    expect(screen.getByRole('heading', { name: 'CHROME FLOW' })).toBeInTheDocument();
+  });
+
   it('calls onProjectClick when a project is clicked', () => {
     const onClick = vi.fn();
+    const chromeFlow = content.projects.find((p) => p.id === 'chrome-flow');
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
     // Use getAllByText and click the heading (first match)
     fireEvent.click(screen.getAllByText('CHROME FLOW')[0]);
-    expect(onClick).toHaveBeenCalledWith(content.projects[0]);
+    expect(onClick).toHaveBeenCalledWith(chromeFlow);
   });
 
   it('calls onProjectClick on Enter key', () => {
     const onClick = vi.fn();
+    const chromeFlow = content.projects.find((p) => p.id === 'chrome-flow');
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
     const btn = screen.getByLabelText(/CHROME FLOW/i);
     fireEvent.keyDown(btn, { key: 'Enter' });
-    expect(onClick).toHaveBeenCalledWith(content.projects[0]);
+    expect(onClick).toHaveBeenCalledWith(chromeFlow);
   });
 
   it('every project item has an aria-label', () => {
     render(<ProjectList projects={content.projects} onProjectClick={vi.fn()} />);
-    const buttons = screen.getAllByRole('button');
+    const buttons = screen.getAllByRole('button', { name: /View .* project/i });
     expect(buttons).toHaveLength(content.projects.length);
     buttons.forEach((btn) => expect(btn).toHaveAttribute('aria-label'));
   });
@@ -186,7 +197,7 @@ describe('ErrorBoundary', () => {
    AboutSection
    ═════════════════════════════════════════════════════════ */
 describe('AboutSection', () => {
-  it('renders the "CRAFTING DIGITAL MOVEMENT" heading', () => {
+  it('renders the creative developer heading', () => {
     render(
       <AboutSection
         label={content.about.label}
@@ -195,7 +206,7 @@ describe('AboutSection', () => {
         skills={content.about.skills}
       />,
     );
-    expect(screen.getByText(/CRAFTING/)).toBeInTheDocument();
+    expect(screen.getByText(/CREATIVE DEVELOPER/)).toBeInTheDocument();
   });
 
   it('lists skills', () => {
@@ -209,7 +220,7 @@ describe('AboutSection', () => {
     );
     expect(screen.getByText('AFTER EFFECTS')).toBeInTheDocument();
     expect(screen.getByText('BLENDER')).toBeInTheDocument();
-    expect(screen.getByText('CINEMA 4D')).toBeInTheDocument();
+    expect(screen.getByText('PYTHON')).toBeInTheDocument();
   });
 });
 
@@ -234,8 +245,8 @@ describe('Footer', () => {
    Project data integrity
    ═════════════════════════════════════════════════════════ */
 describe('Project data', () => {
-  it('has 4 projects with required fields', () => {
-    expect(content.projects).toHaveLength(4);
+  it('has projects with required fields and portfolio metadata', () => {
+    expect(content.projects.length).toBeGreaterThanOrEqual(4);
     content.projects.forEach((p) => {
       expect(p.id).toBeTruthy();
       expect(p.name).toBeTruthy();
@@ -244,6 +255,10 @@ describe('Project data', () => {
       expect(p.description).toBeTruthy();
       expect(p.tools).toBeTruthy();
       expect(p.category).toBeTruthy();
+      expect(p.discipline).toBeTruthy();
+      expect(p.status).toBeTruthy();
+      expect(p.role).toBeTruthy();
+      expect(p.links).toBeDefined();
     });
   });
 });

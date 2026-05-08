@@ -1,0 +1,61 @@
+Creative Developer Project Ideas
+================================
+
+1. Data to Motion Poster
+Build an interactive poster that turns a small dataset into animated typography, particles, or 3D motion. Keep the dataset simple: weather, music listening habits, personal productivity, city air quality, or movie ratings.
+Why it is good: It connects motion design, data visualization, and frontend code in one clear portfolio piece.
+Suggested stack: Next.js, Three.js or canvas, D3 scale utilities, JSON/CSV data.
+Reference: DATA STORM by Parse/Error on Behance - https://www.behance.net/gallery/114182579/DATA-STORM
+Reference: Winston Wang data visualization portfolio - https://winston-wang.com/portfolio/data-visualization/
+
+2. Audio-Reactive Motion System
+Build a browser-based visualizer where audio frequency bands control shapes, camera motion, color, and particle behavior. Add a short motion-design breakdown explaining why each frequency controls each visual layer.
+Why it is good: Employers immediately understand the mix of motion taste and technical implementation.
+Suggested stack: Web Audio API, Three.js, GLSL or canvas, optional exported video loop.
+Reference: 3D Audio Visualizer by Shreyans Tatiya - https://www.shreyanstatiya.tech/projects/audio-visualizer
+Reference: The Musical Web creative coding portfolio - https://the-musical-web-three.vercel.app/
+Reference: Audio-reactive blobs in TouchDesigner - https://alltd.org/audio-reactive-blobs-in-touchdesigner-visual-system-demo-feat-aluna-binder-sohani-2/
+
+3. ML Mood Board Classifier
+Create a small tool where a user uploads an image and the app extracts dominant colors, visual mood tags, and a suggested motion direction. You do not need a complex model at first; start with color analysis and a lightweight classifier/API later.
+Why it is good: It feels like a real creative workflow tool, not just a technical demo.
+Suggested stack: Next.js, image upload, color extraction, Python notebook or TensorFlow.js later.
+Reference: Interactive Classification for Deep Learning Interpretation - https://arxiv.org/abs/1806.05660
+Reference: Caltech 101 image dataset background - https://en.wikipedia.org/wiki/Caltech_101
+
+4. Scroll-Driven 3D Case Study
+Build a case study page where scrolling controls a 3D object, particle system, or motion timeline. Use it to explain one of your motion projects step by step: concept, simulation, render, compositing, final output.
+Why it is good: It upgrades your existing Behance-like presentation without replacing it.
+Suggested stack: Next.js, Three.js, Framer Motion or GSAP, project media.
+Reference: Ducklin 3D scroll-driven particle case study - https://ducklin.de/case-studies/particles.html
+Reference: Oscar Beamish interactive demos - https://oscarbeamish.dev/demos
+
+5. Creative Coding Lab
+Make a small gallery of 6-10 interactive sketches: cursor trails, procedural grids, typography distortion, noise fields, particle typography, image-to-particles. Each sketch should have a short note: goal, technique, what you learned.
+Why it is good: For a junior creative developer, small polished experiments can be stronger than one unfinished giant project.
+Suggested stack: p5.js, canvas, Three.js, React components.
+Reference: Ryan Gilbert interactive generative art - https://ryangilbert.me/phase2/inter_gen_art.html
+Reference: The Voxel Reactor creative coding / p5.js portfolio - https://mofairuzramlan.github.io/
+
+6. Data-Driven 3D Environment
+Create a simple 3D scene where real or semi-real data changes layout, lighting, density, or object behavior. Example: a city made from personal screen-time data, or a landscape generated from music listening patterns.
+Why it is good: It makes data feel spatial and cinematic, which matches your motion background.
+Suggested stack: Three.js, CSV/JSON, simple data normalization, camera controls.
+Reference: Complexity Science Gallery interactive data projects - https://www.complexity.science/
+Reference: Encephaloprints generative visuals from EEG data - https://encephaloprints.art/
+
+7. Portfolio Admin as a Product Case Study
+Turn your current admin dashboard into a serious case study: content model, uploads, messages, validation, project metadata, and why it helps maintain the portfolio.
+Why it is good: It proves practical software thinking and gives employers a real system to inspect.
+Suggested stack: Current Next.js app, screenshots, architecture diagram, GitHub README.
+Reference: Treat this as your own product/process case study rather than copying a visual reference.
+
+Suggested Build Order
+=====================
+
+1. Audio-Reactive Motion System
+2. Data to Motion Poster
+3. ML Mood Board Classifier
+4. Scroll-Driven 3D Case Study
+
+These four create the clearest story: motion taste, frontend interaction, data thinking, and beginner ML direction.

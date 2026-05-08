@@ -22,7 +22,7 @@ export async function getBucket(): Promise<GridFSBucket> {
 // Mock bucket for development
 function createMockBucket(): GridFSBucket {
   return {
-    openUploadStream: (filename: string, options?: any) => ({
+    openUploadStream: (_filename: string, _options?: unknown) => ({
       id: new ObjectId(),
       on: (event: string, callback: (...args: unknown[]) => void) => {
         if (event === 'finish') setTimeout(callback, 100);
@@ -30,18 +30,18 @@ function createMockBucket(): GridFSBucket {
       end: () => {},
       write: () => true
     }),
-    openDownloadStream: (id: ObjectId, options?: any) => ({
+    openDownloadStream: (_id: ObjectId, _options?: unknown) => ({
       on: (event: string, callback: (...args: unknown[]) => void) => {
         if (event === 'data') setTimeout(() => callback(Buffer.from('')), 100);
         if (event === 'end') setTimeout(callback, 200);
       },
       pipe: () => {}
     }),
-    find: (filter?: any) => ({
+    find: (_filter?: unknown) => ({
       toArray: async () => [],
       sort: () => ({ toArray: async () => [] })
     }),
-    delete: async (id: ObjectId) => {}
+    delete: async (_id: ObjectId) => {}
   } as unknown as GridFSBucket;
 }
 

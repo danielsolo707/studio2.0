@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Board, createEmptyBoard, addRandomTile, move, hasMoves, Direction, cloneBoard } from '@/lib/game2048';
@@ -107,6 +107,7 @@ export function Arcade2048() {
     if (state && typeof window !== 'undefined') {
       localStorage.setItem('arcade-2048-best', String(state.best));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.best]);
 
   const createParticles = (newValue: number, targetPosition: { x: number; y: number }) => {

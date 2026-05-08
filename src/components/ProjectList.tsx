@@ -7,18 +7,24 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TiltCard } from '@/components/three/TiltCard';
 import type { Project } from '@/types/project';
+import {
+  DISCIPLINE_LABELS,
+  getProjectDiscipline,
+  getProjectRole,
+  getProjectStatus,
+  STATUS_LABELS,
+} from '@/lib/project-meta';
 
-/**
- * Project grid with hover preview tooltips.
- *
- * Changes vs. original:
- * - Removed unused `onHover` prop
- * - Mouse-move throttled via RAF
- * - `sizes` added to `<Image />`
- * - Category column visible on desktop
- * - Focus-visible outline for keyboard users
- * - Tooltip clamped to viewport bounds & hidden on mobile
- */
+const FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'motion', label: DISCIPLINE_LABELS.motion },
+  { value: 'code', label: DISCIPLINE_LABELS.code },
+  { value: 'data', label: DISCIPLINE_LABELS.data },
+  { value: 'hybrid', label: DISCIPLINE_LABELS.hybrid },
+] as const;
+
+type ProjectFilter = (typeof FILTERS)[number]['value'];
+
 export function ProjectList({
   projects,
   onProjectClick,
@@ -33,8 +39,13 @@ export function ProjectList({
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [loadingPreviewId, setLoadingPreviewId] = useState<string | null>(null);
   const [errorPreviewId, setErrorPreviewId] = useState<string | null>(null);
-  const [retryNonce, setRetryNonce] = useState(0);
+  const [selectedFilter, setSelectedFilter] = useState<ProjectFilter>('all');
   const rafRef = useRef<number | null>(null);
+
+  const filteredProjects = projects.filter((project) => {
+    if (selectedFilter === 'all') return true;
+    return getProjectDiscipline(project) === selectedFilter;
+  });
 
   const handleSelect = useCallback(
     (project: Project) => {
@@ -74,8 +85,9 @@ export function ProjectList({
     setErrorPreviewId((prev) => (prev === id ? null : prev));
   }, []);
 
-  const startPreviewLoad = useCallback((id: string) => {
-    setLoadingPreviewId(id);
+  const startPreviewLoad = useCallback((project: Project) => {
+    if (!project.imageUrl) return;
+    setLoadingPreviewId(project.id);
     setErrorPreviewId(null);
   }, []);
 
@@ -87,64 +99,111 @@ export function ProjectList({
       onMouseMove={handleMouseMove}
     >
       <div className="max-w-7xl mx-auto">
-        <h2
-          id="works-heading"
-          className="font-headline text-[10px] tracking-[0.8em] text-[#DFFF00] mb-24 uppercase opacity-60 ml-6 md:ml-12"
-        >
-          SELECTED WORKS
-        </h2>
-
-        {projects.map((project) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            onMouseEnter={() => setActiveProject(project)}
-            onMouseLeave={() => setActiveProject(null)}
-            onClick={() => handleSelect(project)}
-            role="button"
-            tabIndex={0}
-            aria-label={`View ${project.name} project (${project.year}) — ${project.category}`}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleSelect(project);
-              }
-            }}
-            onFocus={() => setActiveProject(project)}
-            className="group border-b border-white/5 cursor-pointer transition-colors duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-8"
-          >
-            <TiltCard maxTilt={6} glareOpacity={0.0}>
-            <motion.div
-              whileHover={{ x: -10 }}
-              transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
-              style={{ willChange: 'transform' }}
-              className="py-8 md:py-12 flex items-center justify-between"
+        <div className="mb-20 flex flex-col gap-8 md:ml-12 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2
+              id="works-heading"
+              className="font-headline text-[10px] tracking-[0.8em] text-[#DFFF00] uppercase opacity-60"
             >
-              <div>
-                <h3 className="font-headline text-2xl md:text-5xl tracking-tighter text-[#DFFF00] bg-transparent transition-all duration-300 group-hover:drop-shadow-[0_0_10px_rgba(223,255,0,0.8)]">
-                  {project.name}
-                </h3>
-                <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 mt-1 block md:hidden">
-                  {project.category}
-                </span>
-              </div>
+              SELECTED WORKS
+            </h2>
+            <p className="mt-4 max-w-xl text-sm md:text-base text-white/45 font-body leading-relaxed">
+              Motion studies, practical code prototypes, and small data experiments.
+            </p>
+          </div>
 
-              <div className="flex items-center gap-8">
-                <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 hidden md:block">
-                  {project.category}
-                </span>
-                <span className="font-headline text-[10px] tracking-widest text-muted-foreground group-hover:text-[#DFFF00] opacity-50">
-                  {project.year}
-                </span>
-              </div>
+          <div className="flex flex-wrap gap-2" aria-label="Filter projects by discipline">
+            {FILTERS.map((filter) => {
+              const active = selectedFilter === filter.value;
+              return (
+                <button
+                  key={filter.value}
+                  type="button"
+                  onClick={() => setSelectedFilter(filter.value)}
+                  className={`h-9 px-4 border font-headline text-[9px] tracking-[0.25em] transition-colors ${
+                    active
+                      ? 'border-[#DFFF00] bg-[#DFFF00] text-black'
+                      : 'border-white/10 text-white/50 hover:border-[#DFFF00]/50 hover:text-[#DFFF00]'
+                  }`}
+                  aria-pressed={active}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {filteredProjects.map((project) => {
+          const discipline = getProjectDiscipline(project);
+          const status = getProjectStatus(project);
+          const role = getProjectRole(project);
+
+          return (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              onMouseEnter={() => {
+                setActiveProject(project);
+                startPreviewLoad(project);
+              }}
+              onMouseLeave={() => setActiveProject(null)}
+              onClick={() => handleSelect(project)}
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${project.name} project (${project.year}) - ${project.category}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSelect(project);
+                }
+              }}
+              onFocus={() => {
+                setActiveProject(project);
+                startPreviewLoad(project);
+              }}
+              className="group border-b border-white/5 cursor-pointer transition-colors duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-8"
+            >
+              <TiltCard maxTilt={6} glareOpacity={0.0}>
+                <motion.div
+                  whileHover={{ x: -10 }}
+                  transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+                  style={{ willChange: 'transform' }}
+                  className="py-8 md:py-12 flex items-center justify-between gap-6"
+                >
+                  <div>
+                    <h3 className="font-headline text-2xl md:text-5xl tracking-tighter text-[#DFFF00] bg-transparent transition-all duration-300 group-hover:drop-shadow-[0_0_10px_rgba(223,255,0,0.8)]">
+                      {project.name}
+                    </h3>
+                    <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 mt-1 block md:hidden">
+                      {DISCIPLINE_LABELS[discipline]} / {role}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-8">
+                    <span className="font-headline text-[9px] tracking-[0.3em] text-white/30 hidden md:block">
+                      {DISCIPLINE_LABELS[discipline]} / {STATUS_LABELS[status]}
+                    </span>
+                    <span className="font-headline text-[10px] tracking-widest text-muted-foreground group-hover:text-[#DFFF00] opacity-50">
+                      {project.year}
+                    </span>
+                  </div>
+                </motion.div>
+              </TiltCard>
             </motion.div>
-            </TiltCard>
-          </motion.div>
-        ))}
+          );
+        })}
 
-        {/* ─── Project links for SEO (visible to crawlers) ─── */}
+        {filteredProjects.length === 0 ? (
+          <div className="border border-white/10 py-16 px-6 text-center">
+            <p className="font-headline text-xs tracking-[0.35em] text-white/45">
+              NO PROJECTS IN THIS FILTER YET
+            </p>
+          </div>
+        ) : null}
+
         <nav aria-label="Project pages" className="sr-only">
           {projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}`}>
@@ -154,7 +213,6 @@ export function ProjectList({
         </nav>
       </div>
 
-      {/* ─── Hover preview tooltip (desktop only) ─── */}
       <AnimatePresence>
         {activeProject && (
           <motion.div
@@ -173,10 +231,10 @@ export function ProjectList({
             {(() => {
               const showError =
                 errorPreviewId === activeProject.id ||
-                failedImages.has(activeProject.id) ||
-                !activeProject.imageUrl;
+                failedImages.has(activeProject.id);
               const showLoading = loadingPreviewId === activeProject.id && !showError;
-              const src = activeProject.imageUrl ? `${activeProject.imageUrl}?r=${retryNonce}` : '';
+              const src = activeProject.imageUrl ? `${activeProject.imageUrl}` : '';
+              const discipline = getProjectDiscipline(activeProject);
 
               if (showLoading) {
                 return (
@@ -190,15 +248,19 @@ export function ProjectList({
                 );
               }
 
-              if (showError) {
+              if (showError || !activeProject.imageUrl) {
                 return (
-                  <div className="w-full h-full flex items-center justify-center bg-black/80">
-                    <div className="loader-ring" />
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-black/90 px-6 text-center">
+                    <div className="font-headline text-[10px] tracking-[0.35em] text-[#DFFF00]">
+                      {DISCIPLINE_LABELS[discipline]}
+                    </div>
+                    <div className="font-body text-sm text-white/50 leading-relaxed">
+                      {activeProject.role || activeProject.category}
+                    </div>
                   </div>
                 );
               }
 
-              startPreviewLoad(activeProject.id);
               return (
                 <Image
                   key={src}

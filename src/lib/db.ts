@@ -3,7 +3,7 @@ import { getEnvVar } from './env';
 
 let clientInstance: MongoClient | null = null;
 let clientPromise: Promise<MongoClient> | null = null;
-let isConnected = false;
+let _isConnected = false;
 
 function getMongoUri(): string {
   return getEnvVar('MONGODB_URI', 'mongodb://127.0.0.1:27017/portfolio');
@@ -22,7 +22,7 @@ async function getMongoClient(): Promise<MongoClient> {
       })
         .then(client => {
           clientInstance = client;
-          isConnected = true;
+          _isConnected = true;
           if (process.env.NODE_ENV === 'development' && !isLocalDev) {
             console.log('✅ MongoDB connected successfully (remote)');
           } else if (process.env.NODE_ENV === 'development') {
@@ -31,7 +31,7 @@ async function getMongoClient(): Promise<MongoClient> {
           return client;
         })
         .catch(error => {
-          isConnected = false;
+          _isConnected = false;
           // Only show error in production or for non-local development
           if (process.env.NODE_ENV === 'production' || !isLocalDev) {
             console.error('❌ MongoDB connection failed:', error.message);
@@ -54,8 +54,8 @@ async function getMongoClient(): Promise<MongoClient> {
 // Mock client for development when MongoDB is unavailable
 function createMockClient(): MongoClient {
   const mockClient = {
-    db: (dbName?: string) => ({
-      collection: (name: string) => {
+    db: (_dbName?: string) => ({
+      collection: (_name: string) => {
         const baseCollection = {
           find: () => {
             const queryResult = {

@@ -14,7 +14,7 @@ export function AboutForm({ initialData }: {
     skills: string[];
   };
 }) {
-  const [state, formAction, isPending] = useActionState(updateAboutAction, initialState);
+  const [state, formAction] = useActionState(updateAboutAction, initialState);
 
   return (
     <form action={formAction} className="space-y-4">

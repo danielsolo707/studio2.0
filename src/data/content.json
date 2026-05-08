@@ -1,18 +1,46 @@
 {
   "about": {
     "label": "ABOUT DANIEL",
-    "headline": "CRAFTING DIGITAL MOVEMENT",
-    "body": "I transform static ideas into dynamic visual narratives. Specializing in high-end motion graphics and immersive 3D experiences that bridge the gap between imagination and reality.",
+    "headline": "CREATIVE DEVELOPER IN MOTION",
+    "body": "I build small visual systems that connect motion graphics, interactive code, and early ML/data experiments. My work is still growing, but it is grounded in curiosity, clear process, and a love for turning abstract ideas into moving, usable things.",
     "skills": [
       "AFTER EFFECTS",
-      "CINEMA 4D",
       "BLENDER",
-      "UNREAL ENGINE",
-      "HOUDINI",
-      "NUKE"
+      "CINEMA 4D",
+      "REACT",
+      "NEXT.JS",
+      "PYTHON",
+      "DATA VISUALIZATION",
+      "ML BASICS"
     ]
   },
   "projects": [
+    {
+      "id": "signal-motion-lab",
+      "name": "SIGNAL MOTION LAB",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "",
+      "description": "A small creative coding prototype that turns simple data signals into motion-led visual states. Built as a bridge between my motion design background and my newer data/ML practice.",
+      "tools": "NEXT.JS / PYTHON / DATA VIZ",
+      "category": "HYBRID SYSTEM",
+      "discipline": "hybrid",
+      "status": "prototype",
+      "role": "Creative Developer",
+      "objective": "Show how a simple dataset can become a visual motion system instead of a static chart.",
+      "approach": "Map cleaned signal values to animation states, timing, scale and color so the motion language carries the data.",
+      "outcome": "A small hybrid prototype that explains the direction of my creative developer practice.",
+      "nextStep": "Turn the prototype into a live demo with user-uploaded CSV data and a short technical writeup.",
+      "links": [
+        {
+          "label": "Prototype Notes",
+          "url": "https://github.com",
+          "type": "github"
+        }
+      ],
+      "media": []
+    },
     {
       "id": "chrome-flow",
       "name": "CHROME FLOW",
@@ -23,6 +51,14 @@
       "description": "Experimental fluid simulation using high-viscosity liquid metal. Exploring the interplay between light and motion through procedural generation techniques.",
       "tools": "C4D / OCTANE / AE",
       "category": "MOTION DESIGN",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Motion Designer",
+      "objective": "Create a polished motion study around liquid metal, reflection and slow cinematic pacing.",
+      "approach": "Use 3D simulation, lighting and post-production to explore a single material system deeply.",
+      "outcome": "A focused motion piece that demonstrates visual taste, material direction and timing.",
+      "nextStep": "Add breakdown frames showing the simulation setup, lighting decisions and compositing passes.",
+      "links": [],
       "media": []
     },
     {
@@ -35,6 +71,40 @@
       "description": "A study on light dispersion and brushed aluminum reflections. Combining real-time rendering with post-production grading.",
       "tools": "BLENDER / NUKE / AE",
       "category": "EXPERIMENTAL",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Motion Designer",
+      "objective": "Explore how metallic surfaces and dispersion can create a quiet, premium visual identity.",
+      "approach": "Build a compact rendering study, then refine contrast, grading and reflection rhythm in post.",
+      "outcome": "A motion-focused visual study that keeps the Behance-style image sequence as the main evidence.",
+      "nextStep": "Add before/after frames and a short note about render and grading decisions.",
+      "links": [],
+      "media": []
+    },
+    {
+      "id": "portfolio-admin-system",
+      "name": "PORTFOLIO ADMIN SYSTEM",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "",
+      "description": "A practical admin workflow for managing portfolio content, uploads, messages, and project metadata. It is a small real-world development project focused on making the site easier to maintain.",
+      "tools": "NEXT.JS / TYPESCRIPT / SERVER ACTIONS",
+      "category": "CREATIVE CODE",
+      "discipline": "code",
+      "status": "prototype",
+      "role": "Frontend Developer",
+      "objective": "Make the portfolio easier to maintain without editing source files for every content update.",
+      "approach": "Use Next.js server actions, typed project metadata and an admin workflow for content, uploads and messages.",
+      "outcome": "A practical site-management prototype that proves frontend and product workflow thinking.",
+      "nextStep": "Replace placeholder links with the real repository and add screenshots of the admin flow.",
+      "links": [
+        {
+          "label": "GitHub",
+          "url": "https://github.com",
+          "type": "github"
+        }
+      ],
       "media": []
     },
     {
@@ -47,6 +117,14 @@
       "description": "Minimalist motion study in a low-gravity vacuum environment. Abstract forms that challenge perception of space and time.",
       "tools": "C4D / REDSHIFT / AE",
       "category": "ART DIRECTION",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Motion Designer",
+      "objective": "Build an abstract low-gravity scene with restraint, atmosphere and spatial tension.",
+      "approach": "Focus on minimal forms, controlled camera movement and soft contrast instead of visual overload.",
+      "outcome": "A cinematic motion study that shows pacing and art-direction judgment.",
+      "nextStep": "Add a short process note on references, camera movement and lighting constraints.",
+      "links": [],
       "media": []
     },
     {
@@ -59,6 +137,40 @@
       "description": "Procedural generation of monolithic architectural structures. Where mathematics meets cinematic visual storytelling.",
       "tools": "HOUDINI / UNREAL / AE",
       "category": "GENERATIVE",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Motion Designer",
+      "objective": "Connect procedural generation with cinematic architectural composition.",
+      "approach": "Generate monolithic forms, then treat the output like a designed scene rather than a raw procedural render.",
+      "outcome": "A generative motion project that sits naturally between technical systems and visual storytelling.",
+      "nextStep": "Document the procedural rules and show a few alternative outputs.",
+      "links": [],
+      "media": []
+    },
+    {
+      "id": "learning-data-notebook",
+      "name": "LEARNING DATA NOTEBOOK",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "",
+      "description": "A compact data science learning project for cleaning a small dataset, exploring patterns, and presenting the result visually. The focus is process, interpretation, and honest iteration.",
+      "tools": "PYTHON / PANDAS / NOTEBOOKS",
+      "category": "DATA/ML",
+      "discipline": "data",
+      "status": "learning-project",
+      "role": "ML/Data Experiment",
+      "objective": "Practice the full beginner data workflow: clean, explore, interpret and present a small dataset.",
+      "approach": "Use Python and notebooks to inspect patterns, then translate the result into a concise visual explanation.",
+      "outcome": "A modest but honest data project that shows learning process and interpretation.",
+      "nextStep": "Publish the notebook, add charts and write a one-page case study about what changed after cleaning.",
+      "links": [
+        {
+          "label": "Notebook",
+          "url": "https://github.com",
+          "type": "notebook"
+        }
+      ],
       "media": []
     }
   ]

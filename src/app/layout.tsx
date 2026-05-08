@@ -17,9 +17,9 @@ const syncopate = Syncopate({
 });
 
 export const metadata: Metadata = {
-  title: 'The Fluid Logic | Cinematic Motion Design',
-  description: 'A cinematic motion design portfolio experience.',
-  keywords: ['motion design', 'portfolio', '3D graphics', 'web animation', 'Three.js'],
+  title: 'The Fluid Logic | Creative Developer Portfolio',
+  description: 'A creative developer portfolio across motion graphics, creative code, and early ML/data experiments.',
+  keywords: ['creative developer', 'motion design', 'portfolio', 'data visualization', 'machine learning', 'Three.js'],
   authors: [{ name: 'Daniel Solo' }],
   icons: {
     icon: '/wave.svg',
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://motionverse.design',
-    title: 'The Fluid Logic | Cinematic Motion Design',
-    description: 'A cinematic motion design portfolio experience featuring immersive 3D graphics and smooth animations.',
+    title: 'The Fluid Logic | Creative Developer Portfolio',
+    description: 'A portfolio across motion graphics, creative code, and early ML/data experiments.',
     siteName: 'The Fluid Logic',
     images: [
       {
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'The Fluid Logic | Cinematic Motion Design',
-    description: 'A cinematic motion design portfolio experience featuring immersive 3D graphics and smooth animations.',
+    title: 'The Fluid Logic | Creative Developer Portfolio',
+    description: 'A portfolio across motion graphics, creative code, and early ML/data experiments.',
     images: ['/og-image.png'],
   },
   metadataBase: new URL('https://motionverse.design'),
@@ -65,8 +65,8 @@ const portfolioSchema = {
   name: 'Daniel Solo',
   url: 'https://motionverse.design',
   email: 'hello@daniel.design',
-  jobTitle: 'Motion Design Artist',
-  description: 'Cinematic motion design and 3D graphics specialist',
+  jobTitle: 'Creative Developer',
+  description: 'Creative developer working across motion graphics, interactive code, and early ML/data experiments',
   image: {
     '@type': 'ImageObject',
     url: 'https://motionverse.design/og-image.png',
@@ -81,7 +81,11 @@ const portfolioSchema = {
     'After Effects',
     'Cinema 4D',
     'Blender',
-    'Unreal Engine'
+    'React',
+    'Next.js',
+    'Python',
+    'Data Visualization',
+    'Machine Learning Basics'
   ],
   sameAs: [
     'https://instagram.com',
@@ -92,8 +96,8 @@ const portfolioSchema = {
 const portfolioCollectionSchema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'MotionVerse Portfolio',
-  description: 'A curated collection of cinematic motion design projects',
+  name: 'The Fluid Logic Portfolio',
+  description: 'A curated collection of motion, creative code, and data experiments',
   url: 'https://motionverse.design',
   creator: {
     '@id': 'https://motionverse.design/#person'

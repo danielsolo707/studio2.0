@@ -1,3 +1,19 @@
+export type ProjectDiscipline = 'motion' | 'code' | 'data' | 'hybrid';
+
+export type ProjectStatus =
+  | 'case-study'
+  | 'prototype'
+  | 'experiment'
+  | 'learning-project';
+
+export type ProjectLinkType = 'github' | 'demo' | 'notebook' | 'video';
+
+export interface ProjectLink {
+  label: string;
+  url: string;
+  type: ProjectLinkType;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -8,6 +24,14 @@ export interface Project {
   description: string;
   tools: string;
   category: string;
+  discipline?: ProjectDiscipline;
+  status?: ProjectStatus;
+  role?: string;
+  objective?: string;
+  approach?: string;
+  outcome?: string;
+  nextStep?: string;
+  links?: ProjectLink[];
   media: Array<{
     type: 'image' | 'video';
     url: string;
