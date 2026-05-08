@@ -9,8 +9,6 @@ import { finished } from 'stream/promises';
 
 export const runtime = 'nodejs';
 
-const IMAGE_MAX = 20 * 1024 * 1024; // 20MB
-const VIDEO_MAX = 200 * 1024 * 1024; // 200MB
 const THUMB_MAX_DIMENSION = 1600;
 
 function detectKind(file: File): 'image' | 'video' | 'unknown' {
@@ -42,20 +40,12 @@ export async function POST(request: NextRequest) {
     const projectId = (request.headers.get('x-project-id') || '').trim();
     const filename = request.headers.get('x-file-name') || 'upload.bin';
     const mimeType = request.headers.get('x-file-type') || request.headers.get('content-type') || 'application/octet-stream';
-    const contentLength = Number(request.headers.get('content-length') || 0);
     const kind = detectKind({ type: mimeType } as File);
     if (!projectId) {
       return NextResponse.json({ error: 'Missing project id' }, { status: 400 });
     }
     if (kind === 'unknown') {
       return NextResponse.json({ error: `Unsupported file type: ${mimeType}` }, { status: 400 });
-    }
-    const limit = kind === 'image' ? IMAGE_MAX : VIDEO_MAX;
-    if (contentLength && contentLength > limit) {
-      return NextResponse.json(
-        { error: `${filename} too large (${(contentLength / 1024 / 1024).toFixed(1)}MB). Max ${kind === 'image' ? '20MB' : '200MB'}.` },
-        { status: 400 },
-      );
     }
 
     const bucket = await getBucket();
@@ -87,14 +77,8 @@ export async function POST(request: NextRequest) {
 
     const nodeStream = Readable.fromWeb(request.body as any);
     const imageChunks: Buffer[] = [];
-    let total = 0;
 
     nodeStream.on('data', (chunk: Buffer) => {
-      total += chunk.length;
-      if (total > limit) {
-        nodeStream.destroy(new Error(`${filename} too large. Limit ${kind === 'image' ? '20MB' : '200MB'}`));
-        return;
-      }
       if (kind === 'image') imageChunks.push(chunk);
     });
 

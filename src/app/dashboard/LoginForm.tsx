@@ -3,10 +3,11 @@
 import { useActionState, useState } from 'react';
 import { loginAction } from './actions';
 import { TwoFactorForm } from './TwoFactorForm';
+import { Turnstile } from './Turnstile';
 
 const initialState: { error?: string; needs2FA?: boolean } = {};
 
-export function LoginForm() {
+export function LoginForm({ turnstileSiteKey }: { turnstileSiteKey?: string }) {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
   const [show2FA, setShow2FA] = useState(false);
 
@@ -43,6 +44,8 @@ export function LoginForm() {
           className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm focus:border-[#DFFF00]/50 focus:outline-none"
         />
       </div>
+
+      {turnstileSiteKey && <Turnstile siteKey={turnstileSiteKey} />}
 
       <button
         type="submit"

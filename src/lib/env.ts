@@ -43,6 +43,10 @@ export const config = {
   
   // 2FA
   totpSecret: getEnvVar('TOTP_SECRET', ''),
+
+  // CAPTCHA (Cloudflare Turnstile)
+  turnstileSiteKey: getEnvVar('TURNSTILE_SITE_KEY', ''),
+  turnstileSecretKey: getEnvVar('TURNSTILE_SECRET_KEY', ''),
 };
 
 // Validate critical environment variables in production

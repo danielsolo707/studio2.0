@@ -1,10 +1,11 @@
 import { readContent } from '@/lib/content';
 import { getSession } from '@/lib/auth';
+import { config } from '@/lib/env';
 import { is2FAEnabled } from '@/lib/totp';
 import { listMessages } from '@/lib/contact-log';
 import Link from 'next/link';
 import { LoginForm } from './LoginForm';
-import { MultiUploadField } from './MultiUploadField';
+import { ResumableUploadField } from './ResumableUploadField';
 import { TwoFactorSetup } from './TwoFactorSetup';
 import {
   deleteProjectAction,
@@ -63,7 +64,7 @@ export default async function DashboardPage() {
               Enter your credentials to manage About and Selected Works.
             </p>
           </div>
-          <LoginForm />
+          <LoginForm turnstileSiteKey={config.turnstileSiteKey || undefined} />
         </div>
       </main>
     );
@@ -203,7 +204,7 @@ export default async function DashboardPage() {
                 </form>
 
                 <div className="flex flex-wrap items-start gap-6 mt-4">
-                  <MultiUploadField projectId={project.id} />
+                  <ResumableUploadField projectId={project.id} />
 
                   <form action={deleteProjectAction}>
                     <input type="hidden" name="id" value={project.id} />

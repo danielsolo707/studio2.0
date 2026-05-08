@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { clearSession, getSession, setSession } from '@/lib/auth';
+import { config } from '@/lib/env';
 import { readContent, writeContent } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import type { Project } from '@/types/project';
@@ -51,6 +52,20 @@ async function requireAuth() {
   return session;
 }
 
+async function verifyTurnstile(token: string, secret: string): Promise<boolean> {
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret, response: token }),
+    });
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function loginAction(
   _prev: { error?: string; needs2FA?: boolean },
   formData: FormData,
@@ -58,6 +73,18 @@ export async function loginAction(
   const admin = getAdminCreds();
   if (!admin.pass) {
     return { error: 'Admin credentials are not configured' };
+  }
+
+  // Verify Turnstile CAPTCHA if configured
+  if (config.turnstileSecretKey) {
+    const turnstileToken = formData.get('cf-turnstile-response');
+    if (!turnstileToken) {
+      return { error: 'CAPTCHA verification required' };
+    }
+    const verified = await verifyTurnstile(String(turnstileToken), config.turnstileSecretKey);
+    if (!verified) {
+      return { error: 'CAPTCHA verification failed. Please try again.' };
+    }
   }
 
   const user = String(formData.get('username') || '').trim();
