@@ -7,20 +7,46 @@ import { LoginForm } from './LoginForm';
 import { MultiUploadField } from './MultiUploadField';
 import { TwoFactorSetup } from './TwoFactorSetup';
 import {
-  addProjectAction,
   deleteProjectAction,
   loginAction,
   logoutAction,
-  updateAboutAction,
   updateProjectAction,
   deleteMediaAction,
   reorderMediaAction,
 } from './actions';
 import { StatusBadge } from './StatusBadge';
 import { MediaPreview } from './MediaPreview';
+import { AboutForm } from './AboutForm';
+import { AddProjectForm } from './AddProjectForm';
 
 export default async function DashboardPage() {
-  const session = await getSession();
+  let session;
+  let content;
+  let twoFAEnabled = false;
+  let messages: any[] = [];
+  let unreadCount = 0;
+
+  try {
+    session = await getSession();
+    
+    if (session) {
+      // Fetch content and messages only if authenticated
+      content = await readContent();
+      twoFAEnabled = await is2FAEnabled();
+      
+      const rawMessages = await listMessages();
+      messages = rawMessages.map((m) => ({
+        ...m,
+        isRead: m.isRead ?? false,
+        archived: m.archived ?? false,
+      }));
+      unreadCount = messages.filter((m) => !m.isRead && !m.archived).length;
+    }
+  } catch (error) {
+    console.error('Dashboard data loading error:', error);
+    // Render login page if there are issues
+    session = null;
+  }
 
   if (!session) {
     return (
@@ -43,14 +69,16 @@ export default async function DashboardPage() {
     );
   }
 
-  const content = await readContent();
-  const twoFAEnabled = await is2FAEnabled();
-  const messages = (await listMessages()).map((m) => ({
-    ...m,
-    isRead: m.isRead ?? false,
-    archived: m.archived ?? false,
-  }));
-  const unreadCount = messages.filter((m) => !m.isRead && !m.archived).length;
+  // Ensure content is loaded before rendering
+  if (!content) {
+    return (
+      <main className="min-h-screen bg-[#030305] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white">Loading dashboard...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#030305] text-white px-4 md:px-10 py-8 md:py-10">
@@ -65,7 +93,10 @@ export default async function DashboardPage() {
           </p>
         </div>
         <form action={logoutAction} className="shrink-0">
-          <button className="px-4 py-2 border border-white/20 text-xs tracking-widest w-full">
+          <button 
+            type="submit"
+            className="px-4 py-2 border border-white/20 text-xs tracking-widest w-full hover:bg-white/10 transition-colors"
+          >
             SIGN OUT
           </button>
         </form>
@@ -74,53 +105,14 @@ export default async function DashboardPage() {
       <div className="grid gap-8 xl:grid-cols-[420px_1fr]">
         <div className="space-y-8">
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg">
-          <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00] mb-4">
-            ABOUT SECTION
-          </h2>
-          <form action={updateAboutAction} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-[10px] tracking-[0.3em] text-white/60 font-headline">LABEL</label>
-              <input
-                name="label"
-                defaultValue={content.about.label}
-                className="w-full bg-transparent border border-white/10 px-4 py-2"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] tracking-[0.3em] text-white/60 font-headline">HEADLINE</label>
-              <input
-                name="headline"
-                defaultValue={content.about.headline}
-                className="w-full bg-transparent border border-white/10 px-4 py-2"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] tracking-[0.3em] text-white/60 font-headline">BODY</label>
-              <textarea
-                name="body"
-                defaultValue={content.about.body}
-                rows={5}
-                className="w-full bg-transparent border border-white/10 px-4 py-2"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] tracking-[0.3em] text-white/60 font-headline">SKILLS (comma separated)</label>
-              <input
-                name="skills"
-                defaultValue={content.about.skills.join(', ')}
-                className="w-full bg-transparent border border-white/10 px-4 py-2"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full px-6 py-3 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em]"
-            >
-              UPDATE ABOUT
-            </button>
-          </form>
-        </section>
+            <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00] mb-4">
+              ABOUT SECTION
+            </h2>
+            <AboutForm initialData={content.about} />
+          </section>
 
           <TwoFactorSetup initialEnabled={twoFAEnabled} />
+          
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -139,7 +131,7 @@ export default async function DashboardPage() {
               </span>
               <Link
                 href="/dashboard/messages"
-                className="px-4 py-2 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em] hover:bg-[#d4ff00]"
+                className="px-4 py-2 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em] hover:bg-[#d4ff00] transition-colors"
               >
                 VIEW ALL MESSAGES
               </Link>
@@ -156,23 +148,55 @@ export default async function DashboardPage() {
             {content.projects.map((project) => (
               <div key={project.id} className="border border-white/10 p-6 bg-black/30 rounded-lg">
                 <form action={updateProjectAction} className="grid gap-3 md:grid-cols-2">
-                  <input name="id" defaultValue={project.id} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="name" defaultValue={project.name} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="year" defaultValue={project.year} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="category" defaultValue={project.category} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="tools" defaultValue={project.tools} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="color" defaultValue={project.color} className="bg-transparent border border-white/10 px-3 py-2" />
-                  <input name="imageUrl" defaultValue={project.imageUrl} className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2" />
-                  <input name="videoUrl" defaultValue={project.videoUrl || ''} className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2" />
+                  <input 
+                    name="id" 
+                    defaultValue={project.id} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="name" 
+                    defaultValue={project.name} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="year" 
+                    defaultValue={project.year} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="category" 
+                    defaultValue={project.category} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="tools" 
+                    defaultValue={project.tools} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="color" 
+                    defaultValue={project.color} 
+                    className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="imageUrl" 
+                    defaultValue={project.imageUrl} 
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
+                  <input 
+                    name="videoUrl" 
+                    defaultValue={project.videoUrl || ''} 
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+                  />
                   <textarea
                     name="description"
                     defaultValue={project.description}
                     rows={3}
-                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2"
+                    className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2 focus:border-[#DFFF00]/50 focus:outline-none"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#DFFF00] text-black text-xs tracking-widest"
+                    className="px-4 py-2 bg-[#DFFF00] text-black text-xs tracking-widest hover:bg-[#d4ff00] transition-colors"
                   >
                     UPDATE
                   </button>
@@ -183,7 +207,10 @@ export default async function DashboardPage() {
 
                   <form action={deleteProjectAction}>
                     <input type="hidden" name="id" value={project.id} />
-                    <button className="px-3 py-2 border border-red-500/50 text-red-300 text-xs tracking-widest">
+                    <button 
+                      type="submit"
+                      className="px-3 py-2 border border-red-500/50 text-red-300 text-xs tracking-widest hover:bg-red-500/10 transition-colors"
+                    >
                       DELETE
                     </button>
                   </form>
@@ -216,7 +243,7 @@ export default async function DashboardPage() {
                               <input type="hidden" name="direction" value="up" />
                               <button
                                 type="submit"
-                                className="px-2 py-1 border border-white/20 text-[11px] text-white/80 disabled:opacity-30"
+                                className="px-2 py-1 border border-white/20 text-[11px] text-white/80 disabled:opacity-30 hover:bg-white/10 transition-colors"
                                 disabled={idx === 0}
                                 aria-label="Move media up"
                               >
@@ -229,7 +256,7 @@ export default async function DashboardPage() {
                               <input type="hidden" name="direction" value="down" />
                               <button
                                 type="submit"
-                                className="px-2 py-1 border border-white/20 text-[11px] text-white/80 disabled:opacity-30"
+                                className="px-2 py-1 border border-white/20 text-[11px] text-white/80 disabled:opacity-30 hover:bg-white/10 transition-colors"
                                 disabled={idx === media.length - 1}
                                 aria-label="Move media down"
                               >
@@ -248,7 +275,10 @@ export default async function DashboardPage() {
                               {'thumbFileId' in m && (m as any).thumbFileId ? (
                                 <input type="hidden" name="thumbFileId" value={(m as any).thumbFileId} />
                               ) : null}
-                              <button className="text-xs text-red-300 border border-red-500/40 px-2 py-1">
+                              <button 
+                                type="submit"
+                                className="text-xs text-red-300 border border-red-500/40 px-2 py-1 hover:bg-red-500/10 transition-colors"
+                              >
                                 REMOVE
                               </button>
                             </form>
@@ -265,23 +295,9 @@ export default async function DashboardPage() {
 
           <div className="mt-10 border border-white/10 p-6 bg-black/30 rounded-lg">
             <h3 className="font-headline text-xs tracking-[0.3em] mb-4">ADD PROJECT</h3>
-            <form action={addProjectAction} className="grid gap-3 md:grid-cols-2">
-              <input name="id" placeholder="slug (e.g. my-project)" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="name" placeholder="name" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="year" placeholder="year" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="category" placeholder="category" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="tools" placeholder="tools" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="color" placeholder="#DFFF00" className="bg-transparent border border-white/10 px-3 py-2" />
-              <input name="imageUrl" placeholder="image URL" className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2" />
-              <input name="videoUrl" placeholder="video URL (optional)" className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2" />
-              <textarea name="description" placeholder="description" rows={3} className="bg-transparent border border-white/10 px-3 py-2 md:col-span-2" />
-              <button type="submit" className="px-4 py-2 bg-[#DFFF00] text-black text-xs tracking-widest">
-                ADD
-              </button>
-            </form>
+            <AddProjectForm />
           </div>
         </section>
-
       </div>
     </main>
   );

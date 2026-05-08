@@ -1,6 +1,14 @@
 export type Board = number[][];
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
+export type TilePosition = {
+  value: number;
+  row: number;
+  col: number;
+  mergedFrom?: [TilePosition, TilePosition]; // Track merged tiles
+  isNew?: boolean; // Track newly spawned tiles
+};
+
 export function createEmptyBoard(): Board {
   return Array.from({ length: 4 }, () => Array(4).fill(0));
 }

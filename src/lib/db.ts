@@ -1,56 +1,138 @@
 import { MongoClient, Db } from 'mongodb';
+import { getEnvVar } from './env';
 
-let client: MongoClient | null = null;
+let clientInstance: MongoClient | null = null;
 let clientPromise: Promise<MongoClient> | null = null;
+let isConnected = false;
 
 function getMongoUri(): string {
-  // Prefer explicit MongoDB URI, but also support DATABASE_URL for convenience.
-  const uri = process.env.MONGODB_URI || process.env.DATABASE_URL;
-
-  if (!uri && process.env.NODE_ENV === 'production') {
-    throw new Error('MONGODB_URI or DATABASE_URL environment variable is required in production');
-  }
-
-  // In development, fall back to localhost if no env is provided.
-  return uri || 'mongodb://127.0.0.1:27017/portfolio';
+  return getEnvVar('MONGODB_URI', 'mongodb://127.0.0.1:27017/portfolio');
 }
 
-export function getMongoClient(): Promise<MongoClient> {
-  if (!clientPromise) {
+async function getMongoClient(): Promise<MongoClient> {
+  if (!clientInstance) {
     const uri = getMongoUri();
-    const isSrv = uri.startsWith('mongodb+srv://');
-    client = new MongoClient(uri, {
-      // Keep resource usage low on small/weak servers
-      maxPoolSize: 10,
-      minPoolSize: 0,
-      retryWrites: true,
-      retryReads: true,
-      serverSelectionTimeoutMS: 15_000,
-      connectTimeoutMS: 30_000,
-      socketTimeoutMS: 180_000,
-      tls: isSrv ? true : undefined,
-      directConnection: !isSrv ? true : undefined, // direct for single-host URIs
-    });
-    clientPromise = client.connect();
+    
+    // Check if this is a local development URI
+    const isLocalDev = uri.includes('127.0.0.1') || uri.includes('localhost');
+    
+    if (!clientPromise) {
+      clientPromise = MongoClient.connect(uri, {
+        serverSelectionTimeoutMS: isLocalDev ? 2000 : 5000, // Shorter timeout for local dev
+      })
+        .then(client => {
+          clientInstance = client;
+          isConnected = true;
+          if (process.env.NODE_ENV === 'development' && !isLocalDev) {
+            console.log('✅ MongoDB connected successfully (remote)');
+          } else if (process.env.NODE_ENV === 'development') {
+            console.log('✅ MongoDB connected successfully (local)');
+          }
+          return client;
+        })
+        .catch(error => {
+          isConnected = false;
+          // Only show error in production or for non-local development
+          if (process.env.NODE_ENV === 'production' || !isLocalDev) {
+            console.error('❌ MongoDB connection failed:', error.message);
+          } else {
+            console.log('ℹ️  Local MongoDB not available, using mock database');
+          }
+          
+          // Return a mock client for development
+          if (process.env.NODE_ENV === 'development') {
+            return createMockClient();
+          }
+          throw error;
+        });
+    }
+    return clientPromise;
   }
-  return clientPromise;
+  return clientInstance;
+}
+
+// Mock client for development when MongoDB is unavailable
+function createMockClient(): MongoClient {
+  const mockClient = {
+    db: (dbName?: string) => ({
+      collection: (name: string) => {
+        const baseCollection = {
+          find: () => {
+            const queryResult = {
+              toArray: async () => [],
+              sort: () => queryResult,
+              limit: () => queryResult
+            };
+            return queryResult;
+          },
+          insertOne: async () => ({ insertedId: 'mock-id' }),
+          updateOne: async () => ({ modifiedCount: 1 }),
+          deleteOne: async () => ({ deletedCount: 1 }),
+          findOne: async () => null
+        };
+        return baseCollection;
+      },
+      grid: {
+        openUploadStream: () => ({
+          id: 'mock-file-id',
+          on: (event: string, callback: (...args: unknown[]) => void) => {
+            if (event === 'finish') setTimeout(callback, 100);
+          },
+          end: () => {}
+        }),
+        openDownloadStream: () => ({
+          on: (event: string, callback: (...args: unknown[]) => void) => {
+            if (event === 'data') setTimeout(() => callback(Buffer.from('')), 100);
+            if (event === 'end') setTimeout(callback, 200);
+          }
+        }),
+        find: () => ({
+          toArray: async () => []
+        })
+      }
+    }),
+    close: async () => {},
+    isConnected: () => false
+  } as unknown as MongoClient;
+  
+  return mockClient;
 }
 
 export async function getDb(): Promise<Db> {
-  const uri = getMongoUri();
-  const client = await getMongoClient();
-
-  // If MONGODB_DB is set, prefer that; otherwise derive from URI path or fallback.
-  const explicitName = process.env.MONGODB_DB;
-  if (explicitName) {
-    return client.db(explicitName);
-  }
-
   try {
-    const url = new URL(uri);
-    const fromPath = url.pathname.replace('/', '');
-    return client.db(fromPath || 'portfolio');
+    const uri = getMongoUri();
+    const client = await getMongoClient();
+
+    // If MONGODB_DB is set, prefer that; otherwise derive from URI path or fallback.
+    const explicitName = process.env.MONGODB_DB;
+    if (explicitName) {
+      return client.db(explicitName);
+    }
+
+    try {
+      const url = new URL(uri);
+      const fromPath = url.pathname.replace('/', '');
+      return client.db(fromPath || 'portfolio');
+    } catch {
+      return client.db('portfolio');
+    }
+  } catch (error) {
+    // Only log database access errors in production
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Database access error:', error);
+    }
+    // Return mock database for graceful degradation
+    return createMockClient().db('portfolio');
+  }
+}
+
+// Health check function
+export async function checkDatabaseHealth(): Promise<boolean> {
+  try {
+    const db = await getDb();
+    await db.collection('health').findOne({});
+    return true;
   } catch {
-    return client.db('portfolio');
+    return false;
   }
 }

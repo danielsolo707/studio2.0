@@ -1,7 +1,9 @@
 "use client"
 
 import React, { Suspense, lazy } from 'react';
+import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { MobileMenu } from '@/components/MobileMenu';
 
 const HeroCube = lazy(() =>
   import('@/components/three/HeroCube').then((m) => ({ default: m.HeroCube }))
@@ -30,27 +32,31 @@ export function TypographicHero() {
         style={{ opacity: headerOpacity }}
         className="fixed top-0 w-full flex justify-between items-center p-6 md:p-10 z-50 backdrop-blur-md bg-black/50 border-b border-white/10"
       >
-        <a href="/" className="font-headline text-[11px] font-bold tracking-[0.35em] text-white hover:text-[#DFFF00] transition-colors">
+        <Link href="/" className="font-headline text-[11px] font-bold tracking-[0.35em] text-white hover:text-[#DFFF00] transition-colors">
           THE FLUID LOGIC
-        </a>
+        </Link>
 
-        <nav aria-label="Main navigation" className="flex gap-4 md:gap-8">
-          <a
-            href="#about"
-            className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
-          >
-            ABOUT
-          </a>
-          <a
-            href="#contact"
-            className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
-          >
-            CONTACT
+{/* Desktop Navigation */}
+         <nav aria-label="Main navigation" className="hidden md:flex gap-4 md:gap-8">
+           <a
+             href="#about"
+             className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
+           >
+             ABOUT
+           </a>
+           <a
+             href="#contact"
+             className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
+           >
+             CONTACT
           </a>
           <span className="font-headline text-[9px] tracking-[0.3em] text-[#DFFF00] opacity-80">
             &copy;2026
           </span>
         </nav>
+
+        {/* Mobile Menu */}
+        <MobileMenu />
       </motion.header>
 
       {/* ─── Hero: text left + cube right ─── */}

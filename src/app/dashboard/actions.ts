@@ -13,8 +13,15 @@ import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import type { Project } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
 
-const ADMIN_USER = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'Abc138282';
+type ActionState = { error?: string };
+
+function getAdminCreds(): { user: string; pass: string | null } {
+  const user = process.env.ADMIN_USERNAME || 'admin';
+  const pass = process.env.ADMIN_PASSWORD;
+  if (pass) return { user, pass };
+  if (process.env.NODE_ENV === 'production') return { user, pass: null };
+  return { user, pass: 'change-me' };
+}
 
 /* ─── Zod schemas ─── */
 const aboutSchema = z.object({
@@ -48,10 +55,15 @@ export async function loginAction(
   _prev: { error?: string; needs2FA?: boolean },
   formData: FormData,
 ) {
+  const admin = getAdminCreds();
+  if (!admin.pass) {
+    return { error: 'Admin credentials are not configured' };
+  }
+
   const user = String(formData.get('username') || '').trim();
   const pass = String(formData.get('password') || '').trim();
 
-  if (user !== ADMIN_USER || pass !== ADMIN_PASS) {
+  if (user !== admin.user || pass !== admin.pass) {
     return { error: 'Invalid username or password' };
   }
 
@@ -61,7 +73,7 @@ export async function loginAction(
     return { needs2FA: true };
   }
 
-  await setSession(user);
+  await setSession(admin.user);
   redirect('/dashboard');
 }
 
@@ -81,7 +93,7 @@ export async function verify2FAAction(
   const config = await readTotpConfig();
   if (!config.enabled || !config.secret) {
     // 2FA not configured — shouldn't reach here, but handle gracefully
-    await setSession(ADMIN_USER);
+    await setSession(getAdminCreds().user);
     redirect('/dashboard');
   }
 
@@ -90,7 +102,7 @@ export async function verify2FAAction(
     return { error: 'Invalid code. Please try again.' };
   }
 
-  await setSession(ADMIN_USER);
+  await setSession(getAdminCreds().user);
   redirect('/dashboard');
 }
 
@@ -187,12 +199,15 @@ export async function replyMessageAction(_prev: { error?: string }, formData: Fo
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/messages');
     return {};
-  } catch (e) {
+} catch (e) {
     return { error: e instanceof Error ? e.message : 'Failed to send reply' };
   }
 }
 
-export async function updateAboutAction(formData: FormData) {
+export async function updateAboutAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   await requireAuth();
   const label = String(formData.get('label') || '').trim();
   const headline = String(formData.get('headline') || '').trim();
@@ -205,8 +220,7 @@ export async function updateAboutAction(formData: FormData) {
 
   const result = aboutSchema.safeParse({ label, headline, body, skills });
   if (!result.success) {
-    // Validation failed — redirect back (plain form, no useActionState)
-    redirect('/dashboard');
+    return { error: result.error.errors[0]?.message ?? 'Invalid input' };
   }
 
   const content = await readContent();
@@ -214,7 +228,7 @@ export async function updateAboutAction(formData: FormData) {
   await writeContent(content);
 
   revalidatePath('/');
-  redirect('/dashboard');
+  return { error: undefined };
 }
 
 function coerceProject(formData: FormData, existing?: Project): { data?: Project; error?: string } {
@@ -244,17 +258,21 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
   };
 }
 
-export async function addProjectAction(formData: FormData) {
+export async function addProjectAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   await requireAuth();
-  const content = await readContent();
   const { data: project, error } = coerceProject(formData);
 
   if (error || !project) {
-    redirect('/dashboard');
+    return { error: error ?? 'Invalid project data' };
   }
 
+  const content = await readContent();
+
   if (content.projects.some((p) => p.id === project.id)) {
-    redirect('/dashboard');
+    return { error: 'Project ID already exists' };
   }
 
   content.projects.push(project);
@@ -262,7 +280,7 @@ export async function addProjectAction(formData: FormData) {
 
   revalidatePath('/');
   revalidatePath('/projects');
-  redirect('/dashboard');
+  return { error: undefined };
 }
 
 export async function updateProjectAction(formData: FormData) {

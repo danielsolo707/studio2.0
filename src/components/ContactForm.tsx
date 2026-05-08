@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useActionState } from 'react';
+import React, { useActionState, useState } from 'react';
 import { submitContact, type ContactState } from '@/app/actions/contact';
 
-const initialState: ContactState = { success: false, message: '' };
+const initialState: ContactState = { success: false, message: '', errors: {} };
 
 /**
  * Contact form with zod validation via a Server Action.
@@ -12,9 +12,18 @@ const initialState: ContactState = { success: false, message: '' };
  */
 export function ContactForm() {
   const [state, formAction, isPending] = useActionState(submitContact, initialState);
+  const [formKey, setFormKey] = useState(0);
+
+  const handleSuccess = () => {
+    setFormKey(prev => prev + 1);
+  };
 
   return (
-    <form action={formAction} className="space-y-6 max-w-lg w-full" noValidate>
+    <form action={formAction} key={formKey} onSubmit={(e) => {
+      if (state.success) {
+        handleSuccess();
+      }
+    }} className="space-y-6 max-w-lg w-full" noValidate>
       <div>
         <label
           htmlFor="contact-name"
@@ -31,6 +40,9 @@ export function ContactForm() {
           placeholder="Your name"
           className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors"
         />
+        {state.errors?.name && (
+          <p className="text-xs text-red-400 mt-1">{state.errors.name}</p>
+        )}
       </div>
 
       <div>
@@ -49,6 +61,9 @@ export function ContactForm() {
           placeholder="your@email.com"
           className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors"
         />
+        {state.errors?.email && (
+          <p className="text-xs text-red-400 mt-1">{state.errors.email}</p>
+        )}
       </div>
 
       <div>
@@ -66,6 +81,9 @@ export function ContactForm() {
           placeholder="Tell me about your project..."
           className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors resize-none"
         />
+        {state.errors?.message && (
+          <p className="text-xs text-red-400 mt-1">{state.errors.message}</p>
+        )}
       </div>
 
       <button
@@ -76,12 +94,20 @@ export function ContactForm() {
         {isPending ? 'SENDING...' : 'SEND MESSAGE'}
       </button>
 
-      {state.message && (
+      {state.message && !state.success && (
         <p
           role="status"
-          className={`font-body text-sm text-center ${state.success ? 'text-[#DFFF00]' : 'text-red-400'}`}
+          className="font-body text-sm text-center text-red-400"
         >
           {state.message}
+        </p>
+      )}
+      {state.success && (
+        <p
+          role="status"
+          className="font-body text-sm text-center text-[#DFFF00]"
+        >
+          Message sent successfully! I will get back to you soon.
         </p>
       )}
     </form>

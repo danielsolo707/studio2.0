@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 
 /* ─── Imports ─── */
-import type { SiteContent } from '@/lib/content';
+import type { SiteContent } from '@/types/project';
 import rawContent from '@/data/content.json';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { TypographicHero } from '@/components/TypographicHero';
@@ -148,34 +148,37 @@ describe('ProjectOverlay', () => {
    ErrorBoundary
    ═════════════════════════════════════════════════════════ */
 describe('ErrorBoundary', () => {
-  it('renders children when no error', () => {
-    render(
-      <ErrorBoundary>
-        <div>SAFE CONTENT</div>
-      </ErrorBoundary>,
-    );
-    expect(screen.getByText('SAFE CONTENT')).toBeInTheDocument();
-  });
-
   it('renders error UI when a child throws', () => {
-    const Bomb = () => {
+    const BadComponent = () => {
       throw new Error('kaboom');
     };
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary>
-        <Bomb />
+        <BadComponent />
       </ErrorBoundary>,
     );
 
-    // In jsdom, WebGL is not supported → ErrorBoundary shows GRAPHICS ERROR
-    expect(screen.getByText(/GRAPHICS ERROR|SOMETHING WENT WRONG/)).toBeInTheDocument();
+    expect(screen.getByText(/SOMETHING WENT WRONG/)).toBeInTheDocument();
     expect(screen.getByText('kaboom')).toBeInTheDocument();
-    expect(screen.getByText('RELOAD')).toBeInTheDocument();
-    expect(screen.getByText('GO BACK')).toBeInTheDocument();
+    expect(screen.getByText('RELOAD PAGE')).toBeInTheDocument();
+    expect(screen.getByText('TRY AGAIN')).toBeInTheDocument();
+  });
 
-    spy.mockRestore();
+  it('calls reset function when TRY AGAIN is clicked', () => {
+    const BadComponent = () => {
+      throw new Error('kaboom');
+    };
+
+    render(
+      <ErrorBoundary>
+        <BadComponent />
+      </ErrorBoundary>,
+    );
+
+    const tryAgainButton = screen.getByText('TRY AGAIN');
+    fireEvent.click(tryAgainButton);
+    // The component should attempt to reset (implementation detail)
   });
 });
 

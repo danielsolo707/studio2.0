@@ -1,6 +1,6 @@
-'use client';
+"use client"
 
-import React, { Component, ReactNode, useEffect, useState } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -10,104 +10,110 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
-  webglSupported: boolean;
+  errorInfo?: ErrorInfo;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { 
-      hasError: false,
-      webglSupported: this.checkWebGLSupport()
-    };
-  }
+  public state: State = {
+    hasError: false
+  };
 
-  checkWebGLSupport(): boolean {
-    // SSR safe check
-    if (typeof document === 'undefined') {
-      return true; // Assume WebGL is supported on server
-    }
-    try {
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
-      return !!gl;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static getDerivedStateFromError(error: Error): Partial<State> {
+  public static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log error to console
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
-    // Detect WebGL-related errors
-    if (error.message?.includes('WebGL') || error.message?.includes('webgl')) {
-      console.warn('WebGL context error detected');
+    // Log to error reporting service in production
+    if (process.env.NODE_ENV === 'production') {
+      // Here you would typically send to an error reporting service
+      // like Sentry, Bugsnag, or similar
+      this.logErrorToService(error, errorInfo);
     }
+    
+    this.setState({
+      error,
+      errorInfo
+    });
   }
 
-  componentDidMount() {
-    // Setup WebGL context loss detection
-    if (typeof window !== 'undefined') {
-      window.addEventListener('webglcontextlost', this.handleWebGLContextLoss);
-      window.addEventListener('webglcontextrestored', this.handleWebGLContextRestored);
-    }
+  private logErrorToService(error: Error, errorInfo: ErrorInfo) {
+    // Mock error reporting - replace with actual service
+    const errorData = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      url: typeof window !== 'undefined' ? window.location.href : 'server',
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('Reporting error to service:', errorData);
+    // fetch('/api/errors', { method: 'POST', body: JSON.stringify(errorData) });
   }
 
-  componentWillUnmount() {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('webglcontextlost', this.handleWebGLContextLoss);
-      window.removeEventListener('webglcontextrestored', this.handleWebGLContextRestored);
-    }
-  }
-
-  handleWebGLContextLoss = () => {
-    console.warn('WebGL context lost');
+  private handleReset = () => {
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   };
 
-  handleWebGLContextRestored = () => {
-    console.info('WebGL context restored');
+  private handleReload = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
-  render() {
+  public render() {
     if (this.state.hasError) {
+      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      const isWebGLError = (this.state.webglSupported === false) || 
-        this.state.error?.message?.includes('WebGL');
-
+      // Default fallback UI
       return (
-        <div className="flex items-center justify-center min-h-screen bg-[#030305] text-white p-8">
-          <div className="max-w-md text-center space-y-4">
-            <h2 className="font-headline text-2xl text-[#DFFF00]">
-              {isWebGLError ? 'GRAPHICS ERROR' : 'SOMETHING WENT WRONG'}
-            </h2>
-            <p className="font-body text-sm text-white/60">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <p className="font-body text-xs text-white/40">
-              {isWebGLError 
-                ? 'WebGL/3D graphics are not supported or have encountered an issue. Try a different browser or device with GPU acceleration.'
-                : 'An unexpected error occurred. Try refreshing the page or using a different browser.'}
-            </p>
-            <div className="flex gap-3 pt-6">
+        <div className="min-h-screen bg-[#030305] flex items-center justify-center px-6">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="space-y-4">
+              <h2 className="font-headline text-2xl text-[#DFFF00] tracking-wider">
+                SOMETHING WENT WRONG
+              </h2>
+              <p className="font-body text-sm text-white/50">
+                {this.state.error?.message || 'An unexpected error occurred. Please try again.'}
+              </p>
+              
+              {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+                <details className="text-left bg-black/20 p-4 rounded border border-white/10">
+                  <summary className="font-headline text-xs text-[#DFFF00] cursor-pointer">
+                    ERROR DETAILS
+                  </summary>
+                  <pre className="font-mono text-xs text-white/70 mt-2 overflow-auto max-h-32">
+                    {this.state.error?.stack}
+                  </pre>
+                </details>
+              )}
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => window.location.reload()}
-                className="flex-1 px-6 py-3 bg-[#DFFF00] text-black font-headline text-xs tracking-wider hover:bg-[#DFFF00]/80 transition-colors"
+                onClick={this.handleReset}
+                className="px-6 py-3 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em] hover:bg-[#DFFF00]/80 transition-colors"
               >
-                RELOAD
+                TRY AGAIN
               </button>
               <button
-                onClick={() => window.history.back()}
-                className="flex-1 px-6 py-3 border border-[#DFFF00]/50 text-[#DFFF00] font-headline text-xs tracking-wider hover:bg-[#DFFF00]/10 transition-colors"
+                onClick={this.handleReload}
+                className="px-6 py-3 border border-white/20 text-white font-headline text-xs tracking-[0.3em] hover:border-white/40 transition-colors"
               >
-                GO BACK
+                RELOAD PAGE
               </button>
+            </div>
+            
+            <div className="pt-4 border-t border-white/10">
+              <p className="font-body text-xs text-white/30">
+                If this persists, please contact support.
+              </p>
             </div>
           </div>
         </div>

@@ -23,12 +23,12 @@ export function Footer() {
           Vimeo
         </a>
         <a
-          href="/arcade/2048"
-          aria-label="Open hidden 2048 arcade"
+          href="/arcade"
+          aria-label="Open hidden arcade"
           className="relative flex items-center gap-2 text-[9px] font-headline tracking-[0.3em] text-white/40 hover:text-[#ff9f43] transition-colors uppercase"
         >
           <span className="w-2 h-2 rounded-full bg-[#ff9f43] animate-pulse-soft shadow-[0_0_0_rgba(255,159,67,0.6)]" />
-          2048
+          ARCADE
         </a>
       </nav>
     </footer>

@@ -61,11 +61,5 @@ export async function setSession(user: string) {
 }
 
 export async function clearSession() {
-  (await cookies()).set(COOKIE_NAME, '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 0,
-  });
+  (await cookies()).delete(COOKIE_NAME);
 }
