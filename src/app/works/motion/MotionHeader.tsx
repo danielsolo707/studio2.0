@@ -14,11 +14,11 @@ export function MotionHeader() {
     >
       <div className="max-w-[1920px] mx-auto px-6 md:px-12 py-6 flex items-center justify-between">
         <Link
-          href="/#works"
+          href="/gateway"
           className="inline-flex items-center gap-2 font-headline text-[10px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
         >
           <ArrowLeft size={14} />
-          BACK TO HOME
+          BACK
         </Link>
         <div className="flex items-center gap-8">
           <Link

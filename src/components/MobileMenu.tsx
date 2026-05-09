@@ -80,25 +80,11 @@ export function MobileMenu() {
                     ABOUT
                   </a>
                   <a
-                    href="#works"
+                    href="/gateway"
                     onClick={closeMenu}
                     className="font-headline text-xl tracking-[0.3em] text-white/80 hover:text-[#DFFF00] transition-colors py-3"
                   >
-                    WORKS
-                  </a>
-                  <a
-                    href="/works/motion"
-                    onClick={closeMenu}
-                    className="font-headline text-lg tracking-[0.3em] text-white/50 hover:text-[#DFFF00] transition-colors py-3 pl-4 border-l border-white/10"
-                  >
-                    MOTION
-                  </a>
-                  <a
-                    href="/works/code"
-                    onClick={closeMenu}
-                    className="font-headline text-lg tracking-[0.3em] text-white/50 hover:text-[#DFFF00] transition-colors py-3 pl-4 border-l border-white/10"
-                  >
-                    CODE
+                    PROJECTS
                   </a>
                   <a
                     href="#contact"

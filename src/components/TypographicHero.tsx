@@ -25,14 +25,14 @@ interface TypographicHeroProps {
 export function TypographicHero({ headline, description }: TypographicHeroProps) {
   const { scrollYProgress } = useScroll();
 
-  const yMove = useTransform(scrollYProgress, [0, 0.4], [0, -150]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.4], [1, 1.05]);
+  const yMove = useTransform(scrollYProgress, [0, 0.4], [0, -80]);
+  const opacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.3], [1, 1.02]);
   return (
-    <div className="relative h-[100vh] z-40" role="banner">
+    <div className="relative h-[100vh] z-40 scroll-smooth" role="banner">
       {/* ─── Header ─── */}
       <motion.header
-        className="fixed top-0 w-full flex justify-between items-center p-6 md:p-10 z-50 backdrop-blur-md bg-black/50 border-b border-white/10"
+        className="fixed top-0 left-0 right-0 h-16 md:h-20 flex justify-between items-center px-6 md:px-10 z-50 backdrop-blur-md bg-black/50 border-b border-white/10"
       >
         <Link href="/" className="font-headline text-[11px] font-bold tracking-[0.35em] text-white hover:text-[#DFFF00] transition-colors">
           THE FLUID LOGIC
@@ -47,29 +47,17 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
               ABOUT
             </a>
             <a
-              href="#works"
+              href="/gateway"
               className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
             >
-              WORKS
+              PROJECTS
             </a>
             <a
-              href="/works/motion"
-              className="font-headline text-[9px] tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors"
-            >
-              MOTION
-            </a>
-            <a
-              href="/works/code"
-              className="font-headline text-[9px] tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors"
-            >
-              CODE
-            </a>
-<a
               href="#contact"
               className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
             >
               CONTACT
-           </a>
+            </a>
           </nav>
 
         {/* Mobile Menu */}
@@ -111,7 +99,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
               className="mt-8"
             >
               <a
-                href="#works"
+                href="/gateway"
                 className="inline-block px-8 py-3 bg-[#DFFF00] text-black font-headline text-[10px] tracking-[0.2em] hover:bg-[#DFFF00]/80 transition-all duration-300"
               >
                 VIEW WORKS

@@ -1,5 +1,5 @@
 import { TypographicHero } from '@/components/TypographicHero';
-import { ProjectSection } from '@/components/ProjectSection';
+import { FeaturedProjects } from '@/components/FeaturedProjects';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
 import { LoadingScreen } from '@/components/LoadingScreen';
@@ -39,7 +39,7 @@ export default async function Home() {
           headline={content.hero?.headline || 'CREATIVE\nDEVELOPER'}
           description={content.hero?.description || ''}
         />
-        <ProjectSection projects={content.projects} />
+        <FeaturedProjects projects={content.projects} maxProjects={3} />
         <AboutSection
           label={content.about.label}
           headline={content.about.headline}

@@ -14,7 +14,7 @@ export function CodeHeader() {
     >
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-6 flex items-center justify-between">
         <Link
-          href="/#works"
+          href="/gateway"
           className="inline-flex items-center gap-2 font-mono text-[12px] text-[#8b949e] hover:text-[#e6edf3] transition-colors"
         >
           <ArrowLeft size={14} />

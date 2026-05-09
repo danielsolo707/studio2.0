@@ -22,7 +22,7 @@ export function AboutSection({
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative z-20 min-h-[55vh] flex items-center px-6 md:px-16 py-12 bg-black/40 backdrop-blur-sm"
+      className="relative z-20 min-h-[55vh] flex items-center px-6 md:px-16 py-12 bg-black/40 backdrop-blur-sm scroll-mt-24 md:scroll-mt-32"
     >
       <div className="max-w-4xl">
         <motion.p
