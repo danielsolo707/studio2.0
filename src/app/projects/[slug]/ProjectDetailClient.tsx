@@ -2,11 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, FolderOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
-import { GalleryModal } from '@/components/GalleryModal';
 import {
   DISCIPLINE_LABELS,
   getProjectDiscipline,
@@ -17,12 +15,18 @@ import {
   STATUS_LABELS,
 } from '@/lib/project-meta';
 
-export function ProjectDetailClient({ project }: { project: Project }) {
+interface ProjectDetailClientProps {
+  project: Project;
+}
+
+export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(true);
   const [galleryIndex, setGalleryIndex] = useState(0);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [loadedSet, setLoadedSet] = useState<Set<string>>(new Set());
+
+  const isCode = getProjectDiscipline(project) === 'code';
 
   const baseGallery = project.media && project.media.length > 0
     ? project.media
@@ -50,16 +54,27 @@ export function ProjectDetailClient({ project }: { project: Project }) {
   const status = getProjectStatus(project);
   const role = getProjectRole(project);
   const links = getProjectLinks(project);
-  const proofPoints = [
-    { label: 'Objective', value: project.objective },
-    { label: 'Approach', value: project.approach },
-    { label: 'Outcome', value: project.outcome },
-    { label: 'Next Step', value: project.nextStep },
-  ].filter((item) => item.value && item.value.trim().length > 0);
+
+  const parseProofPoints = (description: string) => {
+    const points: { label: string; value: string }[] = [];
+    const labels = ['Objective:', 'Approach:', 'Outcome:', 'Next Step:'];
+    
+    labels.forEach((label) => {
+      const regex = new RegExp(`${label}[\\s\\n]([\\s\\S]*?)(?=${labels.join('|')}|$)`, 'i');
+      const match = description.match(regex);
+      if (match && match[1]?.trim()) {
+        points.push({ label: label.replace(': ', ''), value: match[1].trim() });
+      }
+    });
+    
+    return points;
+  };
+  
+  const proofPoints = parseProofPoints(project.description || '');
 
   const handleOpenGallery = (index: number = 0) => {
     setGalleryIndex(index);
-    setIsGalleryOpen(true);
+    setLightboxOpen(true);
   };
 
   const handleLoaded = (url: string) => {
@@ -86,6 +101,234 @@ export function ProjectDetailClient({ project }: { project: Project }) {
     return <ExternalLink size={16} />;
   };
 
+  // Code project styling
+  if (isCode) {
+    return (
+      <main className="min-h-screen bg-[#0d1117]">
+        {/* Header */}
+        <div className="border-b border-[#30363d] bg-[#161b22]">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 font-mono text-[12px] text-[#8b949e] hover:text-[#58a6ff] transition-colors"
+            >
+              <ArrowLeft size={14} /> cd ..
+            </button>
+          </div>
+        </div>
+
+        {/* Title Bar - No Hero Image */}
+        <div className="bg-[#0d1117] border-b border-[#30363d]">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
+            <div className="flex items-center gap-2 mb-3">
+              <Terminal className="w-5 h-5 text-[#7ee787]" />
+              <span className="font-mono text-[11px] text-[#8b949e]">~/projects/{project.id}</span>
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="font-mono text-2xl md:text-5xl text-[#e6edf3]">{project.name}</h1>
+                <div className="flex items-center gap-3 mt-3 font-mono text-[12px] text-[#8b949e]">
+                  <span className="text-[#79c0ff]">{project.category}</span>
+                  <span className="text-[#6e7681]">/</span>
+                  <span className="text-[#8b949e]">{project.year}</span>
+                  <span className="text-[#6e7681]">•</span>
+                  <span className="text-[#8b949e]">{project.tools}</span>
+                </div>
+              </div>
+              <span className={`inline-flex px-3 py-1.5 font-mono text-[11px] rounded ${
+                status === 'case-study'
+                  ? 'bg-[#238636]/20 text-[#7ee787]'
+                  : status === 'prototype'
+                  ? 'bg-[#1f6feb]/20 text-[#58a6ff]'
+                  : 'bg-[#8b949e]/20 text-[#8b949e]'
+              }`}>
+                {STATUS_LABELS[status]}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-12">
+          <div className="grid gap-8">
+            {/* Description */}
+            <div className="p-6 rounded-lg border border-[#30363d] bg-[#161b22]">
+              <div className="flex items-center gap-2 mb-4">
+                <FolderOpen className="w-4 h-4 text-[#58a6ff]" />
+                <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT OVERVIEW</span>
+              </div>
+              <p className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
+                {project.description}
+              </p>
+            </div>
+
+            {/* Links */}
+            {links.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {links.map((link) => (
+                  <a
+                    key={`${link.type}-${link.url}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 border border-[#30363d] px-4 py-2 font-mono text-[12px] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff] transition-colors rounded"
+                  >
+                    {getLinkIcon(link.type)}
+                    {link.label || LINK_TYPE_LABELS[link.type]}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* Meta */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">DISCIPLINE</span>
+                <span className="font-mono text-sm text-[#7ee787]">{DISCIPLINE_LABELS[discipline]}</span>
+              </div>
+              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">ROLE</span>
+                <span className="font-mono text-sm text-[#c9d1d9]">{role}</span>
+              </div>
+              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">YEAR</span>
+                <span className="font-mono text-sm text-[#c9d1d9]">{project.year}</span>
+              </div>
+              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">CATEGORY</span>
+                <span className="font-mono text-sm text-[#c9d1d9]">{project.category}</span>
+              </div>
+              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">TOOLS</span>
+                <span className="font-mono text-sm text-[#c9d1d9] truncate">{project.tools}</span>
+              </div>
+            </div>
+
+            {/* Proof Points */}
+            {proofPoints.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Code2 className="w-4 h-4 text-[#58a6ff]" />
+                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT DETAILS</span>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {proofPoints.map((point) => (
+                    <div key={point.label} className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+                      <span className="font-mono text-[10px] text-[#58a6ff] block mb-2">
+                        {point.label}:
+                      </span>
+                      <span className="font-mono text-sm text-[#c9d1d9]">
+                        {point.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Gallery */}
+            {orderedGallery.length > 0 && (
+              <div className="pt-8 border-t border-[#30363d]">
+                <div className="flex items-center gap-2 mb-6">
+                  <FolderOpen className="w-4 h-4 text-[#58a6ff]" />
+                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT GALLERY</span>
+                </div>
+                <div className="grid gap-6">
+                  {orderedGallery.map((m, idx) => (
+                    <motion.div
+                      key={m.url + idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5 }}
+                      className="relative cursor-pointer"
+                      onClick={() => handleOpenGallery(idx)}
+                    >
+                      <div className="relative w-full overflow-hidden rounded border border-[#30363d] bg-[#161b22]">
+                        {m.type === 'image' ? (
+                          <img
+                            src={m.url}
+                            alt={`${project.name} view ${idx + 1}`}
+                            className="w-full h-auto object-contain"
+                            loading="lazy"
+                            onLoad={() => handleLoaded(m.url)}
+                          />
+                        ) : (
+                          <div className="relative w-full aspect-video bg-black">
+                            <video
+                              src={m.url}
+                              className="w-full h-full object-cover"
+                              muted
+                              loop
+                              playsInline
+                              autoPlay
+                              onLoadedData={() => handleLoaded(m.url)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-12 pt-8 border-t border-[#30363d]">
+            <p className="font-mono text-[11px] text-[#6e7681]">
+              <span className="text-[#7ee787]">const</span> project = {'{'} id: <span className="text-[#a5d6ff]">"{project.id}"</span>, status: <span className="text-[#7ee787]">true</span> {'}'}
+            </p>
+          </div>
+        </div>
+
+        {/* Lightbox */}
+        {lightboxOpen && orderedGallery[galleryIndex] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-[#30363d] flex items-center justify-center hover:border-[#58a6ff] transition-colors"
+            >
+              <FolderOpen className="w-6 h-6 text-white" />
+            </button>
+            <motion.div
+              key={galleryIndex}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative max-w-[90vw] max-h-[85vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {orderedGallery[galleryIndex].type === 'image' ? (
+                <img
+                  src={orderedGallery[galleryIndex].url}
+                  alt={project.name}
+                  className="max-w-[90vw] max-h-[85vh] object-contain"
+                />
+              ) : (
+                <video
+                  src={orderedGallery[galleryIndex].url}
+                  className="max-w-[90vw] max-h-[85vh] object-contain"
+                  controls
+                  autoPlay
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </main>
+    );
+  }
+
+  // Original design for non-code projects (motion, etc)
   return (
     <main className="min-h-screen bg-[#030305]">
       <motion.div
@@ -109,15 +352,11 @@ export function ProjectDetailClient({ project }: { project: Project }) {
               const src = heroItem?.thumbUrl || heroItem?.url || project.imageUrl;
               if (!src) return null;
               return (
-                <Image
+                <img
                   src={src}
                   alt={project.name}
-                  fill
-                  sizes="100vw"
-                  priority
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="absolute inset-0 w-full h-full object-cover"
                   onError={() => setImageLoaded(false)}
-                  onLoadingComplete={() => heroItem?.url && handleLoaded(heroItem.url)}
                 />
               );
             })()}
@@ -218,12 +457,6 @@ export function ProjectDetailClient({ project }: { project: Project }) {
             </div>
             <div>
               <dt className="text-[10px] uppercase tracking-[0.5em] text-[#DFFF00] mb-4 font-headline">
-                ROLE
-              </dt>
-              <dd className="font-headline text-lg text-white">{role}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase tracking-[0.5em] text-[#DFFF00] mb-4 font-headline">
                 YEAR
               </dt>
               <dd className="font-headline text-lg text-white">{project.year}</dd>
@@ -248,12 +481,11 @@ export function ProjectDetailClient({ project }: { project: Project }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              aria-label="Project process"
             >
               {proofPoints.map((item) => (
                 <div key={item.label} className="border border-white/10 p-5 bg-white/[0.02]">
-                  <h2 className="font-headline text-[10px] tracking-[0.35em] text-[#DFFF00] mb-4 uppercase">
-                    {item.label}
+                  <h2 className="font-headline text-[10px] tracking-[0.35em] text-[#DFFF00] mb-4">
+                    {item.label}:
                   </h2>
                   <p className="font-body text-sm md:text-base text-white/60 leading-relaxed">
                     {item.value}
@@ -268,69 +500,45 @@ export function ProjectDetailClient({ project }: { project: Project }) {
               <p className="text-[10px] tracking-[0.4em] text-[#DFFF00] font-headline mb-12 text-center">
                 PROJECT GALLERY
               </p>
-              <div className="flex flex-col gap-12 md:gap-32">
-                {orderedGallery.map((m, idx) => {
-                  const loaded = loadedSet.has(m.url) || (m.thumbUrl && loadedSet.has(m.thumbUrl));
-                  const displayUrl = m.thumbUrl || m.url;
-                  return (
-                    <motion.div
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: '-10%' }}
-                      transition={{ duration: 0.8 }}
-                      key={m.url + idx}
-                      className="w-full relative cursor-pointer group"
-                      onClick={() => handleOpenGallery(idx)}
-                    >
-                      <div className="relative w-full overflow-hidden rounded-sm bg-gradient-to-br from-white/5 to-white/0">
-                        {!loaded && (
-                          <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-white/5 via-white/10 to-white/5" />
-                        )}
-                        {m.type === 'image' ? (
-                          <img
-                            src={displayUrl}
-                            data-full={m.url}
-                            alt={`${project.name} view ${idx + 1}`}
-                            className="w-full h-auto object-contain bg-black/20 hover:opacity-90 transition-opacity"
-                            loading="lazy"
-                            onLoad={(e) => {
-                              const full = (e.currentTarget.dataset.full as string) || m.url;
-                              handleLoaded(full);
-                              if (displayUrl !== full) handleLoaded(displayUrl);
-                            }}
+              <div className="flex flex-col gap-12">
+                {orderedGallery.map((m, idx) => (
+                  <motion.div
+                    key={m.url + idx}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="w-full cursor-pointer"
+                    onClick={() => handleOpenGallery(idx)}
+                  >
+                    <div className="relative w-full overflow-hidden">
+                      {m.type === 'image' ? (
+                        <img
+                          src={m.url}
+                          alt={`${project.name} view ${idx + 1}`}
+                          className="w-full h-auto object-contain"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="relative w-full aspect-video">
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            loop
+                            playsInline
+                            autoPlay
                           />
-                        ) : (
-                          <div className="relative w-full aspect-video bg-black/20">
-                            <video
-                              src={m.url}
-                              className="w-full h-full object-cover"
-                              muted
-                              loop
-                              playsInline
-                              autoPlay
-                              onLoadedData={() => handleLoaded(m.url)}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 duration-300">
-                              <PlayCircle className="text-white/80 w-20 h-20 drop-shadow-lg" strokeWidth={1} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           ) : null}
         </div>
       </div>
-
-      <GalleryModal
-        isOpen={isGalleryOpen}
-        onClose={() => setIsGalleryOpen(false)}
-        items={orderedGallery}
-        initialIndex={galleryIndex}
-      />
     </main>
   );
 }

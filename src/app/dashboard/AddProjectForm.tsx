@@ -111,48 +111,12 @@ export function AddProjectForm() {
         />
       </div>
       <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SHORT DESCRIPTION</p>
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DESCRIPTION</p>
         <textarea 
           name="description" 
-          placeholder="A brief description of the project..."
-          rows={3} 
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OBJECTIVE</p>
-        <textarea
-          name="objective"
-          placeholder="What is the goal or problem?"
-          rows={2}
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">APPROACH</p>
-        <textarea
-          name="approach"
-          placeholder="How did you build it?"
-          rows={2}
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">OUTCOME</p>
-        <textarea
-          name="outcome"
-          placeholder="What was the result?"
-          rows={2}
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">NEXT STEP</p>
-        <textarea
-          name="nextStep"
-          placeholder="What would you improve?"
-          rows={2}
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+          placeholder="Enter project details. Use titles like 'Objective:', 'Approach:', 'Outcome:', 'Next Step:' to organize your content."
+          rows={10} 
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-body text-sm" 
         />
       </div>
       <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">

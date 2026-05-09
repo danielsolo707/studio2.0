@@ -13,7 +13,7 @@ import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import type { Project, ProjectLink } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
 
-type ActionState = { error?: string };
+type ActionState = { error?: string; success?: boolean };
 
 function getAdminCreds(): { user: string; pass: string | null } {
   const user = process.env.ADMIN_USERNAME || 'admin';
@@ -40,14 +40,14 @@ const projectSchema = z.object({
   id: z.string().min(1, 'ID is required').regex(/^[a-z0-9-]+$/, 'ID must be lowercase alphanumeric with hyphens'),
   name: z.string().min(1, 'Name is required'),
   year: z.string().min(4, 'Year is required'),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color hex'),
+  color: z.string().optional().default('#DFFF00'),
   imageUrl: z.string(),
   videoUrl: z.string().optional().default(''),
   description: z.string().min(1, 'Description is required'),
   tools: z.string().min(1, 'Tools are required'),
   category: z.string().min(1, 'Category is required'),
   discipline: z.enum(['motion', 'code', 'data', 'hybrid']).default('motion'),
-  status: z.enum(['case-study', 'prototype', 'experiment', 'learning-project']).default('case-study'),
+  status: z.enum(['case-study', 'prototype', 'experiment', 'learning-project', 'showreel']).default('case-study'),
   role: z.string().optional().default(''),
   objective: z.string().optional().default(''),
   approach: z.string().optional().default(''),
@@ -445,5 +445,39 @@ export async function reorderMediaAction(formData: FormData) {
   revalidatePath('/dashboard');
   revalidatePath(`/projects/${id}`);
   redirect('/dashboard');
+}
+
+export async function updateOptionsAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return { error: 'Unauthorized' };
+    }
+
+    const updates: Record<string, string[]> = {}
+    
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === 'string') {
+        try {
+          updates[key] = JSON.parse(value)
+        } catch {
+          // Skip non-JSON values
+        }
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return { error: 'No valid options provided' };
+    }
+
+    const { updateOptions } = await import('@/lib/content')
+    await updateOptions(updates)
+
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to update options:', error)
+    return { error: 'Failed to update options' }
+  }
 }
 

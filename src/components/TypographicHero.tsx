@@ -39,29 +39,38 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
         </Link>
 
 {/* Desktop Navigation */}
-         <nav aria-label="Main navigation" className="hidden md:flex gap-4 md:gap-8">
-           <a
-             href="#about"
-             className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
-           >
-             ABOUT
+          <nav aria-label="Main navigation" className="hidden md:flex gap-4 md:gap-8">
+            <a
+              href="#about"
+              className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
+            >
+              ABOUT
+            </a>
+            <a
+              href="#works"
+              className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
+            >
+              WORKS
+            </a>
+            <a
+              href="/works/motion"
+              className="font-headline text-[9px] tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors"
+            >
+              MOTION
+            </a>
+            <a
+              href="/works/code"
+              className="font-headline text-[9px] tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors"
+            >
+              CODE
+            </a>
+<a
+              href="#contact"
+              className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
+            >
+              CONTACT
            </a>
-           <a
-             href="#works"
-             className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
-           >
-             WORKS
-           </a>
-          <a
-             href="#contact"
-             className="font-headline text-[9px] tracking-[0.3em] text-white/60 hover:text-[#DFFF00] transition-colors"
-           >
-             CONTACT
-          </a>
-          <span className="font-headline text-[9px] tracking-[0.3em] text-[#DFFF00] opacity-80">
-            &copy;2026
-          </span>
-        </nav>
+          </nav>
 
         {/* Mobile Menu */}
         <MobileMenu />

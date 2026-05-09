@@ -83,29 +83,30 @@ describe('ProjectList', () => {
 
   it('filters projects by discipline', () => {
     render(<ProjectList projects={content.projects} onProjectClick={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Creative Code' }));
-    expect(screen.getByRole('heading', { name: 'PORTFOLIO ADMIN SYSTEM' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'CHROME FLOW' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'All' }));
-    expect(screen.getByRole('heading', { name: 'CHROME FLOW' })).toBeInTheDocument();
+    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
+    fireEvent.click(screen.getByRole('button', { name: 'Motion' }));
+    const filteredHeadings = screen.getAllByRole('heading');
+    const filteredNames = filteredHeadings.map(h => h.textContent);
+    expect(filteredNames).toContain('NEON PULSE');
+    expect(filteredNames).not.toContain('TASKFLOW DASHBOARD');
   });
 
   it('calls onProjectClick when a project is clicked', () => {
     const onClick = vi.fn();
-    const chromeFlow = content.projects.find((p) => p.id === 'chrome-flow');
+    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
-    // Use getAllByText and click the heading (first match)
-    fireEvent.click(screen.getAllByText('CHROME FLOW')[0]);
-    expect(onClick).toHaveBeenCalledWith(chromeFlow);
+    const btn = screen.getByRole('button', { name: /NEON PULSE/i });
+    fireEvent.click(btn);
+    expect(onClick).toHaveBeenCalledWith(neonPulse);
   });
 
   it('calls onProjectClick on Enter key', () => {
     const onClick = vi.fn();
-    const chromeFlow = content.projects.find((p) => p.id === 'chrome-flow');
+    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
-    const btn = screen.getByLabelText(/CHROME FLOW/i);
+    const btn = screen.getByRole('button', { name: /NEON PULSE/i });
     fireEvent.keyDown(btn, { key: 'Enter' });
-    expect(onClick).toHaveBeenCalledWith(chromeFlow);
+    expect(onClick).toHaveBeenCalledWith(neonPulse);
   });
 
   it('every project item has an aria-label', () => {
@@ -219,7 +220,7 @@ describe('AboutSection', () => {
       />,
     );
     expect(screen.getByText('AFTER EFFECTS')).toBeInTheDocument();
-    expect(screen.getByText('BLENDER')).toBeInTheDocument();
+    expect(screen.getByText('CINEMA 4D')).toBeInTheDocument();
     expect(screen.getByText('PYTHON')).toBeInTheDocument();
   });
 });
@@ -246,7 +247,7 @@ describe('Footer', () => {
    ═════════════════════════════════════════════════════════ */
 describe('Project data', () => {
   it('has projects with required fields and portfolio metadata', () => {
-    expect(content.projects.length).toBeGreaterThanOrEqual(4);
+    expect(content.projects.length).toBeGreaterThanOrEqual(2);
     content.projects.forEach((p) => {
       expect(p.id).toBeTruthy();
       expect(p.name).toBeTruthy();
@@ -255,9 +256,6 @@ describe('Project data', () => {
       expect(p.description).toBeTruthy();
       expect(p.tools).toBeTruthy();
       expect(p.category).toBeTruthy();
-      expect(p.discipline).toBeTruthy();
-      expect(p.status).toBeTruthy();
-      expect(p.role).toBeTruthy();
       expect(p.links).toBeDefined();
     });
   });

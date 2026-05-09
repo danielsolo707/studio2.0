@@ -16,90 +16,227 @@
   },
   "projects": [
     {
-      "id": "chrome-flow",
-      "name": "CHROME FLOW",
+      "id": "neon-pulse",
+      "name": "NEON PULSE",
       "year": "2024",
-      "color": "#DFFF00",
-      "imageUrl": "",
+      "color": "#FF00FF",
+      "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&h=800&fit=crop",
       "videoUrl": "",
-      "description": "Experimental fluid simulation using high-viscosity liquid metal. Exploring the interplay between light and motion through procedural generation techniques.",
-      "tools": "C4D / OCTANE / AE",
+      "description": "A vibrant motion graphics piece exploring neon aesthetics and pulsing rhythms. This project combines geometric shapes with reactive lighting effects to create an hypnotic visual experience.",
+      "tools": "AFTER EFFECTS / AUDACITY",
       "category": "MOTION DESIGN",
       "discipline": "motion",
       "status": "case-study",
       "role": "Motion Designer",
-      "objective": "Create a polished motion study around liquid metal, reflection and slow cinematic pacing.",
-      "approach": "Use 3D simulation, lighting and post-production to explore a single material system deeply.",
-      "outcome": "A focused motion piece that demonstrates visual taste, material direction and timing.",
-      "nextStep": "Add breakdown frames showing the simulation setup, lighting decisions and compositing passes.",
-      "links": [],
-      "media": []
+      "objective": "Create a hypnotic visual experience that syncs perfectly with electronic music beats.",
+      "approach": "Built custom expressions in After Effects to create reactive shapes. Used particular for particle effects and added glow through adjustment layers.",
+      "outcome": "A 45-second loop suitable for music visualizers or social media content that received positive feedback from the target audience.",
+      "nextStep": "Add interactive controls for beat detection and color palette customization.",
+      "links": [
+        {
+          "label": "Watch Process",
+          "url": "https://vimeo.com",
+          "type": "video"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600&fit=crop"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&h=600&fit=crop"
+        }
+      ]
     },
     {
-      "id": "silver-shift",
-      "name": "SILVER SHIFT",
+      "id": "liquid-flow",
+      "name": "LIQUID FLOW",
       "year": "2024",
-      "color": "#DFFF00",
-      "imageUrl": "",
+      "color": "#00FFFF",
+      "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop",
       "videoUrl": "",
-      "description": "A study on light dispersion and brushed aluminum reflections. Combining real-time rendering with post-production grading.",
-      "tools": "BLENDER / NUKE / AE",
+      "description": "An abstract fluid simulation exploring organic motion and color blending. Created in Cinema 4D with Octane render, this piece focuses on the beauty of natural fluid dynamics.",
+      "tools": "CINEMA 4D / OCTANE / AFTER EFFECTS",
       "category": "EXPERIMENTAL",
       "discipline": "motion",
       "status": "case-study",
-      "role": "Motion Designer",
-      "objective": "Explore how metallic surfaces and dispersion can create a quiet, premium visual identity.",
-      "approach": "Build a compact rendering study, then refine contrast, grading and reflection rhythm in post.",
-      "outcome": "A motion-focused visual study that keeps the Behance-style image sequence as the main evidence.",
-      "nextStep": "Add before/after frames and a short note about render and grading decisions.",
-      "links": [],
-      "media": []
-    },
-    {
-      "id": "portfolio-admin-system",
-      "name": "PORTFOLIO ADMIN SYSTEM",
-      "year": "2026",
-      "color": "#DFFF00",
-      "imageUrl": "",
-      "videoUrl": "",
-      "description": "A practical admin workflow for managing portfolio content, uploads, messages, and project metadata. It is a small real-world development project focused on making the site easier to maintain.",
-      "tools": "NEXT.JS / TYPESCRIPT / SERVER ACTIONS",
-      "category": "CREATIVE CODE",
-      "discipline": "code",
-      "status": "prototype",
-      "role": "Frontend Developer",
-      "objective": "Make the portfolio easier to maintain without editing source files for every content update.",
-      "approach": "Use Next.js server actions, typed project metadata and an admin workflow for content, uploads and messages.",
-      "outcome": "A practical site-management prototype that proves frontend and product workflow thinking.",
-      "nextStep": "Replace placeholder links with the real repository and add screenshots of the admin flow.",
+      "role": "3D Artist & Motion Designer",
+      "objective": "Explore the intersection of organic forms and digital simulation to create visually striking abstract art.",
+      "approach": "Started with reference收集 of ink in water and oil mixing. Used Cinema 4D's Pyro solver for fluid simulation, then enhanced with Octane's volumetric lighting.",
+      "outcome": "A series of 5 abstract loopable animations that have been featured in digital art exhibitions and shared across creative platforms.",
+      "nextStep": "Create an interactive web version where users can control fluid parameters in real-time.",
       "links": [
         {
-          "label": "GitHub",
-          "url": "https://github.com",
+          "label": "Behance Gallery",
+          "url": "https://behance.net",
+          "type": "demo"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": "taskflow-dashboard",
+      "name": "TASKFLOW DASHBOARD",
+      "year": "2024",
+      "color": "#6366F1",
+      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
+      "videoUrl": "",
+      "description": "A sleek task management dashboard with real-time collaboration features. Built with modern React patterns and a clean, minimalist interface that prioritizes productivity.",
+      "tools": "NEXT.JS / REACT / TAILWIND CSS / MONGODB",
+      "category": "PRODUCTIVITY TOOL",
+      "discipline": "code",
+      "status": "case-study",
+      "role": "Frontend Developer",
+      "objective": "Design and build a fast, intuitive task management system that teams actually want to use.",
+      "approach": "Started with user research to understand pain points in existing tools. Used React Query for data fetching, optimistic updates for instant feedback, and a drag-and-drop system for task organization.",
+      "outcome": "A fully functional dashboard used by 3 small teams. Reduced daily planning time by 40% according to user feedback.",
+      "nextStep": "Add AI-powered task suggestions and automated workflow triggers based on team patterns.",
+      "links": [
+        {
+          "label": "Live Demo",
+          "url": "https://demo-taskflow.vercel.app",
+          "type": "demo"
+        },
+        {
+          "label": "View Code",
+          "url": "https://github.com/danielsolo707/taskflow",
           "type": "github"
         }
       ],
-      "media": []
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
+        }
+      ]
     },
     {
-      "id": "dark-mercury",
-      "name": "DARK MERCURY",
+      "id": "climate-viz",
+      "name": "CLIMATE VIZ",
       "year": "2023",
+      "color": "#10B981",
+      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
+      "videoUrl": "",
+      "description": "An interactive data visualization project that presents climate change data in an engaging, understandable way. Users can explore temperature trends, carbon emissions, and sea level changes through intuitive charts.",
+      "tools": "PYTHON / D3.JS / NEXT.JS / PANDAS",
+      "category": "DATA VISUALIZATION",
+      "discipline": "code",
+      "status": "prototype",
+      "role": "Data Visualization Engineer",
+      "objective": "Make complex climate data accessible and engaging for general audiences without sacrificing accuracy.",
+      "approach": "Processed raw climate datasets using Pandas, then created custom D3.js visualizations with smooth transitions. Added tooltips with detailed information and comparison features.",
+      "outcome": "A web application that presents 50 years of climate data through 15 interactive visualizations. Average session time of 8 minutes indicates deep engagement.",
+      "nextStep": "Add time-lapse animations showing decade-by-decade changes and integrate real-time current data feeds.",
+      "links": [
+        {
+          "label": "Explore Data",
+          "url": "https://climateviz.app",
+          "type": "demo"
+        },
+        {
+          "label": "Analysis Notebook",
+          "url": "https://github.com/danielsolo707/climate-viz",
+          "type": "notebook"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop"
+        },
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop"
+        }
+      ]
+    },
+    {
+      "id": "motion-ui-abstract",
+      "name": "Dynamic Interface Flow",
+      "year": "2025",
       "color": "#DFFF00",
       "imageUrl": "",
       "videoUrl": "",
-      "description": "Minimalist motion study in a low-gravity vacuum environment. Abstract forms that challenge perception of space and time.",
-      "tools": "C4D / REDSHIFT / AE",
-      "category": "ART DIRECTION",
+      "description": "Objective:\r\nTo create a high-energy, abstract motion piece that visualizes the fluid nature of modern user interfaces. The goal was to combine geometric precision with playful animations to create an engaging visual experience.\r\n\r\nApproach:\r\nI utilized a vibrant blue and yellow color palette to establish a high-contrast, \"tech-focused\" aesthetic. The animation focuses on \"falling\" elements and transforming UI windows, using smooth easing and bounce effects to give the abstract shapes a sense of weight and life.\r\n\r\nOutcome:\r\nThe final result is a seamless loop that captures the viewer's attention, perfect for hero headers or background motion. It demonstrates a mastery of timing, spatial organization, and the ability to turn static UI concepts into dynamic storytelling.\r\n\r\nNext Step:\r\nI plan to experiment with integrating similar 2D motion styles into interactive WebGL environments to bridge the gap between video and real-time interaction.",
+      "tools": "After Effects",
+      "category": "Motion Graphics",
       "discipline": "motion",
       "status": "case-study",
-      "role": "Motion Designer",
-      "objective": "Build an abstract low-gravity scene with restraint, atmosphere and spatial tension.",
-      "approach": "Focus on minimal forms, controlled camera movement and soft contrast instead of visual overload.",
-      "outcome": "A cinematic motion study that shows pacing and art-direction judgment.",
-      "nextStep": "Add a short process note on references, camera movement and lighting constraints.",
+      "role": "Motion Graphics",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
       "links": [],
-      "media": []
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/L06_UI_Main H_1920x1080.mp4",
+          "storage": "local"
+        }
+      ]
     }
-  ]
+  ],
+  "options": {
+    "statuses": [
+      "Case Study",
+      "Prototype",
+      "Experiment",
+      "Learning Project"
+    ],
+    "categories": [
+      "Motion Design",
+      "Experimental",
+      "Creative Code",
+      "Art Direction",
+      "Web App",
+      "Data Visualization",
+      "Productivity Tool"
+    ],
+    "tools": [
+      "React",
+      "Next.js",
+      "Python",
+      "TensorFlow",
+      "Three.js",
+      "Blender",
+      "After Effects",
+      "Cinema 4D",
+      "D3.js",
+      "Tailwind CSS",
+      "MongoDB",
+      "Octane"
+    ],
+    "disciplines": [
+      "Motion",
+      "Creative Code",
+      "Data/ML",
+      "Hybrid"
+    ],
+    "linkTypes": [
+      "GitHub",
+      "Demo",
+      "Notebook",
+      "Video"
+    ]
+  }
 }

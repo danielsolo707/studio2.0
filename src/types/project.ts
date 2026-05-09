@@ -4,7 +4,8 @@ export type ProjectStatus =
   | 'case-study'
   | 'prototype'
   | 'experiment'
-  | 'learning-project';
+  | 'learning-project'
+  | 'showreel';
 
 export type ProjectLinkType = 'github' | 'demo' | 'notebook' | 'video';
 
@@ -58,4 +59,21 @@ export interface SiteContent {
   hero?: HeroSection;
   about: AboutSection;
   projects: Project[];
+  options?: {
+    statuses?: string[];
+    categories?: string[];
+    tools?: string[];
+    disciplines?: string[];
+    linkTypes?: string[];
+    motion?: {
+      statuses?: string[];
+      categories?: string[];
+      tools?: string[];
+    };
+    code?: {
+      statuses?: string[];
+      categories?: string[];
+      tools?: string[];
+    };
+  };
 }

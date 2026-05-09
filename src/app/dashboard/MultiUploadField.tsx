@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Uppy from '@uppy/core'
 import Tus from '@uppy/tus'
 
@@ -15,7 +16,8 @@ type UploadItem = {
 }
 
 export function MultiUploadField({ projectId }: { projectId: string }) {
-  const [storageType, setStorageType] = useState<'gridfs' | 'local'>('gridfs')
+  const router = useRouter()
+  const [storageType, setStorageType] = useState<'gridfs' | 'local'>('local')
   const [items, setItems] = useState<UploadItem[]>([])
   const [uppy, setUppy] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -70,9 +72,8 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
           const uploadData = file.response?.uploadData as { url?: string; fileId?: string } | undefined
           saveToProject(file.name, file.type || 'application/octet-stream', uploadData)
         })
+        router.refresh()
       }
-
-      setTimeout(() => window.location.reload(), 500)
     })
 
     uppyInstance.on('error', (error: Error) => {
@@ -114,15 +115,15 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && uppy) {
-      const files = Array.from(e.target.files).map(f => ({
-        source: 'file-input',
-        name: f.name,
-        type: f.type,
-        data: f,
-        size: f.size,
-      }))
-      // Uppy expects specific format
-      uppy.addFile(files)
+      Array.from(e.target.files).forEach((f) => {
+        uppy.addFile({
+          source: 'file-input',
+          name: f.name,
+          type: f.type,
+          data: f,
+          size: f.size,
+        })
+      })
       e.target.value = ''
     }
   }, [uppy])

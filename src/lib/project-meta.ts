@@ -17,6 +17,7 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
   prototype: 'Prototype',
   experiment: 'Experiment',
   'learning-project': 'Learning Project',
+  showreel: 'Showreel',
 };
 
 export const LINK_TYPE_LABELS: Record<ProjectLinkType, string> = {

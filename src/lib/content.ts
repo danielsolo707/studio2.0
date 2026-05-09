@@ -2,6 +2,40 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { SiteContent } from '@/types/project';
 
+const LOCAL_STORAGE_KEY = 'portfolio_content';
+const USE_LOCAL_STORAGE = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_LOCAL_STORAGE === 'true';
+
+function getLocalStorageContent(): SiteContent | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored) as SiteContent;
+    }
+  } catch (e) {
+    console.error('Failed to read localStorage:', e);
+  }
+  return null;
+}
+
+function setLocalStorageContent(content: SiteContent): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(content));
+  } catch (e) {
+    console.error('Failed to write localStorage:', e);
+  }
+}
+
+export function clearLocalStorageContent(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(LOCAL_STORAGE_KEY);
+}
+
+export function getUseLocalStorage(): boolean {
+  return USE_LOCAL_STORAGE;
+}
+
 // Default content for fallback
 const DEFAULT_CONTENT: SiteContent = {
   hero: {
@@ -35,30 +69,59 @@ const DEFAULT_CONTENT: SiteContent = {
       links: [],
       media: []
     }
-  ]
+  ],
+  options: {
+    statuses: ['Case Study', 'Prototype', 'Experiment', 'Learning Project'],
+    categories: ['Web App', 'Data Visualization', 'Tool', 'Animation', 'Interactive', 'Experiment'],
+    tools: ['React', 'Next.js', 'Python', 'TensorFlow', 'Three.js', 'Blender', 'After Effects', 'Cinema 4D'],
+    disciplines: ['Motion', 'Creative Code', 'Data/ML', 'Hybrid'],
+    linkTypes: ['GitHub', 'Demo', 'Notebook', 'Video'],
+    motion: {
+      statuses: ['Case Study', 'Prototype', 'Experiment', 'Showreel'],
+      categories: ['Logo Animation', 'Title Sequence', 'Explainer Video', 'Motion Graphics', 'Visual Effects', 'Brand Film', 'Music Video', 'Social Media'],
+      tools: ['After Effects', 'Cinema 4D', 'Blender', 'Premiere Pro', 'Illustrator', 'Photoshop', 'Houdini', 'Nuke']
+    },
+    code: {
+      statuses: ['Case Study', 'Prototype', 'Experiment', 'Learning Project'],
+      categories: ['Web App', 'Website', 'Data Visualization', 'Tool', 'Interactive', 'Game', 'API/Backend', 'Machine Learning'],
+      tools: ['React', 'Next.js', 'TypeScript', 'Python', 'Node.js', 'Three.js', 'TensorFlow', 'PostgreSQL', 'MongoDB', 'Docker', 'Figma']
+    }
+  }
 };
 
 export async function readContent(): Promise<SiteContent> {
+  if (USE_LOCAL_STORAGE) {
+    const localData = getLocalStorageContent();
+    if (localData) {
+      return localData;
+    }
+  }
+
   try {
     const filePath = path.join(process.cwd(), 'src', 'data', 'content.json');
     const fileContents = await fs.readFile(filePath, 'utf8');
     const content = JSON.parse(fileContents) as SiteContent;
     
-    // Validate content structure
     if (!content.about || !content.projects) {
       console.warn('Invalid content structure, using defaults');
       return DEFAULT_CONTENT;
+    }
+    
+    if (USE_LOCAL_STORAGE) {
+      setLocalStorageContent(content);
     }
     
     return content;
   } catch (error) {
     console.error('Failed to read content file:', error);
     
-    // Try to create default content file if it doesn't exist
     try {
       const filePath = path.join(process.cwd(), 'src', 'data', 'content.json');
       await fs.writeFile(filePath, JSON.stringify(DEFAULT_CONTENT, null, 2));
       console.log('Created default content file');
+      if (USE_LOCAL_STORAGE) {
+        setLocalStorageContent(DEFAULT_CONTENT);
+      }
       return DEFAULT_CONTENT;
     } catch (writeError) {
       console.error('Failed to create default content file:', writeError);
@@ -68,12 +131,18 @@ export async function readContent(): Promise<SiteContent> {
 }
 
 export async function writeContent(content: SiteContent): Promise<void> {
+  if (USE_LOCAL_STORAGE) {
+    setLocalStorageContent(content);
+  }
+  
   try {
     const filePath = path.join(process.cwd(), 'src', 'data', 'content.json');
     await fs.writeFile(filePath, JSON.stringify(content, null, 2));
   } catch (error) {
-    console.error('Failed to write content file:', error);
-    throw new Error('Failed to save content');
+    if (!USE_LOCAL_STORAGE) {
+      console.error('Failed to write content file:', error);
+      throw new Error('Failed to save content');
+    }
   }
 }
 
@@ -115,5 +184,20 @@ export async function updateProject(projectId: string, updates: Partial<SiteCont
 export async function deleteProject(projectId: string): Promise<void> {
   const content = await readContent();
   content.projects = content.projects.filter((p: SiteContent['projects'][0]) => p.id !== projectId);
+  await writeContent(content);
+}
+
+export async function getOptions() {
+  const content = await readContent();
+  return content.options || DEFAULT_CONTENT.options;
+}
+
+export async function updateOptions(updates: Partial<SiteContent['options']>): Promise<void> {
+  const content = await readContent();
+  content.options = {
+    ...DEFAULT_CONTENT.options,
+    ...content.options,
+    ...updates
+  };
   await writeContent(content);
 }
