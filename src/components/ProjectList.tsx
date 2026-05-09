@@ -18,7 +18,7 @@ import {
 const FILTERS = [
   { value: 'all', label: 'All' },
   { value: 'motion', label: 'Motion' },
-  { value: 'data', label: 'Data/ML' },
+  { value: 'code', label: 'Code' },
 ] as const;
 
 type ProjectFilter = (typeof FILTERS)[number]['value'];

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, FolderOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import {
   DISCIPLINE_LABELS,
   getProjectDiscipline,
@@ -128,12 +129,15 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="font-mono text-2xl md:text-5xl text-[#e6edf3]">{project.name}</h1>
-                <div className="flex items-center gap-3 mt-3 font-mono text-[12px] text-[#8b949e]">
+                {project.subtitle && (
+                  <p className="font-mono text-sm text-[#8b949e] mt-2 max-w-xl">{project.subtitle}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 font-mono text-[12px] text-[#8b949e]">
                   <span className="text-[#79c0ff]">{project.category}</span>
                   <span className="text-[#6e7681]">/</span>
                   <span className="text-[#8b949e]">{project.year}</span>
                   <span className="text-[#6e7681]">•</span>
-                  <span className="text-[#8b949e]">{project.tools}</span>
+                  <span className="text-[#8b949e] truncate max-w-[200px] md:max-w-none">{project.tools}</span>
                 </div>
               </div>
               <span className={`inline-flex px-3 py-1.5 font-mono text-[11px] rounded ${
@@ -158,9 +162,9 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
                 <FolderOpen className="w-4 h-4 text-[#58a6ff]" />
                 <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT OVERVIEW</span>
               </div>
-              <p className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
-                {project.description}
-              </p>
+              <div className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
+                <MarkdownRenderer content={project.description} />
+              </div>
             </div>
 
             {/* Links */}
@@ -183,47 +187,38 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
 
             {/* Meta */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
                 <span className="font-mono text-[9px] text-[#8b949e] block mb-1">DISCIPLINE</span>
                 <span className="font-mono text-sm text-[#7ee787]">{DISCIPLINE_LABELS[discipline]}</span>
               </div>
-              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
                 <span className="font-mono text-[9px] text-[#8b949e] block mb-1">ROLE</span>
                 <span className="font-mono text-sm text-[#c9d1d9]">{role}</span>
               </div>
-              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
                 <span className="font-mono text-[9px] text-[#8b949e] block mb-1">YEAR</span>
                 <span className="font-mono text-sm text-[#c9d1d9]">{project.year}</span>
               </div>
-              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
                 <span className="font-mono text-[9px] text-[#8b949e] block mb-1">CATEGORY</span>
                 <span className="font-mono text-sm text-[#c9d1d9]">{project.category}</span>
               </div>
-              <div className="p-4 rounded bg-[#161b22] border border-[#30363d]">
+              <div className="col-span-2 md:col-span-1 p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
                 <span className="font-mono text-[9px] text-[#8b949e] block mb-1">TOOLS</span>
-                <span className="font-mono text-sm text-[#c9d1d9] truncate">{project.tools}</span>
+                <span className="font-mono text-xs md:text-sm text-[#c9d1d9] break-all leading-tight">{project.tools}</span>
               </div>
             </div>
 
-            {/* Proof Points */}
-            {proofPoints.length > 0 && (
-              <div>
+            {/* Details */}
+            {project.details && (
+              <div className="border-t border-[#30363d] pt-6 mt-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Code2 className="w-4 h-4 text-[#58a6ff]" />
-                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT DETAILS</span>
+                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">DETAILS</span>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {proofPoints.map((point) => (
-                    <div key={point.label} className="p-4 rounded bg-[#161b22] border border-[#30363d]">
-                      <span className="font-mono text-[10px] text-[#58a6ff] block mb-2">
-                        {point.label}:
-                      </span>
-                      <span className="font-mono text-sm text-[#c9d1d9]">
-                        {point.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <p className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
+                  {project.details}
+                </p>
               </div>
             )}
 
@@ -380,6 +375,9 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           <div>
             <p className="text-[10px] tracking-[0.4em] text-[#DFFF00] font-headline">SELECTED WORK</p>
             <h1 className="font-headline text-3xl md:text-6xl text-white tracking-tight mt-2">{project.name}</h1>
+            {project.subtitle && (
+              <p className="text-white/50 font-body text-sm md:text-base mt-2 max-w-xl">{project.subtitle}</p>
+            )}
             <p className="text-white/60 font-body mt-2">
               {DISCIPLINE_LABELS[discipline]} / {project.year}
             </p>
@@ -473,27 +471,28 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
               </dt>
               <dd className="font-headline text-lg text-white">{project.tools}</dd>
             </div>
+            {project.details && (
+              <div className="min-w-[200px] border-t border-white/10 pt-6 mt-4">
+                <dt className="text-[10px] uppercase tracking-[0.5em] text-[#DFFF00] mb-4 font-headline">
+                  DETAILS
+                </dt>
+                <dd className="font-body text-base text-white/70 max-w-xs">{project.details}</dd>
+              </div>
+            )}
           </motion.dl>
 
-          {proofPoints.length > 0 ? (
-            <motion.section
-              className="grid gap-4 md:grid-cols-2 pt-12 border-t border-white/10"
+          {project.description && (
+            <motion.div
+              className="pt-12 border-t border-white/10"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-              {proofPoints.map((item) => (
-                <div key={item.label} className="border border-white/10 p-5 bg-white/[0.02]">
-                  <h2 className="font-headline text-[10px] tracking-[0.35em] text-[#DFFF00] mb-4">
-                    {item.label}:
-                  </h2>
-                  <p className="font-body text-sm md:text-base text-white/60 leading-relaxed">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </motion.section>
-          ) : null}
+              <p className="font-body text-lg md:text-xl text-white/60 leading-relaxed max-w-3xl">
+                {project.description}
+              </p>
+            </motion.div>
+          )}
 
           {orderedGallery.length > 0 ? (
             <div className="pt-24 border-t border-white/10">

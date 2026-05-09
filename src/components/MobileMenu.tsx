@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
@@ -9,6 +9,18 @@ export function MobileMenu() {
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
+
+  // Prevent scrolling when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -30,13 +42,13 @@ export function MobileMenu() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop - fully opaque */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMenu}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black z-[60] md:hidden"
             />
 
             {/* Menu panel */}
@@ -45,7 +57,7 @@ export function MobileMenu() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-black/90 backdrop-blur-xl border-l border-white/10 z-50 md:hidden"
+              className="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-[#030305] border-l border-white/10 z-[70] md:hidden"
               aria-label="Main navigation"
             >
               <div className="flex flex-col h-full p-6 pt-20">

@@ -140,7 +140,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
           </div>
 
           {/* Right — 3D interactive cube */}
-          <div className="relative w-full md:w-[55%] h-[50vh] md:h-full flex items-center justify-center pointer-events-auto md:-ml-12">
+          <div className="relative w-full md:w-[55%] h-[50vh] md:h-full flex items-center justify-center pointer-events-auto md:-ml-7">
             <Suspense fallback={
               <div className="w-48 h-48 border border-white/5 animate-pulse" />
             }>

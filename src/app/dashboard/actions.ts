@@ -39,6 +39,8 @@ const heroSchema = z.object({
 const projectSchema = z.object({
   id: z.string().min(1, 'ID is required').regex(/^[a-z0-9-]+$/, 'ID must be lowercase alphanumeric with hyphens'),
   name: z.string().min(1, 'Name is required'),
+  subtitle: z.string().optional().default(''),
+  details: z.string().optional().default(''),
   year: z.string().min(4, 'Year is required'),
   color: z.string().optional().default('#DFFF00'),
   imageUrl: z.string(),

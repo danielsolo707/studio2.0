@@ -7,6 +7,8 @@ import { SubmitButton } from '@/components/SubmitButton'
 import { ProjectLinks } from './ProjectLinks'
 import { MultiUploadField } from './MultiUploadField'
 import { EditableSelectField } from './EditableSelectField'
+import { RichTextEditor } from '@/components/RichTextEditor'
+import { MediaFields } from '@/components/MediaFields'
 
 type DisciplineOptions = {
   statuses: string[]
@@ -17,12 +19,11 @@ type DisciplineOptions = {
 type FormValues = {
   id?: string
   name?: string
+  subtitle?: string
   year?: string
   category?: string
   status?: string
   tools?: string
-  imageUrl?: string
-  videoUrl?: string
   description?: string
 }
 
@@ -50,6 +51,8 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
   const [tools, setTools] = useState(defaultTools)
   
   const [formValues, setFormValues] = useState<FormValues>({})
+  const [imageUrls, setImageUrls] = useState<string[]>([''])
+  const [videoUrls, setVideoUrls] = useState<string[]>([''])
 
   useEffect(() => {
     if (state?.success) {
@@ -57,6 +60,8 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
       setStatus(defaultStatus)
       setCategory(defaultCategory)
       setTools(defaultTools)
+      setImageUrls([''])
+      setVideoUrls([''])
     } else if (state?.values) {
       setFormValues(state.values)
       if (state.values.status) setStatus(fromKebabCase(state.values.status))
@@ -98,13 +103,23 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
-      <div>
+      <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">PROJECT NAME</p>
         <input 
           name="name" 
           value={getValue('name')}
           onChange={handleChange}
           placeholder="Chrome Flow"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SUBTITLE (SHORT DESCRIPTION)</p>
+        <input 
+          name="subtitle" 
+          value={getValue('subtitle')}
+          onChange={handleChange}
+          placeholder="A high-energy motion piece visualizing modern UI..."
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
@@ -146,34 +161,22 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
         />
       </div>
       <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MAIN IMAGE URL</p>
-        <input 
-          name="imageUrl" 
-          value={getValue('imageUrl')}
-          onChange={handleChange}
-          placeholder="https://example.com/image.jpg"
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">VIDEO URL (OPTIONAL)</p>
-        <input 
-          name="videoUrl" 
-          value={getValue('videoUrl')}
-          onChange={handleChange}
-          placeholder="https://youtube.com/..."
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MEDIA URLs</p>
+        <MediaFields
+          images={imageUrls}
+          videos={videoUrls}
+          onImagesChange={setImageUrls}
+          onVideosChange={setVideoUrls}
         />
       </div>
       <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DESCRIPTION</p>
-        <textarea 
-          name="description" 
+        <RichTextEditor
+          name="description"
           value={getValue('description')}
-          onChange={handleChange}
-          placeholder="Enter project details. Use titles like 'Objective:', 'Approach:', 'Outcome:', 'Next Step:' to organize your content."
-          rows={10} 
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-body text-sm" 
+          onChange={(value) => setFormValues(prev => ({ ...prev, description: value }))}
+          placeholder="Enter a brief description of the project... Use **bold**, *italic*, - for lists, [text](url) for links."
+          rows={5}
         />
       </div>
       <ProjectLinks defaultType="video" />

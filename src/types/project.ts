@@ -23,6 +23,8 @@ export interface Project {
   imageUrl: string;
   videoUrl?: string;
   description: string;
+  subtitle?: string;
+  details?: string;
   tools: string;
   category: string;
   discipline?: ProjectDiscipline;
