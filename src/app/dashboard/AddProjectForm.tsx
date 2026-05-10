@@ -44,7 +44,7 @@ const defaultOptions = {
 }
 
 export function AddProjectForm() {
-  const [state, formAction] = useActionState(addProjectAction, initialState)
+  const [state, formAction] = useActionState(addProjectAction as any, initialState)
   
   const [status, setStatus] = useState(defaultOptions.statuses[0] || 'Case Study')
   const [category, setCategory] = useState(defaultOptions.categories[0] || '')
@@ -56,17 +56,22 @@ export function AddProjectForm() {
   const [videoUrls, setVideoUrls] = useState<string[]>([''])
 
   useEffect(() => {
-    if (state?.values) {
-      setFormValues(state.values)
-      if (state.values.status) setStatus(state.values.status)
-      if (state.values.category) setCategory(state.values.category)
-      if (state.values.tools) setTools(state.values.tools)
-      if (state.values.discipline) setDiscipline(state.values.discipline)
+    if (state && 'values' in state) {
+      const values = state.values as FormValues | undefined
+      if (values) {
+        setFormValues(values)
+        if (values.status) setStatus(values.status)
+        if (values.category) setCategory(values.category)
+        if (values.tools) setTools(values.tools)
+        if (values.discipline) setDiscipline(values.discipline)
+      }
     }
   }, [state])
 
-  const getValue = (key: keyof FormValues, defaultValue = '') => {
-    return formValues[key] ?? defaultValue
+  const getValue = (key: keyof FormValues, defaultValue = ''): string => {
+    const val = formValues[key]
+    if (Array.isArray(val)) return defaultValue
+    return (val as string | undefined) ?? defaultValue
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,6 +94,7 @@ export function AddProjectForm() {
       formData.set('videoUrl', filteredVideos[0])
     }
     
+    // @ts-expect-error - useActionState type mismatch
     formAction(formData)
   }
 

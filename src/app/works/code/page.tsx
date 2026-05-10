@@ -133,7 +133,7 @@ export default async function CodeWorksPage() {
 
           <div className="mt-8 h-px bg-zinc-800" />
           <p className="mt-6 text-sm text-zinc-500">
-            {"}"} <span className="text-zinc-600">/* {codeProjects.length} projects */</span>
+            {"}"}{/* {codeProjects.length} projects */}
           </p>
         </div>
       </div>

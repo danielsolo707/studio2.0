@@ -26,10 +26,10 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
   const [driveConnected, setDriveConnected] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const saveToProject = useCallback(async (filename: string, type: string, uploadData?: { url?: string; fileId?: string }) => {
+  const saveToProject = useCallback(async (filename: string, type: string, uploadData?: { url?: string; fileId?: string; storage?: string }) => {
     const url = uploadData?.url || `/uploads/${filename}`
     const fileId = uploadData?.fileId
-    const storage = uploadData ? 'local' : storageType
+    const storage = uploadData?.storage || storageType
     
     await fetch('/api/admin/upload/media', {
       method: 'POST',

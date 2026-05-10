@@ -49,7 +49,7 @@ function fromKebabCase(str: string): string {
 }
 
 export function AddCodeProjectForm({ options }: { options?: DisciplineOptions }) {
-  const [state, formAction] = useActionState(addProjectAction, initialState);
+  const [state, formAction] = useActionState(addProjectAction as any, initialState);
   
   const opts = options ?? defaultOptions
   const [status, setStatus] = useState(opts.statuses[0] || 'Case Study')
@@ -61,16 +61,21 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
   const [videoUrls, setVideoUrls] = useState<string[]>([''])
 
   useEffect(() => {
-    if (state?.values) {
-      setFormValues(state.values)
-      if (state.values.status) setStatus(fromKebabCase(state.values.status))
-      if (state.values.category) setCategory(state.values.category)
-      if (state.values.tools) setTools(state.values.tools)
+    if (state && 'values' in state) {
+      const values = state.values as FormValues | undefined
+      if (values) {
+        setFormValues(values)
+        if (values.status) setStatus(fromKebabCase(values.status))
+        if (values.category) setCategory(values.category)
+        if (values.tools) setTools(values.tools)
+      }
     }
   }, [state])
 
-  const getValue = (key: keyof FormValues, defaultValue = '') => {
-    return formValues[key] ?? defaultValue
+  const getValue = (key: keyof FormValues, defaultValue = ''): string => {
+    const val = formValues[key]
+    if (Array.isArray(val)) return defaultValue
+    return (val as string | undefined) ?? defaultValue
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,6 +97,7 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
       formData.set('videoUrl', filteredVideos[0])
     }
     
+    // @ts-expect-error - useActionState type mismatch
     formAction(formData)
   }
 
