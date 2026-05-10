@@ -2,6 +2,7 @@ import { readContent } from '@/lib/content';
 import { getSession } from '@/lib/auth';
 import { is2FAEnabled } from '@/lib/totp';
 import { listMessages } from '@/lib/contact-log';
+import { isDriveConfigured } from '@/lib/google-drive';
 import Link from 'next/link';
 import { LoginForm } from './LoginForm';
 import { MultiUploadField } from './MultiUploadField';
@@ -122,6 +123,29 @@ export default async function DashboardPage() {
           </section>
 
           <TwoFactorSetup initialEnabled={twoFAEnabled} />
+
+          <section className="border border-white/10 p-6 bg-black/30 rounded-lg space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00]">GOOGLE DRIVE</h2>
+                <p className="text-xs text-white/50 font-body">Import files from your Drive.</p>
+              </div>
+              <StatusBadge ok={isDriveConfigured()} label="DRIVE" />
+            </div>
+            <div id="drive-connect-container">
+              <a
+                href="/api/auth/google-drive/connect"
+                className={`inline-flex items-center gap-2 px-4 py-2 border text-xs font-headline tracking-[0.3em] transition-colors ${
+                  isDriveConfigured()
+                    ? 'border-[#DFFF00] text-[#DFFF00] hover:bg-[#DFFF00] hover:text-black'
+                    : 'border-white/20 text-white/40 cursor-not-allowed'
+                }`}
+                {...(!isDriveConfigured() ? { 'aria-disabled': true } : {})}
+              >
+                {isDriveConfigured() ? 'CONNECT TO GOOGLE DRIVE' : 'DRIVE NOT CONFIGURED'}
+              </a>
+            </div>
+          </section>
           
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg space-y-4">
             <div className="flex items-center justify-between gap-3">

@@ -7,7 +7,9 @@ import { deleteGridFsFile } from '@/lib/gridfs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { cookies } from 'next/headers';
 import { clearSession, getSession, setSession } from '@/lib/auth';
+import { validateCaptcha } from '@/lib/captcha';
 import { readContent, writeContent } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import type { Project, ProjectLink } from '@/types/project';
@@ -68,7 +70,7 @@ async function requireAuth() {
 }
 
 export async function loginAction(
-  _prev: { error?: string; needs2FA?: boolean },
+  _prev: { error?: string; needs2FA?: boolean; captchaError?: boolean },
   formData: FormData,
 ) {
   const admin = getAdminCreds();
@@ -78,12 +80,20 @@ export async function loginAction(
 
   const user = String(formData.get('username') || '').trim();
   const pass = String(formData.get('password') || '').trim();
+  const captchaAnswer = String(formData.get('captcha') || '').trim();
+
+  const cookieStore = await cookies();
+  const captchaCookie = cookieStore.get('login_captcha')?.value;
+  const isValidCaptcha = validateCaptcha(captchaCookie, parseInt(captchaAnswer, 10));
+
+  if (!isValidCaptcha) {
+    return { error: 'Invalid CAPTCHA answer', captchaError: true };
+  }
 
   if (user !== admin.user || pass !== admin.pass) {
     return { error: 'Invalid username or password' };
   }
 
-  // Check if 2FA is enabled
   const twoFAEnabled = await is2FAEnabled();
   if (twoFAEnabled) {
     return { needs2FA: true };

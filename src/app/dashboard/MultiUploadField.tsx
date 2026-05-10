@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { HardDrive } from 'lucide-react'
 import Uppy from '@uppy/core'
 import Tus from '@uppy/tus'
+import { DriveBrowser } from './DriveBrowser'
 
 type UploadItem = {
   id: string
@@ -20,7 +22,60 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
   const [storageType, setStorageType] = useState<'gridfs' | 'local'>('local')
   const [items, setItems] = useState<UploadItem[]>([])
   const [uppy, setUppy] = useState<any>(null)
+  const [showDriveBrowser, setShowDriveBrowser] = useState(false)
+  const [driveConnected, setDriveConnected] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const saveToProject = useCallback(async (filename: string, type: string, uploadData?: { url?: string; fileId?: string }) => {
+    const url = uploadData?.url || `/uploads/${filename}`
+    const fileId = uploadData?.fileId
+    const storage = uploadData ? 'local' : storageType
+    
+    await fetch('/api/admin/upload/media', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-project-id': projectId,
+      },
+      body: JSON.stringify({
+        url,
+        fileId,
+        storage,
+        type: type.startsWith('image') ? 'image' : 'video',
+      }),
+    })
+  }, [projectId, storageType])
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && uppy) {
+      Array.from(e.target.files).forEach((f) => {
+        uppy.addFile({
+          source: 'file-input',
+          name: f.name,
+          type: f.type,
+          data: f,
+          size: f.size,
+        })
+      })
+      e.target.value = ''
+    }
+  }, [uppy])
+
+  const startUpload = useCallback(() => {
+    if (uppy) {
+      uppy.upload()
+    }
+  }, [uppy])
+
+  const clearItems = useCallback(() => {
+    setItems([])
+    if (uppy) {
+      uppy.cancelAll()
+    }
+  }, [uppy])
+
+  const hasQueuedItems = items.some(i => i.status === 'queued')
+  const hasUploadingItems = items.some(i => i.status === 'uploading')
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -93,56 +148,25 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, storageType])
 
-  const saveToProject = async (filename: string, type: string, uploadData?: { url?: string; fileId?: string }) => {
-    const url = uploadData?.url || `/uploads/${filename}`
-    const fileId = uploadData?.fileId
-    const storage = uploadData ? 'local' : storageType
-    
-    await fetch('/api/admin/upload/media', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-project-id': projectId,
-      },
-      body: JSON.stringify({
-        url,
-        fileId,
-        storage,
-        type: type.startsWith('image') ? 'image' : 'video',
-      }),
-    })
+  useEffect(() => {
+    checkDriveConnection()
+  }, [])
+
+  const checkDriveConnection = async () => {
+    try {
+      const res = await fetch('/api/drive/status')
+      if (res.ok) {
+        setDriveConnected(true)
+      }
+    } catch {
+      setDriveConnected(false)
+    }
   }
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && uppy) {
-      Array.from(e.target.files).forEach((f) => {
-        uppy.addFile({
-          source: 'file-input',
-          name: f.name,
-          type: f.type,
-          data: f,
-          size: f.size,
-        })
-      })
-      e.target.value = ''
-    }
-  }, [uppy])
-
-  const startUpload = useCallback(() => {
-    if (uppy) {
-      uppy.upload()
-    }
-  }, [uppy])
-
-  const clearItems = useCallback(() => {
-    setItems([])
-    if (uppy) {
-      uppy.cancelAll()
-    }
-  }, [uppy])
-
-  const hasQueuedItems = items.some(i => i.status === 'queued')
-  const hasUploadingItems = items.some(i => i.status === 'uploading')
+  const handleFileImport = (url: string, kind: 'image' | 'video', filename: string) => {
+    saveToProject(url, kind, { url, storage: 'gridfs' })
+    setShowDriveBrowser(false)
+  }
 
   return (
     <div className="w-full max-w-xl border border-white/10 p-4 rounded-md">
@@ -203,6 +227,17 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
             CLEAR
           </button>
         )}
+        {driveConnected && (
+          <button
+            type="button"
+            onClick={() => setShowDriveBrowser(true)}
+            disabled={hasUploadingItems}
+            className="flex items-center gap-2 px-4 py-2 border border-white/30 text-xs tracking-widest hover:border-[#DFFF00]/50 hover:text-[#DFFF00] transition-colors disabled:opacity-40"
+          >
+            <HardDrive size={14} />
+            GOOGLE DRIVE
+          </button>
+        )}
       </div>
 
       {/* Upload Queue */}
@@ -255,6 +290,14 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
         <p>• Resumable - resumes automatically if interrupted</p>
         <p>• Supports pause/resume during upload</p>
       </div>
+
+      {showDriveBrowser && (
+        <DriveBrowser
+          projectId={projectId}
+          onClose={() => setShowDriveBrowser(false)}
+          onFileImported={handleFileImport}
+        />
+      )}
     </div>
   )
 }
