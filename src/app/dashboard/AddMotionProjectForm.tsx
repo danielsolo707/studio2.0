@@ -25,6 +25,8 @@ type FormValues = {
   status?: string
   tools?: string
   description?: string
+  imageUrls?: string[]
+  videoUrls?: string[]
 }
 
 type ActionState = { error?: string; success?: boolean; values?: FormValues }
@@ -66,7 +68,7 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
       setFormValues(state.values)
       if (state.values.status) setStatus(fromKebabCase(state.values.status))
       if (state.values.category) setCategory(state.values.category)
-      if (state.values.tools) setTools(state.values.tools)
+      if (state.values.tools) setTools(fromKebabCase(state.values.tools))
     }
   }, [state, defaultStatus, defaultCategory, defaultTools])
 
@@ -82,6 +84,17 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
     formData.set('status', toKebabCase(status))
     formData.set('category', category)
     formData.set('tools', tools)
+    
+    const filteredImages = imageUrls.filter(url => url.trim() !== '')
+    const filteredVideos = videoUrls.filter(url => url.trim() !== '')
+    
+    if (filteredImages.length > 0) {
+      formData.set('imageUrl', filteredImages[0])
+    }
+    if (filteredVideos.length > 0) {
+      formData.set('videoUrl', filteredVideos[0])
+    }
+    
     formAction(formData)
   }
 

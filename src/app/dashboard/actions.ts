@@ -55,6 +55,8 @@ const projectSchema = z.object({
   approach: z.string().optional().default(''),
   outcome: z.string().optional().default(''),
   nextStep: z.string().optional().default(''),
+  challenge: z.string().optional().default(''),
+  solution: z.string().optional().default(''),
 });
 
 async function requireAuth() {
@@ -284,6 +286,8 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
     approach: String(formData.get('approach') || existing?.approach || '').trim(),
     outcome: String(formData.get('outcome') || existing?.outcome || '').trim(),
     nextStep: String(formData.get('nextStep') || existing?.nextStep || '').trim(),
+    challenge: String(formData.get('challenge') || existing?.challenge || '').trim(),
+    solution: String(formData.get('solution') || existing?.solution || '').trim(),
   };
 
   const result = projectSchema.safeParse(raw);

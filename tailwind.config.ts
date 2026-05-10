@@ -25,6 +25,10 @@ export default {
           foreground: 'hsl(var(--accent-foreground))',
         },
         border: 'hsl(var(--border))',
+        lime: {
+          DEFAULT: '#ADFF2F',
+          foreground: '#000000',
+        },
       },
       keyframes: {
         'type-on': {

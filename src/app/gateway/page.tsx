@@ -27,12 +27,9 @@ export default function GatewayPage() {
 
   return (
     <main className="relative min-h-screen bg-[#050505] overflow-hidden">
-      {/* Film Grain Overlay */}
       <FilmGrain />
 
-      {/* Split Container */}
       <div className="relative flex flex-col lg:flex-row min-h-screen">
-        {/* MOTION Side */}
         <motion.div
           className="relative flex-1 min-h-[50vh] lg:min-h-screen cursor-pointer portal-motion"
           animate={{
@@ -42,18 +39,15 @@ export default function GatewayPage() {
           onMouseEnter={() => setHoveredSide("motion")}
           onMouseLeave={() => setHoveredSide(null)}
         >
-          <Link href="/works/motion" className="absolute inset-0 z-30">
+          <Link href="/works/motion" className="absolute inset-0 z-50">
             <span className="sr-only">Go to Motion Design works</span>
           </Link>
 
-          {/* Motion Background */}
           <MotionBackground isActive={hoveredSide === "motion"} />
 
-          {/* Content */}
-          <div className="relative z-20 flex flex-col items-center justify-center h-full px-6 lg:px-12">
-            {/* Subtitle */}
+          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 sm:px-6 lg:px-12">
             <motion.span
-              className="text-xs tracking-[0.3em] text-zinc-500 uppercase mb-4"
+              className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] text-zinc-500 uppercase mb-2 sm:mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -61,9 +55,8 @@ export default function GatewayPage() {
               Visual Stories
             </motion.span>
 
-            {/* Main Title */}
             <motion.h1
-              className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white"
+              className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-bold tracking-tighter text-white"
               style={{ mixBlendMode: "difference" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -72,28 +65,27 @@ export default function GatewayPage() {
               MOTION
             </motion.h1>
 
-            {/* Description */}
             <motion.p
-              className="mt-6 text-sm text-zinc-400 max-w-xs text-center"
+              className="mt-3 sm:mt-6 text-xs sm:text-sm text-zinc-400 max-w-[200px] sm:max-w-xs text-center"
               initial={{ opacity: 0 }}
-              animate={{ opacity: hoveredSide === "motion" ? 1 : 0.6 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
               3D animation, motion graphics, and cinematic design
             </motion.p>
 
-            {/* Arrow indicator */}
             <motion.div
-              className="mt-8 flex items-center gap-2 text-zinc-500"
+              className="mt-4 sm:mt-8 flex items-center gap-2 text-zinc-500"
+              initial={{ opacity: 0 }}
               animate={{
-                opacity: hoveredSide === "motion" ? 1 : 0,
-                x: hoveredSide === "motion" ? 0 : -10,
+                opacity: 1,
+                x: 0,
               }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
             >
-              <span className="text-xs tracking-wider">ENTER</span>
+              <span className="text-[10px] sm:text-xs tracking-wider">TAP TO ENTER</span>
               <svg
-                className="w-4 h-4"
+                className="w-3 h-3 sm:w-4 sm:h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -108,11 +100,9 @@ export default function GatewayPage() {
             </motion.div>
           </div>
 
-          {/* Divider line (desktop only) */}
           <div className="hidden lg:block absolute right-0 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-zinc-700 to-transparent" />
         </motion.div>
 
-        {/* CODE Side */}
         <motion.div
           className="relative flex-1 min-h-[50vh] lg:min-h-screen cursor-pointer portal-code"
           animate={{
@@ -122,18 +112,15 @@ export default function GatewayPage() {
           onMouseEnter={() => setHoveredSide("code")}
           onMouseLeave={() => setHoveredSide(null)}
         >
-          <Link href="/works/code" className="absolute inset-0 z-30">
+          <Link href="/works/code" className="absolute inset-0 z-50">
             <span className="sr-only">Go to Creative Code works</span>
           </Link>
 
-          {/* Code Background */}
           <CodeBackground isActive={hoveredSide === "code"} />
 
-          {/* Content */}
-          <div className="relative z-20 flex flex-col items-center justify-center h-full px-6 lg:px-12">
-            {/* Subtitle */}
+          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 sm:px-6 lg:px-12">
             <motion.span
-              className="text-xs tracking-[0.3em] text-zinc-500 uppercase mb-4 font-mono"
+              className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] text-zinc-500 uppercase mb-2 sm:mb-4 font-mono"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -141,9 +128,8 @@ export default function GatewayPage() {
               {"// Creative Tech"}
             </motion.span>
 
-            {/* Main Title with Scramble Effect */}
             <motion.h1
-              className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter font-mono"
+              className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-bold tracking-tighter font-mono"
               style={{ color: "#ADFF2F" }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -152,27 +138,26 @@ export default function GatewayPage() {
               <ScrambleText text="CODE" isActive={hoveredSide === "code"} />
             </motion.h1>
 
-            {/* Description */}
             <motion.p
-              className="mt-6 text-sm text-zinc-400 max-w-xs text-center font-mono"
+              className="mt-3 sm:mt-6 text-xs sm:text-sm text-zinc-400 max-w-[200px] sm:max-w-xs text-center font-mono"
               initial={{ opacity: 0 }}
-              animate={{ opacity: hoveredSide === "code" ? 1 : 0.6 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
               Web applications, creative tools, and experimental projects
             </motion.p>
 
-            {/* Arrow indicator */}
             <motion.div
-              className="mt-8 flex items-center gap-2"
+              className="mt-4 sm:mt-8 flex items-center gap-2"
               style={{ color: "#ADFF2F" }}
+              initial={{ opacity: 0 }}
               animate={{
-                opacity: hoveredSide === "code" ? 1 : 0,
-                x: hoveredSide === "code" ? 0 : -10,
+                opacity: 1,
+                x: 0,
               }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
             >
-              <span className="text-xs tracking-wider font-mono">{">"} ENTER</span>
+              <span className="text-[10px] sm:text-xs tracking-wider font-mono">{">"} TAP TO ENTER</span>
               <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
@@ -184,29 +169,27 @@ export default function GatewayPage() {
         </motion.div>
       </div>
 
-      {/* ESC / Back to Home Button */}
-      <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50">
+      <div className="fixed bottom-4 sm:bottom-8 left-0 right-0 flex justify-center z-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-6 py-3 border border-zinc-800 rounded-full bg-black/50 backdrop-blur-sm hover:border-zinc-600 transition-all duration-300"
-        >
-          <kbd className="px-2 py-1 text-[10px] font-mono text-zinc-500 bg-zinc-900 rounded border border-zinc-800 hover:text-zinc-300 hover:border-zinc-700 transition-colors">
-            ESC
-          </kbd>
-          <span className="text-xs text-zinc-500 tracking-wider hover:text-zinc-300 transition-colors">
-            BACK TO HOME
-          </span>
-        </Link>
+          <Link
+            href="/"
+            className="group flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 border border-zinc-800 rounded-full bg-black/50 backdrop-blur-sm hover:border-zinc-600 transition-all duration-300"
+          >
+            <kbd className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[8px] sm:text-[10px] font-mono text-zinc-500 bg-zinc-900 rounded border border-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700 transition-colors">
+              ESC
+            </kbd>
+            <span className="text-[10px] sm:text-xs text-zinc-500 tracking-wider group-hover:text-zinc-300 transition-colors">
+              BACK
+            </span>
+          </Link>
         </motion.div>
       </div>
 
-      {/* Decorative corner elements */}
-      <div className="fixed top-6 left-6 z-10">
+      <div className="hidden sm:block fixed top-6 left-6 z-20">
         <motion.div
           className="w-6 h-6 border-l border-t border-zinc-800"
           initial={{ opacity: 0 }}
@@ -214,7 +197,7 @@ export default function GatewayPage() {
           transition={{ delay: 1 }}
         />
       </div>
-      <div className="fixed top-6 right-6 z-10">
+      <div className="hidden sm:block fixed top-6 right-6 z-20">
         <motion.div
           className="w-6 h-6 border-r border-t border-zinc-800"
           initial={{ opacity: 0 }}
@@ -222,7 +205,7 @@ export default function GatewayPage() {
           transition={{ delay: 1.1 }}
         />
       </div>
-      <div className="fixed bottom-6 left-6 z-10">
+      <div className="hidden sm:block fixed bottom-6 left-6 z-20">
         <motion.div
           className="w-6 h-6 border-l border-b border-zinc-800"
           initial={{ opacity: 0 }}
@@ -230,7 +213,7 @@ export default function GatewayPage() {
           transition={{ delay: 1.2 }}
         />
       </div>
-      <div className="fixed bottom-6 right-6 z-10">
+      <div className="hidden sm:block fixed bottom-6 right-6 z-20">
         <motion.div
           className="w-6 h-6 border-r border-b border-zinc-800"
           initial={{ opacity: 0 }}
@@ -239,11 +222,10 @@ export default function GatewayPage() {
         />
       </div>
 
-      {/* Center divider indicator */}
       <AnimatePresence>
         {!hoveredSide && (
           <motion.div
-            className="hidden lg:flex fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex-col items-center gap-2"
+            className="hidden lg:flex fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

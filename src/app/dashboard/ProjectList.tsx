@@ -11,6 +11,9 @@ import {
 } from './actions'
 import { MediaPreview } from './MediaPreview'
 import { MultiUploadField } from './MultiUploadField'
+import { ProjectLinks } from './ProjectLinks'
+import { ProjectMediaFields } from '@/components/MediaFieldsEditable'
+import { RichTextEditor } from '@/components/RichTextEditor'
 import {
   getProjectDiscipline,
   getProjectLinks,
@@ -23,6 +26,7 @@ import {
 
 function ProjectCard({ project }: { project: Project }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [description, setDescription] = useState(project.description || '')
 
   return (
     <div className="border border-white/10 bg-black/30 rounded-lg overflow-hidden">
@@ -108,64 +112,74 @@ function ProjectCard({ project }: { project: Project }) {
                 className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
               />
             </div>
-            <div className="md:col-span-2">
-              <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MAIN IMAGE URL</p>
-              <input 
-                name="imageUrl" 
-                defaultValue={project.imageUrl} 
-                className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-              />
-            </div>
-            <div className="md:col-span-2">
-              <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">VIDEO URL (OPTIONAL)</p>
-              <input 
-                name="videoUrl" 
-                defaultValue={project.videoUrl || ''} 
-                className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-              />
-            </div>
+            <ProjectMediaFields 
+              projectId={project.id}
+              initialImageUrl={project.imageUrl}
+              initialVideoUrl={project.videoUrl || ''}
+            />
             <div className="md:col-span-2">
               <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DESCRIPTION</p>
-              <textarea
+              <RichTextEditor
                 name="description"
-                defaultValue={project.description}
-                rows={10}
-                placeholder="Enter project details. Use titles like 'Objective:', 'Approach:', 'Outcome:', 'Next Step:' to organize your content."
-                className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-body text-sm"
+                value={description}
+                onChange={setDescription}
+                placeholder="Enter a brief description of the project... Use **bold**, *italic*, - for lists, [text](url) for links."
+                rows={5}
               />
             </div>
+            {getProjectDiscipline(project) === 'code' && (
+              <>
+                <div className="md:col-span-2">
+                  <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CHALLENGE (CODE STYLE)</p>
+                  <textarea 
+                    name="challenge"
+                    defaultValue={project.challenge || `// The main challenge was building a real-time
+// collaboration system that could handle multiple
+// users editing tasks simultaneously without
+// conflicts or data loss.
+
+const challenges = [
+  "Real-time sync across devices",
+  "Optimistic UI updates",
+  "Conflict resolution",
+  "Performance at scale"
+];`}
+                    placeholder="// Describe the main challenge..."
+                    className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+                    rows={4}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SOLUTION (CODE STYLE)</p>
+                  <textarea 
+                    name="solution"
+                    defaultValue={project.solution || `// Solution implemented using WebSocket connections
+// with operational transformation for conflict-free
+// collaborative editing.
+
+const techStack = {
+  realtime: "Socket.IO",
+  state: "Zustand + Immer",
+  db: "MongoDB Change Streams",
+  cache: "React Query"
+};
+
+// Result: <50ms sync latency worldwide`}
+                    placeholder="// Describe the solution..."
+                    className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+                    rows={4}
+                  />
+                </div>
+              </>
+            )}
             <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">
               <p className="font-headline text-[10px] tracking-[0.3em] text-white/50">
                 PROJECT LINKS
               </p>
-              {[0, 1, 2].map((linkIndex) => {
-                const link = getProjectLinks(project)[linkIndex];
-                return (
-                  <div key={linkIndex} className="grid gap-3 md:grid-cols-[1fr_1fr_160px]">
-                    <input
-                      name={`linkLabel${linkIndex}`}
-                      defaultValue={link?.label || ''}
-                      placeholder="label"
-                      className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                    />
-                    <input
-                      name={`linkUrl${linkIndex}`}
-                      defaultValue={link?.url || ''}
-                      placeholder="https://"
-                      className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                    />
-                    <select
-                      name={`linkType${linkIndex}`}
-                      defaultValue={link?.type || 'demo'}
-                      className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-                    >
-                      {LINK_TYPE_OPTIONS.map((option) => (
-                        <option key={option} value={option}>{LINK_TYPE_LABELS[option]}</option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              })}
+              <ProjectLinks 
+                defaultType={getProjectLinks(project)[0]?.type || 'demo'}
+                existingLinks={getProjectLinks(project)}
+              />
             </div>
             <button
               type="submit"

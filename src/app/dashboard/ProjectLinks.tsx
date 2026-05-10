@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LINK_TYPE_LABELS, LINK_TYPE_OPTIONS } from '@/lib/project-meta'
+import type { ProjectLink } from '@/types/project'
 
 type LinkItem = {
   id: number
@@ -12,12 +13,21 @@ type LinkItem = {
 
 interface ProjectLinksProps {
   defaultType?: string
+  existingLinks?: ProjectLink[]
 }
 
-export function ProjectLinks({ defaultType = 'demo' }: ProjectLinksProps) {
-  const [links, setLinks] = useState<LinkItem[]>([
-    { id: 1, label: '', url: '', type: defaultType }
-  ])
+export function ProjectLinks({ defaultType = 'demo', existingLinks = [] }: ProjectLinksProps) {
+  const [links, setLinks] = useState<LinkItem[]>(() => {
+    if (existingLinks.length > 0) {
+      return existingLinks.map((link, index) => ({
+        id: index,
+        label: link.label,
+        url: link.url,
+        type: link.type
+      }))
+    }
+    return [{ id: 0, label: '', url: '', type: defaultType }]
+  })
 
   const addLink = () => {
     setLinks([...links, { id: Date.now(), label: '', url: '', type: defaultType }])
@@ -34,50 +44,43 @@ export function ProjectLinks({ defaultType = 'demo' }: ProjectLinksProps) {
   }
 
   return (
-    <div className="md:col-span-2 border border-white/10 p-3">
-      <p className="font-headline text-[10px] tracking-[0.3em] text-white/50 mb-3">
-        PROJECT LINKS
-      </p>
-      
-      <div className="space-y-2">
-        {links.map((link, index) => (
-          <div key={link.id} className="grid gap-2 md:grid-cols-[1fr_1fr_140px_40px] items-center">
-            <input
-              name={`linkLabel${index}`}
-              value={link.label}
-              onChange={(e) => updateLink(link.id, 'label', e.target.value)}
-              placeholder="label"
-              className="bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
-            />
-            <input
-              name={`linkUrl${index}`}
-              value={link.url}
-              onChange={(e) => updateLink(link.id, 'url', e.target.value)}
-              placeholder="https://"
-              className="bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
-            />
-            <select
-              name={`linkType${index}`}
-              value={link.type}
-              onChange={(e) => updateLink(link.id, 'type', e.target.value)}
-              className="bg-[#030305] border border-white/10 px-2 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
-            >
-              {LINK_TYPE_OPTIONS.map((option) => (
-                <option key={option} value={option}>{LINK_TYPE_LABELS[option]}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => removeLink(link.id)}
-              className="text-white/40 hover:text-red-400 text-lg leading-none"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
+    <div className="space-y-2">
+      {links.map((link, index) => (
+        <div key={link.id} className="grid gap-2 md:grid-cols-[1fr_1fr_140px_40px] items-center">
+          <input
+            name={`linkLabel${index}`}
+            value={link.label}
+            onChange={(e) => updateLink(link.id, 'label', e.target.value)}
+            placeholder="label"
+            className="bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
+          />
+          <input
+            name={`linkUrl${index}`}
+            value={link.url}
+            onChange={(e) => updateLink(link.id, 'url', e.target.value)}
+            placeholder="https://"
+            className="bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
+          />
+          <select
+            name={`linkType${index}`}
+            value={link.type}
+            onChange={(e) => updateLink(link.id, 'type', e.target.value)}
+            className="bg-[#030305] border border-white/10 px-2 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
+          >
+            {LINK_TYPE_OPTIONS.map((option) => (
+              <option key={option} value={option}>{LINK_TYPE_LABELS[option]}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => removeLink(link.id)}
+            className="text-white/40 hover:text-red-400 text-lg leading-none"
+          >
+            ×
+          </button>
+        </div>
+      ))}
 
-      {/* Hidden inputs for form submission - ensure all possible indices are present */}
       <input type="hidden" name="linkCount" value={links.length} />
 
       <button

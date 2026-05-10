@@ -34,6 +34,8 @@ export interface Project {
   approach?: string;
   outcome?: string;
   nextStep?: string;
+  challenge?: string;
+  solution?: string;
   links?: ProjectLink[];
   media: Array<{
     type: 'image' | 'video';

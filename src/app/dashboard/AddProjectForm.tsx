@@ -1,39 +1,119 @@
 "use client"
 
-import { useActionState } from 'react';
-import { addProjectAction } from './actions';
-import { SubmitButton } from '@/components/SubmitButton';
+import { useState, useEffect } from 'react'
+import { useActionState } from 'react'
+import { addProjectAction } from './actions'
+import { SubmitButton } from '@/components/SubmitButton'
+import { ProjectLinks } from './ProjectLinks'
+import { MultiUploadField } from './MultiUploadField'
+import { EditableSelectField } from './EditableSelectField'
+import { MediaFields } from '@/components/MediaFields'
 import {
   DISCIPLINE_LABELS,
   DISCIPLINE_OPTIONS,
   LINK_TYPE_LABELS,
   LINK_TYPE_OPTIONS,
-  STATUS_LABELS,
-  STATUS_OPTIONS,
-} from '@/lib/project-meta';
+} from '@/lib/project-meta'
 
-const initialState = { error: undefined as string | undefined };
+type FormValues = {
+  id?: string
+  name?: string
+  year?: string
+  category?: string
+  discipline?: string
+  status?: string
+  tools?: string
+  color?: string
+  imageUrl?: string
+  videoUrl?: string
+  description?: string
+  challenge?: string
+  solution?: string
+  imageUrls?: string[]
+  videoUrls?: string[]
+}
+
+type ActionState = { error?: string; success?: boolean; values?: FormValues }
+
+const initialState: ActionState = { error: undefined, success: false }
+
+const defaultOptions = {
+  statuses: ['Case Study', 'Prototype', 'Experiment', 'Learning Project'],
+  categories: ['Motion Design', '3D Animation', 'Visual Effects', 'Branding', 'Showreel'],
+  tools: ['After Effects', 'Cinema 4D', 'Blender', 'Houdini', 'Premiere Pro', 'Photoshop', 'Illustrator']
+}
 
 export function AddProjectForm() {
-  const [state, formAction] = useActionState(addProjectAction, initialState);
+  const [state, formAction] = useActionState(addProjectAction, initialState)
+  
+  const [status, setStatus] = useState(defaultOptions.statuses[0] || 'Case Study')
+  const [category, setCategory] = useState(defaultOptions.categories[0] || '')
+  const [tools, setTools] = useState(defaultOptions.tools[0] || '')
+  const [discipline, setDiscipline] = useState('motion')
+  
+  const [formValues, setFormValues] = useState<FormValues>({})
+  const [imageUrls, setImageUrls] = useState<string[]>([''])
+  const [videoUrls, setVideoUrls] = useState<string[]>([''])
+
+  useEffect(() => {
+    if (state?.values) {
+      setFormValues(state.values)
+      if (state.values.status) setStatus(state.values.status)
+      if (state.values.category) setCategory(state.values.category)
+      if (state.values.tools) setTools(state.values.tools)
+      if (state.values.discipline) setDiscipline(state.values.discipline)
+    }
+  }, [state])
+
+  const getValue = (key: keyof FormValues, defaultValue = '') => {
+    return formValues[key] ?? defaultValue
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormValues(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const handleSubmit = (formData: FormData) => {
+    formData.set('status', status.toLowerCase().replace(/\s+/g, '-'))
+    formData.set('category', category)
+    formData.set('tools', tools)
+    formData.set('discipline', discipline)
+    
+    const filteredImages = imageUrls.filter(url => url.trim() !== '')
+    const filteredVideos = videoUrls.filter(url => url.trim() !== '')
+    
+    if (filteredImages.length > 0) {
+      formData.set('imageUrl', filteredImages[0])
+    }
+    if (filteredVideos.length > 0) {
+      formData.set('videoUrl', filteredVideos[0])
+    }
+    
+    formAction(formData)
+  }
 
   return (
-    <form action={formAction} className="grid gap-3 md:grid-cols-2">
+    <form action={handleSubmit} className="grid gap-3 md:grid-cols-2">
       <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">BASIC INFO</p>
+        <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">PROJECT</p>
       </div>
+      
       <div>
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
         <input 
           name="id" 
+          value={getValue('id')}
+          onChange={handleChange}
           placeholder="my-project"
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
-      <div>
+      <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">PROJECT NAME</p>
         <input 
           name="name" 
+          value={getValue('name')}
+          onChange={handleChange}
           placeholder="My Project"
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
@@ -42,115 +122,116 @@ export function AddProjectForm() {
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">YEAR</p>
         <input 
           name="year" 
+          value={getValue('year')}
+          onChange={handleChange}
           placeholder="2024"
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
       <div>
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CATEGORY</p>
-        <input 
-          name="category" 
-          placeholder="Motion Design"
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        <EditableSelectField
+          label="CATEGORY"
+          name="categories"
+          options={defaultOptions.categories}
+          value={category}
+          onChange={setCategory}
         />
       </div>
       <div>
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DISCIPLINE</p>
-        <select
-          name="discipline"
-          defaultValue="motion"
-          className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-        >
-          {DISCIPLINE_OPTIONS.map((option) => (
-            <option key={option} value={option}>{DISCIPLINE_LABELS[option]}</option>
-          ))}
-        </select>
+        <EditableSelectField
+          label="DISCIPLINE"
+          name="disciplines"
+          options={DISCIPLINE_OPTIONS}
+          value={discipline}
+          onChange={setDiscipline}
+        />
       </div>
       <div>
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">STATUS</p>
-        <select
-          name="status"
-          defaultValue="prototype"
-          className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option} value={option}>{STATUS_LABELS[option]}</option>
-          ))}
-        </select>
+        <EditableSelectField
+          label="STATUS"
+          name="statuses"
+          options={defaultOptions.statuses}
+          value={status}
+          onChange={setStatus}
+        />
       </div>
       <div>
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">TOOLS</p>
-        <input 
-          name="tools" 
-          placeholder="After Effects, Cinema 4D"
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        <EditableSelectField
+          label="TOOLS"
+          name="tools"
+          options={defaultOptions.tools}
+          value={tools}
+          onChange={setTools}
         />
       </div>
       <div>
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">ACCENT COLOR</p>
         <input 
           name="color" 
+          value={getValue('color')}
+          onChange={handleChange}
           placeholder="#DFFF00"
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
       <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MAIN IMAGE URL</p>
-        <input 
-          name="imageUrl" 
-          placeholder="https://example.com/image.jpg"
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-        />
-      </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">VIDEO URL (OPTIONAL)</p>
-        <input 
-          name="videoUrl" 
-          placeholder="https://youtube.com/..."
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MEDIA URLs</p>
+        <MediaFields
+          images={imageUrls}
+          videos={videoUrls}
+          onImagesChange={setImageUrls}
+          onVideosChange={setVideoUrls}
         />
       </div>
       <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DESCRIPTION</p>
         <textarea 
-          name="description" 
-          placeholder="Enter project details. Use titles like 'Objective:', 'Approach:', 'Outcome:', 'Next Step:' to organize your content."
-          rows={10} 
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-body text-sm" 
+          name="description"
+          value={getValue('description')}
+          onChange={handleChange}
+          placeholder="Enter a brief description of the project..."
+          rows={5}
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-body text-sm"
         />
       </div>
-      <div className="md:col-span-2 grid gap-3 border border-white/10 p-3">
-        <p className="font-headline text-[10px] tracking-[0.3em] text-white/50">
-          PROJECT LINKS
-        </p>
-        {[0, 1, 2].map((index) => (
-          <div key={index} className="grid gap-3 md:grid-cols-[1fr_1fr_160px]">
-            <input
-              name={`linkLabel${index}`}
-              placeholder="label"
-              className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-            />
-            <input
-              name={`linkUrl${index}`}
-              placeholder="https://"
-              className="bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-            />
-            <select
-              name={`linkType${index}`}
-              defaultValue="demo"
-              className="bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-            >
-              {LINK_TYPE_OPTIONS.map((option) => (
-                <option key={option} value={option}>{LINK_TYPE_LABELS[option]}</option>
-              ))}
-            </select>
-          </div>
-        ))}
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CHALLENGE (CODE STYLE)</p>
+        <textarea 
+          name="challenge"
+          value={getValue('challenge')}
+          onChange={handleChange}
+          placeholder="// Describe the main challenge..."
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+          rows={4}
+        />
       </div>
-      <SubmitButton>ADD</SubmitButton>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SOLUTION (CODE STYLE)</p>
+        <textarea 
+          name="solution"
+          value={getValue('solution')}
+          onChange={handleChange}
+          placeholder="// Describe the solution..."
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+          rows={4}
+        />
+      </div>
+      <ProjectLinks defaultType="demo" />
+      
+      <div className="md:col-span-2 mt-4">
+        <div className="border border-white/10 p-4 rounded-md">
+          <p className="text-[10px] tracking-[0.3em] text-white/40 mb-3">MEDIA UPLOAD</p>
+          <p className="text-xs text-white/50 mb-3">
+            After creating the project, you can add images/videos from the edit form.
+          </p>
+          <MultiUploadField projectId="" />
+        </div>
+      </div>
+      
+      <SubmitButton>ADD PROJECT</SubmitButton>
       {state?.error && (
         <p className="text-xs text-red-400 md:col-span-2">{state.error}</p>
       )}
     </form>
-  );
+  )
 }

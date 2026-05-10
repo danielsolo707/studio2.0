@@ -2,10 +2,17 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, FolderOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { FilmGrain } from '@/components/film-grain';
+import { IDEHeader } from '@/components/project/ide-header';
+import { JSDocOverview } from '@/components/project/jsdoc-overview';
+import { CodeAccordion } from '@/components/project/code-accordion';
+import { TechSpecsGrid } from '@/components/project/tech-specs-grid';
+import { ParallaxGallery } from '@/components/project/parallax-gallery';
+import { TerminalBackButton } from '@/components/project/terminal-back-button';
 import {
   DISCIPLINE_LABELS,
   getProjectDiscipline,
@@ -56,23 +63,6 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const role = getProjectRole(project);
   const links = getProjectLinks(project);
 
-  const parseProofPoints = (description: string) => {
-    const points: { label: string; value: string }[] = [];
-    const labels = ['Objective:', 'Approach:', 'Outcome:', 'Next Step:'];
-    
-    labels.forEach((label) => {
-      const regex = new RegExp(`${label}[\\s\\n]([\\s\\S]*?)(?=${labels.join('|')}|$)`, 'i');
-      const match = description.match(regex);
-      if (match && match[1]?.trim()) {
-        points.push({ label: label.replace(': ', ''), value: match[1].trim() });
-      }
-    });
-    
-    return points;
-  };
-  
-  const proofPoints = parseProofPoints(project.description || '');
-
   const handleOpenGallery = (index: number = 0) => {
     setGalleryIndex(index);
     setLightboxOpen(true);
@@ -102,228 +92,219 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
     return <ExternalLink size={16} />;
   };
 
-  // Code project styling
   if (isCode) {
+    const techSpecs = [
+      { key: "DISCIPLINE", value: DISCIPLINE_LABELS[discipline], isHighlighted: true },
+      { key: "ROLE", value: role },
+      { key: "YEAR", value: project.year },
+      { key: "CATEGORY", value: project.category || 'N/A' },
+      { key: "TOOLS", value: project.tools?.split(' / ').join(' / ') || 'N/A' },
+    ];
+
+    const accordionItems = [
+      {
+        functionName: "getChallenge",
+        content: project.challenge || `// The main challenge was building a real-time
+// collaboration system that could handle multiple
+// users editing tasks simultaneously without
+// conflicts or data loss.
+
+const challenges = [
+  "Real-time sync across devices",
+  "Optimistic UI updates",
+  "Conflict resolution",
+  "Performance at scale"
+];`,
+      },
+      {
+        functionName: "implementSolution",
+        content: project.solution || `// Solution implemented using WebSocket connections
+// with operational transformation for conflict-free
+// collaborative editing.
+
+const techStack = {
+  realtime: "Socket.IO",
+  state: "Zustand + Immer",
+  db: "MongoDB Change Streams",
+  cache: "React Query"
+};
+
+// Result: <50ms sync latency worldwide`,
+      },
+    ];
+
+    const galleryImages = (orderedGallery
+      .filter(m => m.type === 'image')
+      .map(m => ({
+        src: m.url,
+        alt: `${project.name} view`,
+        type: 'browser' as const
+      }))).length > 0 
+      ? orderedGallery
+          .filter(m => m.type === 'image')
+          .map(m => ({
+            src: m.url,
+            alt: `${project.name} view`,
+            type: 'browser' as const
+          }))
+      : project.imageUrl 
+        ? [{ src: project.imageUrl, alt: `${project.name} view`, type: 'browser' as const }]
+        : [];
+
+    const statusLabel = STATUS_LABELS[status] || 'Prototype';
+
     return (
-      <main className="min-h-screen bg-[#0d1117]">
-        {/* Header */}
-        <div className="border-b border-[#30363d] bg-[#161b22]">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
-            <button
-              type="button"
-              onClick={handleBack}
-              className="inline-flex items-center gap-2 font-mono text-[12px] text-[#8b949e] hover:text-[#58a6ff] transition-colors"
-            >
-              <ArrowLeft size={14} /> cd ..
-            </button>
-          </div>
-        </div>
+      <main className="min-h-screen bg-background text-foreground">
+        <FilmGrain />
+        
+        <IDEHeader projectSlug={project.id} projectName={project.name} />
 
-        {/* Title Bar - No Hero Image */}
-        <div className="bg-[#0d1117] border-b border-[#30363d]">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
-            <div className="flex items-center gap-2 mb-3">
-              <Terminal className="w-5 h-5 text-[#7ee787]" />
-              <span className="font-mono text-[11px] text-[#8b949e]">~/projects/{project.id}</span>
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8 md:space-y-12">
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground">
+              <span className="text-lime">{">"}_</span>
+              <span>~/projects/{project.id}</span>
             </div>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="font-mono text-2xl md:text-5xl text-[#e6edf3]">{project.name}</h1>
-                {project.subtitle && (
-                  <p className="font-mono text-sm text-[#8b949e] mt-2 max-w-xl">{project.subtitle}</p>
-                )}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-3 font-mono text-[12px] text-[#8b949e]">
-                  <span className="text-[#79c0ff]">{project.category}</span>
-                  <span className="text-[#6e7681]">/</span>
-                  <span className="text-[#8b949e]">{project.year}</span>
-                  <span className="text-[#6e7681]">•</span>
-                  <span className="text-[#8b949e] truncate max-w-[200px] md:max-w-none">{project.tools}</span>
+
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start justify-between gap-4">
+              <div className="space-y-3 w-full sm:w-auto">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight font-mono uppercase break-words">
+                  {project.name.replace(/ /g, "_")}
+                </h1>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-mono">
+                  <span className="text-lime">{project.category || 'Creative Code'}</span>
+                  <span className="text-muted-foreground">/</span>
+                  <span className="text-muted-foreground">{project.year}</span>
+                  <span className="text-muted-foreground hidden sm:inline">•</span>
+                  <span className="text-muted-foreground hidden sm:inline">{project.tools}</span>
                 </div>
-              </div>
-              <span className={`inline-flex px-3 py-1.5 font-mono text-[11px] rounded ${
-                status === 'case-study'
-                  ? 'bg-[#238636]/20 text-[#7ee787]'
-                  : status === 'prototype'
-                  ? 'bg-[#1f6feb]/20 text-[#58a6ff]'
-                  : 'bg-[#8b949e]/20 text-[#8b949e]'
-              }`}>
-                {STATUS_LABELS[status]}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-12">
-          <div className="grid gap-8">
-            {/* Description */}
-            <div className="p-6 rounded-lg border border-[#30363d] bg-[#161b22]">
-              <div className="flex items-center gap-2 mb-4">
-                <FolderOpen className="w-4 h-4 text-[#58a6ff]" />
-                <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT OVERVIEW</span>
-              </div>
-              <div className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
-                <MarkdownRenderer content={project.description} />
-              </div>
-            </div>
-
-            {/* Links */}
-            {links.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {links.map((link) => (
-                  <a
-                    key={`${link.type}-${link.url}`}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 border border-[#30363d] px-4 py-2 font-mono text-[12px] text-[#8b949e] hover:text-[#e6edf3] hover:border-[#58a6ff] transition-colors rounded"
-                  >
-                    {getLinkIcon(link.type)}
-                    {link.label || LINK_TYPE_LABELS[link.type]}
-                  </a>
-                ))}
-              </div>
-            )}
-
-            {/* Meta */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
-                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">DISCIPLINE</span>
-                <span className="font-mono text-sm text-[#7ee787]">{DISCIPLINE_LABELS[discipline]}</span>
-              </div>
-              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
-                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">ROLE</span>
-                <span className="font-mono text-sm text-[#c9d1d9]">{role}</span>
-              </div>
-              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
-                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">YEAR</span>
-                <span className="font-mono text-sm text-[#c9d1d9]">{project.year}</span>
-              </div>
-              <div className="p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
-                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">CATEGORY</span>
-                <span className="font-mono text-sm text-[#c9d1d9]">{project.category}</span>
-              </div>
-              <div className="col-span-2 md:col-span-1 p-3 md:p-4 rounded bg-[#161b22] border border-[#30363d]">
-                <span className="font-mono text-[9px] text-[#8b949e] block mb-1">TOOLS</span>
-                <span className="font-mono text-xs md:text-sm text-[#c9d1d9] break-all leading-tight">{project.tools}</span>
-              </div>
-            </div>
-
-            {/* Details */}
-            {project.details && (
-              <div className="border-t border-[#30363d] pt-6 mt-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Code2 className="w-4 h-4 text-[#58a6ff]" />
-                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">DETAILS</span>
-                </div>
-                <p className="font-mono text-sm text-[#c9d1d9] leading-relaxed">
-                  {project.details}
-                </p>
-              </div>
-            )}
-
-            {/* Gallery */}
-            {orderedGallery.length > 0 && (
-              <div className="pt-8 border-t border-[#30363d]">
-                <div className="flex items-center gap-2 mb-6">
-                  <FolderOpen className="w-4 h-4 text-[#58a6ff]" />
-                  <span className="font-mono text-[10px] text-[#8b949e] tracking-wider">PROJECT GALLERY</span>
-                </div>
-                <div className="grid gap-6">
-                  {orderedGallery.map((m, idx) => (
-                    <motion.div
-                      key={m.url + idx}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5 }}
-                      className="relative cursor-pointer"
-                      onClick={() => handleOpenGallery(idx)}
-                    >
-                      <div className="relative w-full overflow-hidden rounded border border-[#30363d] bg-[#161b22]">
-                        {m.type === 'image' ? (
-                          <img
-                            src={m.url}
-                            alt={`${project.name} view ${idx + 1}`}
-                            className="w-full h-auto object-contain"
-                            loading="lazy"
-                            onLoad={() => handleLoaded(m.url)}
-                          />
-                        ) : (
-                          <div className="relative w-full aspect-video bg-black">
-                            <video
-                              src={m.url}
-                              className="w-full h-full object-cover"
-                              muted
-                              loop
-                              playsInline
-                              autoPlay
-                              onLoadedData={() => handleLoaded(m.url)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
+                <div className="flex flex-wrap gap-2 sm:hidden">
+                  {project.tools?.split(' / ').map((tech) => (
+                    <span key={tech} className="text-xs font-mono text-muted-foreground px-2 py-1 bg-muted/50 rounded">
+                      {tech.trim()}
+                    </span>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Footer */}
-          <div className="mt-12 pt-8 border-t border-[#30363d]">
-            <p className="font-mono text-[11px] text-[#6e7681]">
-              <span className="text-[#7ee787]">const</span> project = {'{'} id: <span className="text-[#a5d6ff]">"{project.id}"</span>, status: <span className="text-[#7ee787]">true</span> {'}'}
-            </p>
-          </div>
-        </div>
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="px-3 sm:px-4 py-1 sm:py-1.5 bg-lime/10 border border-lime/30 rounded-md text-lime text-xs font-mono"
+              >
+                Case Study
+              </motion.span>
+            </div>
+          </motion.section>
 
-        {/* Lightbox */}
-        {lightboxOpen && orderedGallery[galleryIndex] && (
+          <JSDocOverview 
+            projectName={project.name}
+            description={project.description || 'No description available.'}
+            status={statusLabel}
+          />
+
           <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="flex flex-wrap gap-4"
+          >
+            {links.find(l => l.type === 'demo') && (
+              <a
+                href={links.find(l => l.type === 'demo')?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  group flex items-center gap-2 
+                  px-5 py-2.5 
+                  bg-muted/50 border border-border 
+                  rounded-lg
+                  hover:border-lime hover:bg-lime/10
+                  transition-all duration-300
+                  font-mono text-sm
+                "
+              >
+                <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-lime transition-colors" />
+                <span className="text-foreground group-hover:text-lime transition-colors">Live Demo</span>
+              </a>
+            )}
+            
+            {links.find(l => l.type === 'github') && (
+              <a
+                href={links.find(l => l.type === 'github')?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  group flex items-center gap-2 
+                  px-5 py-2.5 
+                  bg-muted/50 border border-border 
+                  rounded-lg
+                  hover:border-lime hover:bg-lime/10
+                  transition-all duration-300
+                  font-mono text-sm
+                "
+              >
+                <Code2 className="w-4 h-4 text-muted-foreground group-hover:text-lime transition-colors" />
+                <span className="text-foreground group-hover:text-lime transition-colors">View Code</span>
+              </a>
+            )}
+          </motion.div>
+
+          <TechSpecsGrid specs={techSpecs} />
+
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground text-sm font-mono">
+              <Folder className="w-4 h-4" />
+              <span>LOGIC BREAKDOWN</span>
+            </div>
+            <CodeAccordion items={accordionItems} />
+          </motion.section>
+
+          {galleryImages.length > 0 && (
+            <ParallaxGallery images={galleryImages} />
+          )}
+
+          <motion.footer
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
-            onClick={() => setLightboxOpen(false)}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="pt-8 md:pt-12 border-t border-border space-y-6 md:space-y-8"
           >
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-6 right-6 w-12 h-12 rounded-full border border-[#30363d] flex items-center justify-center hover:border-[#58a6ff] transition-colors"
-            >
-              <FolderOpen className="w-6 h-6 text-white" />
-            </button>
-            <motion.div
-              key={galleryIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative max-w-[90vw] max-h-[85vh]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {orderedGallery[galleryIndex].type === 'image' ? (
-                <img
-                  src={orderedGallery[galleryIndex].url}
-                  alt={project.name}
-                  className="max-w-[90vw] max-h-[85vh] object-contain"
-                />
-              ) : (
-                <video
-                  src={orderedGallery[galleryIndex].url}
-                  className="max-w-[90vw] max-h-[85vh] object-contain"
-                  controls
-                  autoPlay
-                />
-              )}
-            </motion.div>
-          </motion.div>
-        )}
+            <div className="font-mono text-xs sm:text-sm overflow-x-auto">
+              <span className="text-[#569CD6]">const</span>
+              <span className="text-foreground"> project</span>
+              <span className="text-foreground"> = </span>
+              <span className="text-foreground">{"{ "}</span>
+              <span className="text-[#9CDCFE]">id</span>
+              <span className="text-foreground">: </span>
+              <span className="text-[#CE9178]">{`"${project.id}"`}</span>
+              <span className="text-foreground">, </span>
+              <span className="text-[#9CDCFE]">status</span>
+              <span className="text-foreground">: </span>
+              <span className="text-lime">true</span>
+              <span className="text-foreground">{" }"}</span>
+            </div>
+
+            <div className="flex justify-center">
+              <TerminalBackButton />
+            </div>
+          </motion.footer>
+        </div>
       </main>
     );
   }
 
-  // Original design for non-code projects (motion, etc)
   return (
     <main className="min-h-screen bg-[#030305]">
       <motion.div

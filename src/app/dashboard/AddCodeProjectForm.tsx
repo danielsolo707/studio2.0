@@ -19,12 +19,13 @@ type DisciplineOptions = {
 type FormValues = {
   id?: string
   name?: string
-  subtitle?: string
   year?: string
   category?: string
   status?: string
   tools?: string
   description?: string
+  challenge?: string
+  solution?: string
   imageUrls?: string[]
   videoUrls?: string[]
 }
@@ -122,16 +123,6 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
           className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
         />
       </div>
-      <div className="md:col-span-2">
-        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SUBTITLE (SHORT DESCRIPTION)</p>
-        <input 
-          name="subtitle" 
-          value={getValue('subtitle')}
-          onChange={handleChange}
-          placeholder="A sleek task management dashboard with real-time collaboration..."
-          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none" 
-        />
-      </div>
       <div>
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">YEAR</p>
         <input 
@@ -186,6 +177,28 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
           onChange={(value) => setFormValues(prev => ({ ...prev, description: value }))}
           placeholder="Enter a brief description of the project... Use **bold**, *italic*, - for lists, [text](url) for links."
           rows={5}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CHALLENGE (CODE STYLE)</p>
+        <textarea 
+          name="challenge"
+          value={getValue('challenge')}
+          onChange={handleChange}
+          placeholder="// Describe the main challenge...&#10;const challenge = 'building real-time sync';"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+          rows={4}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SOLUTION (CODE STYLE)</p>
+        <textarea 
+          name="solution"
+          value={getValue('solution')}
+          onChange={handleChange}
+          placeholder="// Describe the solution...&#10;const solution = 'using WebSocket connections';"
+          className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
+          rows={4}
         />
       </div>
       <ProjectLinks defaultType="github" />

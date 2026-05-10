@@ -34,9 +34,6 @@ export function FilmGrain() {
       ctx.putImageData(imageData, 0, 0)
     }
 
-    resize()
-    window.addEventListener("resize", resize)
-    
     let lastTime = 0
     const fps = 12
 
@@ -49,6 +46,8 @@ export function FilmGrain() {
       noise()
     }
 
+    resize()
+    window.addEventListener("resize", resize)
     animationId = requestAnimationFrame(animateThrottled)
 
     return () => {
@@ -60,7 +59,7 @@ export function FilmGrain() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10 opacity-[0.03]"
+      className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
       style={{ mixBlendMode: "overlay" }}
     />
   )
