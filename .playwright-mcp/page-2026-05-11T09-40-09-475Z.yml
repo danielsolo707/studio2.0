@@ -1,0 +1,88 @@
+- generic [ref=e1]:
+  - main [ref=e6]:
+    - link "Skip to content" [ref=e7] [cursor=pointer]:
+      - /url: "#main-content"
+    - generic [ref=e16]:
+      - banner [ref=e17]:
+        - generic [ref=e18]:
+          - link "THE FLUID LOGIC" [ref=e19] [cursor=pointer]:
+            - /url: /
+          - button "Toggle navigation menu" [expanded] [active] [ref=e20] [cursor=pointer]:
+            - img [ref=e111]
+        - generic [ref=e24]:
+          - heading "CREATIVE DEVELOPER" [level=1] [ref=e26]
+          - paragraph [ref=e27]: Creative developer specializing in motion design (After Effects, Cinema 4D) and machine learning. Building interactive web experiences that blend visual storytelling with intelligent systems.
+          - link "VIEW WORKS" [ref=e29] [cursor=pointer]:
+            - /url: /gateway
+          - paragraph [ref=e33]: SCROLL TO EXPLORE
+      - region "FEATURED WORKS" [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - heading "FEATURED WORKS" [level=2] [ref=e44]
+              - paragraph [ref=e45]: A curated selection of motion and code projects.
+            - link "EXPLORE ALL PROJECTS →" [ref=e46] [cursor=pointer]:
+              - /url: /gateway
+          - button "View NEON PULSE project (2024) - MOTION DESIGN" [ref=e47] [cursor=pointer]:
+            - generic [ref=e50]:
+              - heading "NEON PULSE" [level=3] [ref=e51]
+              - generic [ref=e53]: "2024"
+          - button "View LIQUID FLOW project (2024) - EXPERIMENTAL" [ref=e55] [cursor=pointer]:
+            - generic [ref=e58]:
+              - heading "LIQUID FLOW" [level=3] [ref=e59]
+              - generic [ref=e61]: "2024"
+          - button "View TASKFLOW DASHBOARD project (2024) - PRODUCTIVITY TOOL" [ref=e63] [cursor=pointer]:
+            - generic [ref=e66]:
+              - heading "TASKFLOW DASHBOARD" [level=3] [ref=e67]
+              - generic [ref=e69]: "2024"
+          - navigation "Project pages" [ref=e71]:
+            - link "NEON PULSE" [ref=e72] [cursor=pointer]:
+              - /url: /projects/neon-pulse
+            - link "LIQUID FLOW" [ref=e73] [cursor=pointer]:
+              - /url: /projects/liquid-flow
+            - link "TASKFLOW DASHBOARD" [ref=e74] [cursor=pointer]:
+              - /url: /projects/taskflow-dashboard
+      - region "CREATIVE DEVELOPER IN MOTION" [ref=e75]:
+        - generic [ref=e76]:
+          - paragraph [ref=e77]: ABOUT DANIEL
+          - heading "CREATIVE DEVELOPER IN MOTION" [level=2] [ref=e78]
+          - paragraph [ref=e79]: I build small visual systems that connect motion graphics, interactive code, and early ML/data experiments. My work is still growing, but it is grounded in curiosity, clear process, and a love for turning abstract ideas into moving, usable things.
+          - list "Skills and tools" [ref=e80]:
+            - listitem [ref=e81]: AFTER EFFECTS
+            - listitem [ref=e82]: /
+            - listitem [ref=e83]: CINEMA 4D
+            - listitem [ref=e84]: /
+            - listitem [ref=e85]: PYTHON
+            - listitem [ref=e86]: /
+            - listitem [ref=e87]: DATA VISUALIZATION
+          - link "GITHUB" [ref=e89] [cursor=pointer]:
+            - /url: https://github.com/danielsolo707
+      - region "LET'S TALK" [ref=e90]:
+        - generic [ref=e92]:
+          - paragraph [ref=e93]: GET IN TOUCH
+          - button "LET'S TALK" [ref=e94] [cursor=pointer]
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: © 2026 DANIEL PORTFOLIO
+          - navigation "Social links" [ref=e97]:
+            - link "Instagram" [ref=e98] [cursor=pointer]:
+              - /url: https://instagram.com
+            - link "Vimeo" [ref=e99] [cursor=pointer]:
+              - /url: https://vimeo.com
+            - link "Open hidden arcade" [ref=e100] [cursor=pointer]:
+              - /url: /arcade
+              - text: ARCADE
+  - button "Open Next.js Dev Tools" [ref=e107] [cursor=pointer]:
+    - img [ref=e108]
+  - alert [ref=e5]
+  - navigation "Main navigation" [ref=e115]:
+    - generic [ref=e116]:
+      - button "Close menu" [ref=e117] [cursor=pointer]:
+        - img [ref=e118]
+      - generic [ref=e121]:
+        - link "ABOUT" [ref=e122] [cursor=pointer]:
+          - /url: "#about"
+        - link "PROJECTS" [ref=e123] [cursor=pointer]:
+          - /url: /gateway
+        - link "CONTACT" [ref=e124] [cursor=pointer]:
+          - /url: "#contact"
+        - generic [ref=e125]: ©2026

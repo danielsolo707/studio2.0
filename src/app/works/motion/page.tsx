@@ -18,7 +18,7 @@ export default async function MotionWorksPage() {
     <main className="min-h-screen bg-[#0a0a0c]">
       <MotionHeader />
 
-      <div className="pt-32 pb-20 px-6 md:px-12">
+      <div className="pt-[165px] md:pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-[1920px] mx-auto">
           <div className="mb-16">
             <p className="font-headline text-[12px] tracking-[0.5em] text-[#DFFF00] mb-4">

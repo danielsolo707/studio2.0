@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TiltCard } from '@/components/three/TiltCard';
@@ -219,7 +218,7 @@ export function ProjectList({
               pointerEvents: 'none',
               zIndex: 100,
             }}
-            className="w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_50px_rgba(223,255,0,0.1)] hidden md:block"
+            className="relative w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_50px_rgba(223,255,0,0.1)] hidden md:block"
           >
             {(() => {
               const showError =
@@ -228,18 +227,6 @@ export function ProjectList({
               const showLoading = loadingPreviewId === activeProject.id && !showError;
               const src = activeProject.imageUrl ? `${activeProject.imageUrl}` : '';
               const discipline = getProjectDiscipline(activeProject);
-
-              if (showLoading) {
-                return (
-                  <div
-                    className="w-full h-full preview-surface flex items-center justify-center"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <div className="loader-ring" />
-                  </div>
-                );
-              }
 
               if (showError || !activeProject.imageUrl) {
                 return (
@@ -255,16 +242,27 @@ export function ProjectList({
               }
 
               return (
-                <Image
-                  key={src}
-                  src={src}
-                  alt={`Preview of ${activeProject.name}`}
-                  fill
-                  sizes="320px"
-                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                  onError={() => handleImageError(activeProject.id)}
-                  onLoadingComplete={() => handleImageLoad(activeProject.id)}
-                />
+                <>
+                  <img
+                    key={src}
+                    src={src}
+                    alt={`Preview of ${activeProject.name}`}
+                    loading="eager"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover grayscale transition-all duration-700"
+                    onError={() => handleImageError(activeProject.id)}
+                    onLoad={() => handleImageLoad(activeProject.id)}
+                  />
+                  {showLoading && (
+                    <div
+                      className="absolute inset-0 preview-surface flex items-center justify-center"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <div className="loader-ring" />
+                    </div>
+                  )}
+                </>
               );
             })()}
           </motion.div>

@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4] [cursor=pointer]:
+        - link "Go to Motion Design works" [ref=e5]:
+          - /url: /works/motion
+          - generic [ref=e6]: Go to Motion Design works
+        - generic [ref=e13]:
+          - generic [ref=e14]: Visual Stories
+          - heading "MOTION" [level=1] [ref=e15]
+          - paragraph [ref=e16]: 3D animation, motion graphics, and cinematic design
+          - generic [ref=e17]:
+            - generic [ref=e18]: TAP TO ENTER
+            - img [ref=e19]
+      - generic [ref=e22] [cursor=pointer]:
+        - link "Go to Creative Code works" [ref=e23]:
+          - /url: /works/code
+          - generic [ref=e24]: Go to Creative Code works
+        - generic [ref=e29]:
+          - generic [ref=e30]: "const creative = {"
+          - generic [ref=e31]: "type: 'developer',"
+          - generic [ref=e32]: "skills: ['react', 'motion'],"
+          - generic [ref=e33]: "passion: 'infinite',"
+          - generic [ref=e34]: "};"
+          - generic [ref=e36]: "function createMagic() {"
+          - generic [ref=e37]: return innovation++;
+          - generic [ref=e38]: "}"
+          - generic [ref=e40]: export default creative;
+        - generic [ref=e42]:
+          - generic [ref=e43]: // Creative Tech
+          - heading "CODE" [level=1] [ref=e44]
+          - paragraph [ref=e45]: Web applications, creative tools, and experimental projects
+          - generic [ref=e46]:
+            - generic [ref=e47]: "> TAP TO ENTER"
+            - generic [ref=e48]: _
+    - link "ESC BACK" [ref=e51] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e52]: ESC
+      - generic [ref=e53]: BACK
+    - generic [ref=e64]: SELECT
+  - alert [ref=e66]

@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { FilmGrain } from '@/components/film-grain';
+import { GalleryModal } from '@/components/GalleryModal';
 import { IDEHeader } from '@/components/project/ide-header';
 import { JSDocOverview } from '@/components/project/jsdoc-overview';
 import { CodeAccordion } from '@/components/project/code-accordion';
@@ -33,8 +34,14 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [loadedSet, setLoadedSet] = useState<Set<string>>(new Set());
+  const [isIOS, setIsIOS] = useState(false);
 
   const isCode = getProjectDiscipline(project) === 'code';
+
+  useEffect(() => {
+    const ua = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || '';
+    setIsIOS(/iPad|iPhone|iPod/.test(ua));
+  }, []);
 
   const baseGallery = project.media && project.media.length > 0
     ? project.media
@@ -308,19 +315,25 @@ const techStack = {
   return (
     <main className="min-h-screen bg-[#030305]">
       <motion.div
-        className="relative w-full aspect-video md:h-[70vh] overflow-hidden bg-black/50"
+        className={`relative w-full aspect-video md:h-[70vh] overflow-hidden bg-black/50 ${heroItem?.type === 'video' ? 'cursor-pointer' : ''}`}
         initial={{ scale: 1.05, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
+        onClick={() => {
+          if (heroItem?.type === 'video') handleOpenGallery(safeHeroIndex);
+        }}
       >
         {heroItem && heroItem.type === 'video' ? (
           <video
             src={heroItem.url}
             className="absolute inset-0 w-full h-full object-cover"
-            autoPlay
+            autoPlay={!isIOS}
             loop
             muted
             playsInline
+            controls={isIOS}
+            preload="metadata"
+            poster={heroItem.thumbUrl || project.imageUrl || undefined}
           />
         ) : imageLoaded && (heroItem?.thumbUrl || heroItem?.url || project.imageUrl) ? (
           <>
@@ -507,7 +520,10 @@ const techStack = {
                             muted
                             loop
                             playsInline
-                            autoPlay
+                            autoPlay={!isIOS}
+                            controls={isIOS}
+                            preload="metadata"
+                            poster={m.thumbUrl || project.imageUrl || undefined}
                           />
                         </div>
                       )}
@@ -519,6 +535,14 @@ const techStack = {
           ) : null}
         </div>
       </div>
+
+      <GalleryModal
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        items={orderedGallery}
+        initialIndex={galleryIndex}
+        isIOS={isIOS}
+      />
     </main>
   );
 }

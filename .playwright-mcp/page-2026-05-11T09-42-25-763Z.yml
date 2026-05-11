@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e66]
+  - main [ref=e80]:
+    - link "Skip to content" [ref=e81] [cursor=pointer]:
+      - /url: "#main-content"
+    - progressbar "Loading portfolio" [ref=e82]:
+      - generic [ref=e83]: "59"
+      - paragraph [ref=e86]: Initializing Experience
+    - generic [ref=e90]:
+      - banner [ref=e91]:
+        - generic [ref=e92]:
+          - link "THE FLUID LOGIC" [ref=e93] [cursor=pointer]:
+            - /url: /
+          - navigation "Main navigation" [ref=e94]:
+            - link "ABOUT" [ref=e95] [cursor=pointer]:
+              - /url: "#about"
+            - link "PROJECTS" [ref=e96] [cursor=pointer]:
+              - /url: /gateway
+            - link "CONTACT" [ref=e97] [cursor=pointer]:
+              - /url: "#contact"
+        - generic [ref=e100]:
+          - heading "CREATIVE DEVELOPER" [level=1] [ref=e102]
+          - paragraph [ref=e103]: Creative developer specializing in motion design (After Effects, Cinema 4D) and machine learning. Building interactive web experiences that blend visual storytelling with intelligent systems.
+          - link "VIEW WORKS" [ref=e105] [cursor=pointer]:
+            - /url: /gateway
+          - paragraph [ref=e109]: SCROLL TO EXPLORE
+      - region "FEATURED WORKS" [ref=e116]:
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - heading "FEATURED WORKS" [level=2] [ref=e120]
+              - paragraph [ref=e121]: A curated selection of motion and code projects.
+            - link "EXPLORE ALL PROJECTS →" [ref=e122] [cursor=pointer]:
+              - /url: /gateway
+          - button "View NEON PULSE project (2024) - MOTION DESIGN" [ref=e123] [cursor=pointer]:
+            - generic [ref=e126]:
+              - heading "NEON PULSE" [level=3] [ref=e127]
+              - generic [ref=e128]:
+                - generic [ref=e129]: Case Study
+                - generic [ref=e130]: "2024"
+          - button "View LIQUID FLOW project (2024) - EXPERIMENTAL" [ref=e132] [cursor=pointer]:
+            - generic [ref=e135]:
+              - heading "LIQUID FLOW" [level=3] [ref=e136]
+              - generic [ref=e137]:
+                - generic [ref=e138]: Case Study
+                - generic [ref=e139]: "2024"
+          - button "View TASKFLOW DASHBOARD project (2024) - PRODUCTIVITY TOOL" [ref=e141] [cursor=pointer]:
+            - generic [ref=e144]:
+              - heading "TASKFLOW DASHBOARD" [level=3] [ref=e145]
+              - generic [ref=e146]:
+                - generic [ref=e147]: Case Study
+                - generic [ref=e148]: "2024"
+          - navigation "Project pages" [ref=e150]:
+            - link "NEON PULSE" [ref=e151] [cursor=pointer]:
+              - /url: /projects/neon-pulse
+            - link "LIQUID FLOW" [ref=e152] [cursor=pointer]:
+              - /url: /projects/liquid-flow
+            - link "TASKFLOW DASHBOARD" [ref=e153] [cursor=pointer]:
+              - /url: /projects/taskflow-dashboard
+      - region "CREATIVE DEVELOPER IN MOTION" [ref=e154]:
+        - generic [ref=e155]:
+          - paragraph [ref=e156]: ABOUT DANIEL
+          - heading "CREATIVE DEVELOPER IN MOTION" [level=2] [ref=e157]
+          - paragraph [ref=e158]: I build small visual systems that connect motion graphics, interactive code, and early ML/data experiments. My work is still growing, but it is grounded in curiosity, clear process, and a love for turning abstract ideas into moving, usable things.
+          - list "Skills and tools" [ref=e159]:
+            - listitem [ref=e160]: AFTER EFFECTS
+            - listitem [ref=e161]: /
+            - listitem [ref=e162]: CINEMA 4D
+            - listitem [ref=e163]: /
+            - listitem [ref=e164]: PYTHON
+            - listitem [ref=e165]: /
+            - listitem [ref=e166]: DATA VISUALIZATION
+          - link "GITHUB" [ref=e168] [cursor=pointer]:
+            - /url: https://github.com/danielsolo707
+      - region "LET'S TALK" [ref=e169]:
+        - generic [ref=e171]:
+          - paragraph [ref=e172]: GET IN TOUCH
+          - button "LET'S TALK" [ref=e173] [cursor=pointer]
+        - generic [ref=e174]:
+          - paragraph [ref=e175]: © 2026 DANIEL PORTFOLIO
+          - navigation "Social links" [ref=e176]:
+            - link "Instagram" [ref=e177] [cursor=pointer]:
+              - /url: https://instagram.com
+            - link "Vimeo" [ref=e178] [cursor=pointer]:
+              - /url: https://vimeo.com
+            - link "Open hidden arcade" [ref=e179] [cursor=pointer]:
+              - /url: /arcade
+              - text: ARCADE

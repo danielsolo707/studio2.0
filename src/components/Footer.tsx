@@ -7,22 +7,6 @@ export function Footer() {
       </p>
       <nav aria-label="Social links" className="flex gap-8">
         <a
-          href="https://instagram.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[9px] font-headline tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors uppercase"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://vimeo.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[9px] font-headline tracking-[0.3em] text-white/40 hover:text-[#DFFF00] transition-colors uppercase"
-        >
-          Vimeo
-        </a>
-        <a
           href="/arcade"
           aria-label="Open hidden arcade"
           className="relative flex items-center gap-2 text-[9px] font-headline tracking-[0.3em] text-white/40 hover:text-[#ff9f43] transition-colors uppercase"

@@ -237,8 +237,6 @@ describe('Footer', () => {
   it('renders social links with proper hrefs', () => {
     render(<Footer />);
     expect(screen.getByLabelText('Social links')).toBeInTheDocument();
-    expect(screen.getByText('Instagram')).toHaveAttribute('href', 'https://instagram.com');
-    expect(screen.getByText('Vimeo')).toHaveAttribute('href', 'https://vimeo.com');
   });
 });
 

@@ -1,0 +1,11 @@
+[     123ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5949
+[     719ms] [LOG] [Fast Refresh] done in 699ms @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5809
+[     833ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5949
+[     928ms] [LOG] [Fast Refresh] done in 204ms @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5809
+[    1102ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:14537
+[    1397ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5949
+[    1453ms] [LOG] [Fast Refresh] done in 159ms @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5809
+[    1776ms] [WARNING] You are trying to animate flex from "1" to "0.85". 1 is not an animatable value - to enable this animation set 1 to a value animatable to 0.85 via the `style` property. @ http://localhost:9002/_next/static/chunks/node_modules_4fd4ab14._.js:1384
+[    1777ms] [WARNING] You are trying to animate flex from "1" to "1.15". 1 is not an animatable value - to enable this animation set 1 to a value animatable to 1.15 via the `style` property. @ http://localhost:9002/_next/static/chunks/node_modules_4fd4ab14._.js:1384
+[   10869ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5949
+[   10871ms] [LOG] [Fast Refresh] done in 109ms @ http://localhost:9002/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:5809

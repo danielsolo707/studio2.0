@@ -14,9 +14,10 @@ type GalleryModalProps = {
   onClose: () => void;
   items: MediaItem[];
   initialIndex: number;
+  isIOS?: boolean;
 };
 
-export function GalleryModal({ isOpen, onClose, items, initialIndex }: GalleryModalProps) {
+export function GalleryModal({ isOpen, onClose, items, initialIndex, isIOS = false }: GalleryModalProps) {
   const [index, setIndex] = useState(initialIndex);
   const closeSafe = useCallback(() => onClose(), [onClose]);
 
@@ -102,7 +103,7 @@ export function GalleryModal({ isOpen, onClose, items, initialIndex }: GalleryMo
             <video
               src={current.url}
               controls
-              autoPlay
+              autoPlay={!isIOS}
               loop
               playsInline
               className="max-w-full max-h-full object-contain"

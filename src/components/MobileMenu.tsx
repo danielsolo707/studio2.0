@@ -1,11 +1,13 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const portalTarget = useMemo(() => (typeof document === 'undefined' ? null : document.body), []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -39,28 +41,28 @@ export function MobileMenu() {
       </button>
 
       {/* Mobile menu overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop - fully opaque */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeMenu}
-              className="fixed inset-0 bg-black z-[60] md:hidden"
-            />
-
-            {/* Menu panel */}
-            <motion.nav
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-[#030305] border-l border-white/10 z-[70] md:hidden"
-              aria-label="Main navigation"
-            >
-              <div className="flex flex-col h-full p-6 pt-20">
+      {portalTarget &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={closeMenu}
+                className="fixed inset-0 z-[1000] bg-black md:hidden"
+              >
+                {/* Menu panel */}
+                <motion.nav
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  onClick={(event) => event.stopPropagation()}
+                  className="absolute inset-0 h-full w-full bg-black"
+                  aria-label="Main navigation"
+                >
+                  <div className="flex flex-col h-full p-6 pt-20">
                 {/* Close button */}
                 <button
                   onClick={closeMenu}
@@ -101,11 +103,13 @@ export function MobileMenu() {
                     </span>
                   </div>
                 </div>
-              </div>
-            </motion.nav>
-          </>
+                  </div>
+                </motion.nav>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          portalTarget,
         )}
-      </AnimatePresence>
     </>
   );
 }

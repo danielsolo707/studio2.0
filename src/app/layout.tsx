@@ -88,8 +88,7 @@ const portfolioSchema = {
     'Machine Learning Basics'
   ],
   sameAs: [
-    'https://instagram.com',
-    'https://vimeo.com'
+    'https://motionverse.design'
   ]
 };
 

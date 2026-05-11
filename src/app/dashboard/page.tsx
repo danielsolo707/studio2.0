@@ -1,12 +1,14 @@
 import { readContent } from '@/lib/content';
 import { getSession } from '@/lib/auth';
 import { is2FAEnabled } from '@/lib/totp';
+import { isCaptchaEnabled } from '@/lib/captcha-config';
 import { listMessages } from '@/lib/contact-log';
 import { isDriveConfigured } from '@/lib/google-drive';
 import Link from 'next/link';
 import { LoginForm } from './LoginForm';
 import { MultiUploadField } from './MultiUploadField';
 import { TwoFactorSetup } from './TwoFactorSetup';
+import { CaptchaToggle } from './CaptchaToggle';
 import {
   loginAction,
   logoutAction,
@@ -27,6 +29,7 @@ export default async function DashboardPage() {
   let session;
   let content;
   let twoFAEnabled = false;
+  let captchaEnabled = false;
   let messages: any[] = [];
   let unreadCount = 0;
 
@@ -37,6 +40,7 @@ export default async function DashboardPage() {
       // Fetch content and messages only if authenticated
       content = await readContent();
       twoFAEnabled = await is2FAEnabled();
+      captchaEnabled = await isCaptchaEnabled();
       
       const rawMessages = await listMessages();
       messages = rawMessages.map((m) => ({
@@ -53,6 +57,7 @@ export default async function DashboardPage() {
   }
 
   if (!session) {
+    captchaEnabled = await isCaptchaEnabled();
     return (
       <main className="min-h-screen bg-[#030305] flex items-center justify-center px-6">
         <div className="w-full max-w-md border border-white/10 p-8 bg-black/40 backdrop-blur-sm">
@@ -67,7 +72,7 @@ export default async function DashboardPage() {
               Enter your credentials to manage About and Selected Works.
             </p>
           </div>
-          <LoginForm />
+          <LoginForm captchaEnabled={captchaEnabled} />
         </div>
       </main>
     );
@@ -123,6 +128,7 @@ export default async function DashboardPage() {
           </section>
 
           <TwoFactorSetup initialEnabled={twoFAEnabled} />
+          <CaptchaToggle initialEnabled={captchaEnabled} />
 
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg space-y-4">
             <div className="flex items-center justify-between gap-3">

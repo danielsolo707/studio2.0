@@ -9,13 +9,53 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { clearSession, getSession, setSession } from '@/lib/auth';
-import { validateCaptcha } from '@/lib/captcha';
 import { readContent, writeContent } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
+import { isCaptchaEnabled } from '@/lib/captcha-config';
 import type { Project, ProjectLink } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
 
 type ActionState = { error?: string; success?: boolean };
+
+type TurnstileVerifyResponse = {
+  success: boolean;
+  'error-codes'?: string[];
+};
+
+async function verifyTurnstile(token: string): Promise<{ ok: boolean; error?: string }> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    return { ok: false, error: 'Turnstile secret key is not configured' };
+  }
+
+  if (!token) {
+    return { ok: false, error: 'Missing CAPTCHA verification' };
+  }
+
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret,
+        response: token,
+      }),
+    });
+
+    if (!res.ok) {
+      return { ok: false, error: 'CAPTCHA verification failed' };
+    }
+
+    const data = (await res.json()) as TurnstileVerifyResponse;
+    if (!data.success) {
+      return { ok: false, error: 'CAPTCHA verification failed' };
+    }
+
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'CAPTCHA verification failed' };
+  }
+}
 
 function getAdminCreds(): { user: string; pass: string | null } {
   const user = process.env.ADMIN_USERNAME || 'admin';
@@ -70,7 +110,7 @@ async function requireAuth() {
 }
 
 export async function loginAction(
-  _prev: { error?: string; needs2FA?: boolean; captchaError?: boolean },
+  _prev: { error?: string; needs2FA?: boolean },
   formData: FormData,
 ) {
   const admin = getAdminCreds();
@@ -80,14 +120,13 @@ export async function loginAction(
 
   const user = String(formData.get('username') || '').trim();
   const pass = String(formData.get('password') || '').trim();
-  const captchaAnswer = String(formData.get('captcha') || '').trim();
-
-  const cookieStore = await cookies();
-  const captchaCookie = cookieStore.get('login_captcha')?.value;
-  const isValidCaptcha = validateCaptcha(captchaCookie, parseInt(captchaAnswer, 10));
-
-  if (!isValidCaptcha) {
-    return { error: 'Invalid CAPTCHA answer', captchaError: true };
+  const captchaEnabled = await isCaptchaEnabled();
+  if (captchaEnabled) {
+    const turnstileToken = String(formData.get('cf-turnstile-response') || '').trim();
+    const captchaResult = await verifyTurnstile(turnstileToken);
+    if (!captchaResult.ok) {
+      return { error: captchaResult.error || 'CAPTCHA verification failed' };
+    }
   }
 
   if (user !== admin.user || pass !== admin.pass) {

@@ -45,7 +45,7 @@ export default function GatewayPage() {
 
           <MotionBackground isActive={hoveredSide === "motion"} />
 
-          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 sm:px-6 lg:px-12">
+          <div className="relative z-10 flex flex-col items-center justify-start sm:justify-center h-full px-4 sm:px-6 lg:px-12 pt-[140px] sm:pt-0">
             <motion.span
               className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] text-zinc-500 uppercase mb-2 sm:mb-4"
               initial={{ opacity: 0, y: 20 }}
@@ -169,7 +169,7 @@ export default function GatewayPage() {
         </motion.div>
       </div>
 
-      <div className="fixed bottom-4 sm:bottom-8 left-0 right-0 flex justify-center z-20">
+      <div className="fixed bottom-4 sm:bottom-8 left-0 right-0 flex justify-center z-[200] pointer-events-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
