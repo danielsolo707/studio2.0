@@ -18,6 +18,7 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
   experiment: 'Experiment',
   'learning-project': 'Learning Project',
   showreel: 'Showreel',
+  development: 'Development',
 };
 
 export const LINK_TYPE_LABELS: Record<ProjectLinkType, string> = {
@@ -25,6 +26,7 @@ export const LINK_TYPE_LABELS: Record<ProjectLinkType, string> = {
   demo: 'Demo',
   notebook: 'Notebook',
   video: 'Video',
+  kaggle: 'Kaggle',
 };
 
 export const DISCIPLINE_OPTIONS = Object.keys(DISCIPLINE_LABELS) as ProjectDiscipline[];

@@ -5,9 +5,10 @@ export type ProjectStatus =
   | 'prototype'
   | 'experiment'
   | 'learning-project'
-  | 'showreel';
+  | 'showreel'
+  | 'development';
 
-export type ProjectLinkType = 'github' | 'demo' | 'notebook' | 'video';
+export type ProjectLinkType = 'github' | 'demo' | 'notebook' | 'video' | 'kaggle';
 
 export interface ProjectLink {
   label: string;
