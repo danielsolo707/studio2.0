@@ -16,45 +16,12 @@
   },
   "projects": [
     {
-      "id": "neon-pulse",
-      "name": "NEON PULSE",
-      "year": "2024",
-      "color": "#FF00FF",
-      "imageUrl": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&h=800&fit=crop",
-      "videoUrl": "",
-      "description": "A vibrant motion graphics piece exploring neon aesthetics and pulsing rhythms. This project combines geometric shapes with reactive lighting effects to create an hypnotic visual experience.",
-      "tools": "AFTER EFFECTS / AUDACITY",
-      "category": "MOTION DESIGN",
-      "discipline": "motion",
-      "status": "case-study",
-      "role": "Motion Designer",
-      "objective": "Create a hypnotic visual experience that syncs perfectly with electronic music beats.",
-      "approach": "Built custom expressions in After Effects to create reactive shapes. Used particular for particle effects and added glow through adjustment layers.",
-      "outcome": "A 45-second loop suitable for music visualizers or social media content that received positive feedback from the target audience.",
-      "nextStep": "Add interactive controls for beat detection and color palette customization.",
-      "links": [],
-      "media": [
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop"
-        },
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600&fit=crop"
-        },
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&h=600&fit=crop"
-        }
-      ]
-    },
-    {
       "id": "motion-ui-abstract",
       "name": "Dynamic Interface Flow",
       "year": "2025",
       "color": "#DFFF00",
       "imageUrl": "",
-      "videoUrl": "",
+      "videoUrl": "/uploads/58a11bc4-074e-4a4e-aa74-dc3f0a3e3ee4.mp4",
       "description": "",
       "subtitle": "Abstract motion piece visualizing modern UI interfaces with geometric precision and playful animations.",
       "details": "Perfect for hero headers and background motion. Demonstrates mastery of timing, spatial organization, and turning static UI concepts into dynamic storytelling.",
@@ -69,6 +36,18 @@
           "type": "video",
           "url": "/uploads/L06_UI_Main H_1920x1080.mp4",
           "storage": "local"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/58a11bc4-074e-4a4e-aa74-dc3f0a3e3ee4.mp4",
+          "storage": "local",
+          "fileId": "58a11bc4-074e-4a4e-aa74-dc3f0a3e3ee4"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/39cecb65-58e1-46a0-80e8-809920ee7245.mp4",
+          "storage": "local",
+          "fileId": "39cecb65-58e1-46a0-80e8-809920ee7245"
         }
       ]
     },
@@ -228,6 +207,210 @@
           "thumbUrl": "/uploads/736dc6ed-aba9-41f7-9c45-53a5e43f68ae.png"
         }
       ]
+    },
+    {
+      "id": "motion-science-abstract",
+      "name": "The Science of Motion",
+      "subtitle": "",
+      "details": "",
+      "year": "2025",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "/uploads/17791714-6083-4ae6-9b8d-586079b2afcb.mp4",
+      "description": "An exploration of motion theory focusing on the contrast between fluid and rigid movements. This project demonstrates mastery over the Graph Editor to create distinct physical personalities for simple geometric forms.",
+      "tools": "After Effects",
+      "category": "Motion Graphics",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Motion Graphics",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "",
+      "solution": "",
+      "links": [],
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/17791714-6083-4ae6-9b8d-586079b2afcb.mp4",
+          "storage": "local",
+          "fileId": "17791714-6083-4ae6-9b8d-586079b2afcb"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/9e83df31-9967-4357-9f33-cb7aa2e038c1.mp4",
+          "storage": "local",
+          "fileId": "9e83df31-9967-4357-9f33-cb7aa2e038c1"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/d3eb9d3b-9dc4-4e3f-8c7d-7f5e817ddaa9.mp4",
+          "storage": "local",
+          "fileId": "d3eb9d3b-9dc4-4e3f-8c7d-7f5e817ddaa9"
+        }
+      ]
+    },
+    {
+      "id": "narrative-layers-character",
+      "name": "Character & Form",
+      "subtitle": "",
+      "details": "",
+      "year": "2025",
+      "color": "#DFFF00",
+      "imageUrl": "/uploads/2170b979-35e6-4047-92f2-4f7931a870f7.gif",
+      "videoUrl": "/uploads/70da529e-3882-440c-b704-362be50d2fa8.mp4",
+      "description": "A collection of narrative-driven pieces that blend 2D character animation with varied visual styles. Focuses on seamless transitions (Match Cuts) and integrating animated elements into real-world plates to tell a compelling story.",
+      "tools": "After Effects",
+      "category": "Character Animation",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Character Animation",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "",
+      "solution": "",
+      "links": [],
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/70da529e-3882-440c-b704-362be50d2fa8.mp4",
+          "storage": "local",
+          "fileId": "70da529e-3882-440c-b704-362be50d2fa8"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/ece885bb-2ea7-45b4-8ded-1c0e951b764d.mp4",
+          "storage": "local",
+          "fileId": "ece885bb-2ea7-45b4-8ded-1c0e951b764d"
+        },
+        {
+          "type": "image",
+          "url": "/uploads/2170b979-35e6-4047-92f2-4f7931a870f7.gif",
+          "storage": "local",
+          "fileId": "2170b979-35e6-4047-92f2-4f7931a870f7",
+          "thumbUrl": "/uploads/94071fc3-1341-4712-a1c7-0481c6dd5671.gif"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/179efcc1-ad25-4654-827e-a311333e14be.mp4",
+          "storage": "local",
+          "fileId": "179efcc1-ad25-4654-827e-a311333e14be"
+        }
+      ]
+    },
+    {
+      "id": "systemic-motion-physics",
+      "name": "Physics & Precision",
+      "subtitle": "",
+      "details": "",
+      "year": "2025",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "/uploads/8b9acf86-535f-428d-a8d1-83ea443f39b0.mp4",
+      "description": "Showcasing technical precision in simulating physical environments and timing-critical interactions. From 3D Rube Goldberg machines to high-speed kinetic chases, this project highlights the intersection of logic and movement.",
+      "tools": "After Effects,Cinema 4D",
+      "category": "Technical Animation",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Technical Animation",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "",
+      "solution": "",
+      "links": [],
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/8b9acf86-535f-428d-a8d1-83ea443f39b0.mp4",
+          "storage": "local",
+          "fileId": "8b9acf86-535f-428d-a8d1-83ea443f39b0"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/bef0d3ca-c78a-4ba8-b5b9-497367d677a4.mp4",
+          "storage": "local",
+          "fileId": "bef0d3ca-c78a-4ba8-b5b9-497367d677a4"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/7bbc6608-838a-401d-9c78-1c1413c0d779.MP4",
+          "storage": "local",
+          "fileId": "7bbc6608-838a-401d-9c78-1c1413c0d779"
+        }
+      ]
+    },
+    {
+      "id": "som-animation-bootcamp",
+      "name": "Animation Bootcamp",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "/uploads/e2a10b05-bf1f-4486-9b9d-bde2a7df0c86.mp4",
+      "description": "A deep dive into the 12 principles of animation through the School of Motion curriculum. This series focuses on mastering the Graph Editor to transition from linear, mechanical movement to expressive, physically-accurate motion.",
+      "tools": "After Effects",
+      "category": "Reconstructive Learning",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Reconstructive Learning",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "",
+      "solution": "",
+      "links": [],
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/e2a10b05-bf1f-4486-9b9d-bde2a7df0c86.mp4",
+          "storage": "local",
+          "fileId": "e2a10b05-bf1f-4486-9b9d-bde2a7df0c86"
+        },
+        {
+          "type": "video",
+          "url": "/uploads/33f8e06c-4325-42a9-9c1b-5ba8aabcad84.mp4",
+          "storage": "local",
+          "fileId": "33f8e06c-4325-42a9-9c1b-5ba8aabcad84"
+        }
+      ]
+    },
+    {
+      "id": "som-advanced-motion-methods",
+      "name": "Complex Systems",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "",
+      "videoUrl": "/uploads/dd29abe7-d596-44d9-83ea-c7afec0bc404.mp4",
+      "description": "Focusing on the 'Motion Methods' workflow from School of Motion. This project transitions from simple movement to sophisticated motion systems, emphasizing design-driven animation and complex project architecture.",
+      "tools": "After Effects",
+      "category": "Advanced Animation",
+      "discipline": "motion",
+      "status": "case-study",
+      "role": "Advanced Animation",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "",
+      "solution": "",
+      "links": [],
+      "media": [
+        {
+          "type": "video",
+          "url": "/uploads/dd29abe7-d596-44d9-83ea-c7afec0bc404.mp4",
+          "storage": "local",
+          "fileId": "dd29abe7-d596-44d9-83ea-c7afec0bc404"
+        }
+      ]
     }
   ],
   "options": {
@@ -239,15 +422,15 @@
       "In-Development / Research"
     ],
     "categories": [
-      "Web App",
-      "Website",
-      "Data Visualization",
-      "Tool",
-      "Interactive",
-      "Game",
-      "API/Backend",
-      "Machine Learning",
-      "Neural Architecture & Reasoning"
+      "Logo Animation",
+      "Title Sequence",
+      "Explainer Video",
+      "Motion Graphics",
+      "Visual Effects",
+      "Brand Film",
+      "Music Video",
+      "Social Media",
+      "Advanced Animation"
     ],
     "tools": [
       "React",

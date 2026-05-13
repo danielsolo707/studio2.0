@@ -98,7 +98,7 @@ export function MotionProjectGallery({ projects, onProjectClick }: MotionProject
                     <img
                       src={imageUrl}
                       alt={project.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : hasVideoMedia ? (
                     <video

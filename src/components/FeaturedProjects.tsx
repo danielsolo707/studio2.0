@@ -237,9 +237,10 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                 failedImages.has(activeProject.id);
               const showLoading = loadingPreviewId === activeProject.id && !showError;
               const src = activeProject.imageUrl ? `${activeProject.imageUrl}` : '';
+              const videoSrc = activeProject.videoUrl || activeProject.media?.find(m => m.type === 'video')?.url || '';
               const discipline = getProjectDiscipline(activeProject);
 
-              if (showError || !activeProject.imageUrl) {
+              if (showError || (!activeProject.imageUrl && !videoSrc)) {
                 return (
                   <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-black/90 px-6 text-center">
                     <div className="font-headline text-[10px] tracking-[0.35em] text-[#DFFF00]">
@@ -254,16 +255,28 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
 
               return (
                 <>
-                  <img
-                    key={src}
-                    src={src}
-                    alt={`Preview of ${activeProject.name}`}
-                    loading="eager"
-                    decoding="async"
-                    className="absolute inset-0 h-full w-full object-cover grayscale transition-all duration-700"
-                    onError={() => handleImageError(activeProject.id)}
-                    onLoad={() => handleImageLoad(activeProject.id)}
-                  />
+                  {src ? (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={`Preview of ${activeProject.name}`}
+                      loading="eager"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover grayscale transition-all duration-700"
+                      onError={() => handleImageError(activeProject.id)}
+                      onLoad={() => handleImageLoad(activeProject.id)}
+                    />
+                  ) : videoSrc ? (
+                    <video
+                      key={videoSrc}
+                      src={videoSrc}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 h-full w-full object-cover grayscale"
+                    />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/20 to-transparent" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(223,255,0,0.18),transparent_55%)] opacity-60" />
                   {showLoading && (

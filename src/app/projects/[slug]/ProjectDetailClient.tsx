@@ -299,13 +299,10 @@ const techStack = {
   return (
     <main className="min-h-screen bg-[#030305]">
       <motion.div
-        className={`relative w-full aspect-video md:h-[70vh] overflow-hidden bg-black/50 ${heroItem?.type === 'video' ? 'cursor-pointer' : ''}`}
+        className="relative w-full aspect-video md:h-[70vh] overflow-hidden bg-black/50"
         initial={{ scale: 1.05, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
-        onClick={() => {
-          if (heroItem?.type === 'video') handleOpenGallery(safeHeroIndex);
-        }}
       >
         {heroItem && heroItem.type === 'video' ? (
           <video
