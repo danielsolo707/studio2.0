@@ -12,6 +12,7 @@ import { clearSession, getSession, setSession } from '@/lib/auth';
 import { readContent, writeContent } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import { isCaptchaEnabled } from '@/lib/captcha-config';
+import { getAdminUsername, updateAdminPassword, verifyAdminCredentials } from '@/lib/admin-credentials';
 import type { Project, ProjectLink } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
 
@@ -57,14 +58,6 @@ async function verifyTurnstile(token: string): Promise<{ ok: boolean; error?: st
   }
 }
 
-function getAdminCreds(): { user: string; pass: string | null } {
-  const user = process.env.ADMIN_USERNAME || 'admin';
-  const pass = process.env.ADMIN_PASSWORD;
-  if (pass) return { user, pass };
-  if (process.env.NODE_ENV === 'production') return { user, pass: null };
-  return { user, pass: 'change-me' };
-}
-
 /* ─── Zod schemas ─── */
 const aboutSchema = z.object({
   label: z.string().min(1, 'Label is required'),
@@ -77,6 +70,17 @@ const heroSchema = z.object({
   headline: z.string().min(1, 'Headline is required'),
   description: z.string().min(1, 'Description is required'),
 });
+
+const passwordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Confirm the new password'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'New passwords do not match',
+  });
 
 const projectSchema = z.object({
   id: z.string().min(1, 'ID is required').regex(/^[a-z0-9-]+$/, 'ID must be lowercase alphanumeric with hyphens'),
@@ -113,11 +117,6 @@ export async function loginAction(
   _prev: { error?: string; needs2FA?: boolean },
   formData: FormData,
 ) {
-  const admin = getAdminCreds();
-  if (!admin.pass) {
-    return { error: 'Admin credentials are not configured' };
-  }
-
   const user = String(formData.get('username') || '').trim();
   const pass = String(formData.get('password') || '').trim();
   const captchaEnabled = await isCaptchaEnabled();
@@ -129,7 +128,8 @@ export async function loginAction(
     }
   }
 
-  if (user !== admin.user || pass !== admin.pass) {
+  const isValid = await verifyAdminCredentials(user, pass);
+  if (!isValid) {
     return { error: 'Invalid username or password' };
   }
 
@@ -138,7 +138,7 @@ export async function loginAction(
     return { needs2FA: true };
   }
 
-  await setSession(admin.user);
+  await setSession(getAdminUsername());
   redirect('/dashboard');
 }
 
@@ -158,7 +158,7 @@ export async function verify2FAAction(
   const config = await readTotpConfig();
   if (!config.enabled || !config.secret) {
     // 2FA not configured — shouldn't reach here, but handle gracefully
-    await setSession(getAdminCreds().user);
+    await setSession(getAdminUsername());
     redirect('/dashboard');
   }
 
@@ -167,8 +167,38 @@ export async function verify2FAAction(
     return { error: 'Invalid code. Please try again.' };
   }
 
-  await setSession(getAdminCreds().user);
+  await setSession(getAdminUsername());
   redirect('/dashboard');
+}
+
+export async function changePasswordAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireAuth();
+  const parsed = passwordChangeSchema.safeParse({
+    currentPassword: String(formData.get('currentPassword') || ''),
+    newPassword: String(formData.get('newPassword') || ''),
+    confirmPassword: String(formData.get('confirmPassword') || ''),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0]?.message ?? 'Invalid password input' };
+  }
+
+  const currentIsValid = await verifyAdminCredentials(session.user, parsed.data.currentPassword);
+  if (!currentIsValid) {
+    return { error: 'Current password is incorrect' };
+  }
+
+  if (parsed.data.currentPassword === parsed.data.newPassword) {
+    return { error: 'New password must be different from the current password' };
+  }
+
+  await updateAdminPassword(parsed.data.newPassword);
+  await setSession(getAdminUsername());
+  revalidatePath('/dashboard');
+  return { success: true };
 }
 
 export async function logoutAction() {

@@ -8,6 +8,7 @@ import { LoginForm } from './LoginForm';
 import { MultiUploadField } from './MultiUploadField';
 import { TwoFactorSetup } from './TwoFactorSetup';
 import { CaptchaToggle } from './CaptchaToggle';
+import { ChangePasswordForm } from './ChangePasswordForm';
 import {
   loginAction,
   logoutAction,
@@ -128,6 +129,16 @@ export default async function DashboardPage() {
 
           <TwoFactorSetup initialEnabled={twoFAEnabled} />
           <CaptchaToggle initialEnabled={captchaEnabled} />
+
+          <section className="border border-white/10 p-6 bg-black/30 rounded-lg">
+            <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00] mb-2">
+              ADMIN PASSWORD
+            </h2>
+            <p className="text-xs text-white/50 font-body mb-4">
+              Change the password used for this dashboard login.
+            </p>
+            <ChangePasswordForm />
+          </section>
 
           <section className="border border-white/10 p-6 bg-black/30 rounded-lg space-y-4">
             <div className="flex items-center justify-between gap-3">

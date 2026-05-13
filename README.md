@@ -1,147 +1,164 @@
-A cinematic motion design portfolio experience built with Next.js 15, React 19, Three.js, and Framer Motion.
+# The Fluid Logic Portfolio
 
-## ✨ Features
+A cinematic creative-developer portfolio built with Next.js, React, Three.js, Framer Motion, and Tailwind CSS. The site combines typographic layouts, interactive 3D visuals, motion/code project galleries, a contact workflow, and an authenticated admin dashboard for content management.
 
-- **3D Motion Graphics**: Interactive Three.js scenes with WebGL effects
-- **Smooth Animations**: Scroll-based animations powered by Framer Motion
-- **Modern Stack**: Next.js 15 with React 19, TypeScript, and Tailwind CSS
-- **Performance Optimized**: Pre-allocated vectors, optimized rendering, and lazy loading
-- **Fully Typed**: 100% TypeScript with strict mode
-- **Accessible**: ARIA labels, keyboard navigation, and reduced motion support
-- **SEO Ready**: Open Graph tags, sitemap, and robots.txt generation
+## Features
 
-## 🚀 Quick Start
+- Interactive Three.js hero scene with responsive desktop/mobile framing
+- Animated project lists with hover previews and gradient transitions
+- Editable hero, about, and project content through the dashboard
+- Contact form with server-side validation and message management
+- Admin authentication with optional 2FA and CAPTCHA controls
+- Admin password change flow from inside the dashboard
+- First-visit intro counter with shorter loading screen on later visits
+- Responsive layouts for desktop and phone
+- SEO routes for sitemap and robots.txt
+
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+ 
-- npm or yarn
+- Node.js 20+
+- npm
 
-### Installation
+### Install And Run
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
+```
 
-# Build for production
+The local app runs at:
+
+```text
+http://localhost:9002
+```
+
+### Production
+
+```bash
 npm run build
-
-# Start production server
 npm start
 ```
 
-The app will be available at `http://localhost:9002`
+## Environment
 
-## 🛠️ Tech Stack
+Create `.env.local` for local secrets. Useful variables include:
 
-- **Framework**: Next.js 15.5.9 (App Router)
-- **UI Library**: React 19.2.1
-- **3D Graphics**: Three.js 0.174.0 + @react-three/fiber
-- **Animation**: Framer Motion 11.11.11
-- **Styling**: Tailwind CSS 3.4.1
-- **Type Safety**: TypeScript 5
-- **UI Components**: Radix UI + shadcn/ui
-- **Testing**: Vitest + React Testing Library
+```env
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me
+ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
 
-## 📁 Project Structure
+RESEND_API_KEY=
+RESEND_FROM=
 
+TURNSTILE_SECRET_KEY=
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 ```
+
+In development, if `ADMIN_PASSWORD` is missing, the fallback password is `change-me`. In production, configure real credentials and a strong `ADMIN_SESSION_SECRET`.
+
+## Admin Dashboard
+
+Open:
+
+```text
+http://localhost:9002/dashboard
+```
+
+From the dashboard you can:
+
+- Edit hero and about content
+- Add, update, reorder, and delete projects/media
+- Read and manage contact messages
+- Enable or disable 2FA
+- Enable or disable CAPTCHA
+- Change the admin password
+
+### Password Changes
+
+The dashboard password form requires the current password, a new password, and confirmation. New passwords must be at least 8 characters.
+
+After the first password change, the app stores a hashed credential file at:
+
+```text
+src/data/admin-credentials.json
+```
+
+This file is intentionally ignored by git. The stored password is hashed with `scrypt`; the raw password is not written to disk.
+
+If the credential file does not exist, login falls back to `ADMIN_PASSWORD` from the environment.
+
+## Project Structure
+
+```text
 src/
-├── app/              # Next.js app directory
-│   ├── page.tsx      # Main landing page
-│   ├── layout.tsx    # Root layout with fonts
-│   ├── globals.css   # Global styles
-│   ├── robots.ts     # Robots.txt generation
-│   └── sitemap.ts    # Sitemap generation
-├── components/       # React components
-│   ├── ui/           # Reusable UI components (shadcn)
-│   ├── LoadingScreen.tsx
-│   ├── MotionSphere.tsx
-│   ├── ProjectList.tsx
-│   ├── ProjectOverlay.tsx
-│   ├── TypographicHero.tsx
-│   └── ErrorBoundary.tsx
-├── types/            # TypeScript type definitions
-│   └── project.ts
-├── hooks/            # Custom React hooks
-└── lib/              # Utility functions
+  app/
+    page.tsx                 Main portfolio page
+    dashboard/               Admin dashboard and server actions
+    projects/[slug]/         Project detail pages
+    works/                   Motion/code listing pages
+    api/                     Media/admin API routes
+  components/
+    TypographicHero.tsx
+    FeaturedProjects.tsx
+    AboutSection.tsx
+    ContactSection.tsx
+    ContactForm.tsx
+    three/                   Three.js scenes and helpers
+    ui/                      Reusable UI components
+  data/
+    content.json             Editable portfolio content
+    captcha.json             CAPTCHA config
+  lib/
+    auth.ts                  Session helpers
+    admin-credentials.ts     Admin password hashing/storage
+    content.ts               Content read/write helpers
+    contact-log.ts           Contact message storage
+    gridfs.ts                Media storage helpers
+  types/
+    project.ts
 ```
 
-## 🧪 Testing
+## Scripts
 
 ```bash
-# Run tests
-npm test
-
-# Run tests with UI
-npm run test:ui
-
-# Run tests once (CI mode)
-npm run test:run
-
-# Type checking
-npm run typecheck
-
-# Linting
-npm run lint
+npm run dev        # Start Next.js dev server on port 9002
+npm run build      # Build for production
+npm start          # Start production server
+npm run typecheck  # TypeScript check
+npm test           # Vitest watch mode
+npm run test:run   # Vitest single run
 ```
 
-## 🎨 Customization
+## Testing Notes
 
-### Colors
+Some checks may currently fail because of existing project configuration issues unrelated to the latest UI/admin updates, including stale `.next/types` route references and mismatched generated UI component typings. The dashboard password helper was checked separately with TypeScript.
 
-Edit `src/app/globals.css` to change the color scheme:
-- Primary accent: `--accent` (Acid Green #DFFF00)
-- Background: `--background`
-- Foreground: `--foreground`
+## Security Notes
 
-### Fonts
+The following local data files are ignored by git:
 
-Fonts are loaded via `next/font/google` in `src/app/layout.tsx`:
-- Body: Inter (300, 400, 500, 600, 700)
-- Headline: Syncopate (400, 700)
-
-### Projects
-
-Edit the `PROJECTS` array in `src/components/ProjectList.tsx` to add/modify portfolio items.
-
-## 🌐 Deployment
-
-### Firebase Hosting
-
-```bash
-npm run build
-firebase deploy --only hosting
+```text
+src/data/totp.json
+src/data/contact-log.json
+src/data/admin-credentials.json
 ```
 
-### Vercel
+Do not commit `.env.local` or any generated credential/message files.
 
-```bash
-vercel deploy
-```
+## Tech Stack
 
-## 📝 Scripts
+- Next.js 15 App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Three.js with `@react-three/fiber` and `@react-three/drei`
+- Radix UI / shadcn-style components
+- Vitest and React Testing Library
 
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
-- `npm test` - Run Vitest in watch mode
-- `npm run test:run` - Run tests once
+## License
 
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 🐛 Issues
-
-Found a bug? Please [open an issue](https://github.com/danielsolo707/studio/issues).
-
+MIT License. See [LICENSE](LICENSE).
