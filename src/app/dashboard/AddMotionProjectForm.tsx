@@ -5,7 +5,6 @@ import { useActionState } from 'react'
 import { addProjectAction } from './actions'
 import { SubmitButton } from '@/components/SubmitButton'
 import { ProjectLinks } from './ProjectLinks'
-import { MultiUploadField } from './MultiUploadField'
 import { EditableSelectField } from './EditableSelectField'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { MediaFields } from '@/components/MediaFields'
@@ -200,16 +199,6 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
         />
       </div>
       <ProjectLinks defaultType="video" />
-      
-      <div className="md:col-span-2 mt-4">
-        <div className="border border-white/10 p-4 rounded-md">
-          <p className="text-[10px] tracking-[0.3em] text-white/40 mb-3">MEDIA UPLOAD</p>
-          <p className="text-xs text-white/50 mb-3">
-            After creating the project, you can add images/videos from the edit form.
-          </p>
-          <MultiUploadField projectId="" />
-        </div>
-      </div>
       
       <SubmitButton>ADD MOTION PROJECT</SubmitButton>
       {state?.error && (
