@@ -94,15 +94,11 @@ function ProjectCard({ project }: { project: Project }) {
             <input type="hidden" name="discipline" value={getProjectDiscipline(project)} />
             <div>
               <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">STATUS</p>
-              <select
+              <input
                 name="status"
                 defaultValue={getProjectStatus(project)}
-                className="w-full bg-[#030305] border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
-              >
-                {STATUS_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{STATUS_LABELS[option]}</option>
-                ))}
-              </select>
+                className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
+              />
             </div>
             <div className="md:col-span-2">
               <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">TOOLS</p>

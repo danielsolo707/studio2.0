@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
+import { ArrowLeft, BarChart3, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
@@ -96,6 +96,7 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
     if (type === 'github') return <Github size={16} />;
     if (type === 'notebook') return <BookOpen size={16} />;
     if (type === 'video') return <PlayCircle size={16} />;
+    if (type === 'kaggle') return <BarChart3 size={16} />;
     return <ExternalLink size={16} />;
   };
 
@@ -158,7 +159,7 @@ const techStack = {
         ? [{ src: project.imageUrl, alt: `${project.name} view`, type: 'browser' as const }]
         : [];
 
-    const statusLabel = STATUS_LABELS[status] || 'Prototype';
+    const statusLabel = STATUS_LABELS[status] || status || 'Prototype';
 
     return (
       <main className="min-h-screen bg-background text-foreground">
@@ -205,7 +206,7 @@ const techStack = {
                 transition={{ delay: 0.3 }}
                 className="px-3 sm:px-4 py-1 sm:py-1.5 bg-lime/10 border border-lime/30 rounded-md text-lime text-xs font-mono"
               >
-                Case Study
+                {statusLabel}
               </motion.span>
             </div>
           </motion.section>
@@ -222,9 +223,10 @@ const techStack = {
             transition={{ duration: 0.5, delay: 0.25 }}
             className="flex flex-wrap gap-4"
           >
-            {links.find(l => l.type === 'demo') && (
+            {links.map((link) => (
               <a
-                href={links.find(l => l.type === 'demo')?.url}
+                key={`${link.type}-${link.url}`}
+                href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="
@@ -237,30 +239,12 @@ const techStack = {
                   font-mono text-sm
                 "
               >
-                <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-lime transition-colors" />
-                <span className="text-foreground group-hover:text-lime transition-colors">Live Demo</span>
+                {getLinkIcon(link.type)}
+                <span className="text-foreground group-hover:text-lime transition-colors">
+                  {link.label || LINK_TYPE_LABELS[link.type] || link.type}
+                </span>
               </a>
-            )}
-            
-            {links.find(l => l.type === 'github') && (
-              <a
-                href={links.find(l => l.type === 'github')?.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  group flex items-center gap-2 
-                  px-5 py-2.5 
-                  bg-muted/50 border border-border 
-                  rounded-lg
-                  hover:border-lime hover:bg-lime/10
-                  transition-all duration-300
-                  font-mono text-sm
-                "
-              >
-                <Code2 className="w-4 h-4 text-muted-foreground group-hover:text-lime transition-colors" />
-                <span className="text-foreground group-hover:text-lime transition-colors">View Code</span>
-              </a>
-            )}
+            ))}
           </motion.div>
 
           <TechSpecsGrid specs={techSpecs} />
@@ -445,7 +429,7 @@ const techStack = {
               <dt className="text-[10px] uppercase tracking-[0.5em] text-[#DFFF00] mb-4 font-headline">
                 STATUS
               </dt>
-              <dd className="font-headline text-lg text-white">{STATUS_LABELS[status]}</dd>
+              <dd className="font-headline text-lg text-white">{STATUS_LABELS[status] || status}</dd>
             </div>
             <div>
               <dt className="text-[10px] uppercase tracking-[0.5em] text-[#DFFF00] mb-4 font-headline">

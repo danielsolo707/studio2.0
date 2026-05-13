@@ -95,7 +95,7 @@ const projectSchema = z.object({
   tools: z.string().min(1, 'Tools are required'),
   category: z.string().min(1, 'Category is required'),
   discipline: z.enum(['motion', 'code', 'data', 'hybrid']).default('motion'),
-  status: z.enum(['case-study', 'prototype', 'experiment', 'learning-project', 'showreel']).default('case-study'),
+  status: z.string().default('case-study'),
   role: z.string().optional().default(''),
   objective: z.string().optional().default(''),
   approach: z.string().optional().default(''),
@@ -388,7 +388,7 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
     const parsedLink = z.object({
       label: z.string().min(1),
       url: z.string().url('Project link must be a valid URL'),
-      type: z.enum(['github', 'demo', 'notebook', 'video']),
+      type: z.enum(['github', 'demo', 'notebook', 'video', 'kaggle']),
     }).safeParse({ label, url, type });
 
     if (!parsedLink.success) {

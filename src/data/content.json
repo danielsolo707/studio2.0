@@ -49,46 +49,6 @@
       ]
     },
     {
-      "id": "taskflow-dashboard",
-      "name": "TASKFLOW DASHBOARD",
-      "year": "2024",
-      "color": "#6366F1",
-      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
-      "videoUrl": "",
-      "description": "A sleek task management dashboard with real-time collaboration features. Built with modern React patterns and a clean, minimalist interface that prioritizes productivity.",
-      "tools": "NEXT.JS / REACT / TAILWIND CSS / MONGODB",
-      "category": "PRODUCTIVITY TOOL",
-      "discipline": "code",
-      "status": "case-study",
-      "role": "Frontend Developer",
-      "objective": "Design and build a fast, intuitive task management system that teams actually want to use.",
-      "approach": "Started with user research to understand pain points in existing tools. Used React Query for data fetching, optimistic updates for instant feedback, and a drag-and-drop system for task organization.",
-      "outcome": "A fully functional dashboard used by 3 small teams. Reduced daily planning time by 40% according to user feedback.",
-      "nextStep": "Add AI-powered task suggestions and automated workflow triggers based on team patterns.",
-      "links": [
-        {
-          "label": "Live Demo",
-          "url": "https://demo-taskflow.vercel.app",
-          "type": "demo"
-        },
-        {
-          "label": "View Code",
-          "url": "https://github.com/danielsolo707/taskflow",
-          "type": "github"
-        }
-      ],
-      "media": [
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop"
-        },
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
-        }
-      ]
-    },
-    {
       "id": "motion-ui-abstract",
       "name": "Dynamic Interface Flow",
       "year": "2025",
@@ -111,6 +71,163 @@
           "storage": "local"
         }
       ]
+    },
+    {
+      "id": "birdclef-audio-recognition",
+      "name": "BirdCLEF Audio Recognition",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "/uploads/42ac9658-8ef2-4a3c-a91b-3cc50e35a1fd.png",
+      "videoUrl": "",
+      "description": "An advanced deep learning pipeline designed to identify avian vocalizations in complex soundscapes. Utilizing Mel-spectrogram conversion and CNN architectures to monitor biodiversity through bioacoustic data.",
+      "tools": "PYTHON / PYTORCH / LIBROSA / EFFICIENTNET / KAGGLE",
+      "category": "Bioacoustic Monitoring",
+      "discipline": "code",
+      "status": "case-study",
+      "role": "Bioacoustic Monitoring",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "// The main challenge was processing low-signal audio\r\n// in high-noise environments while maintaining\r\n// real-time inference efficiency.\r\n\r\nconst audioPipeline = [\r\n  \"Resampling to 32kHz\",\r\n  \"Short-time Fourier Transform (STFT)\",\r\n  \"Mel-scale transformation\",\r\n  \"PCEN Normalization\"\r\n];",
+      "solution": "// Solution implemented using EfficientNet-B0 backbone\r\n// fine-tuned on BirdCLEF datasets for multi-label\r\n// classification and species detection.\r\n\r\nconst modelStack = {\r\n  backbone: \"EfficientNet-B0\",\r\n  pooling: \"Global Average Pooling\",\r\n  head: \"Linear + Sigmoid Activation\",\r\n  loss: \"BCEWithLogitsLoss\"\r\n};",
+      "links": [
+        {
+          "label": "Github",
+          "url": "https://github.com/danielsolo707/BirdCLEF",
+          "type": "github"
+        },
+        {
+          "label": "Kaggle",
+          "url": "https://www.kaggle.com/c/birdclef-2025",
+          "type": "kaggle"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "/uploads/42ac9658-8ef2-4a3c-a91b-3cc50e35a1fd.png",
+          "storage": "local",
+          "fileId": "42ac9658-8ef2-4a3c-a91b-3cc50e35a1fd",
+          "thumbUrl": "/uploads/a4e1df60-5bda-43a3-8f5e-45799dd1a466.png"
+        }
+      ]
+    },
+    {
+      "id": "bipedal-walker-ppo",
+      "name": "BipedalWalker RL Training",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "/uploads/e9c6ca3f-b14d-420b-81f5-e155aa4a872e.png",
+      "videoUrl": "",
+      "description": "Training a bipedal robot to walk and navigate terrain using Proximal Policy Optimization (PPO). This project explores the balance between exploration and exploitation in continuous action spaces, resulting in a robust locomotive agent after 1 million timesteps of training.",
+      "tools": "PYTHON / PYTORCH / OPENAI GYM / PPO ALGORITHM / STABLE BASELINES3",
+      "category": "Reinforcement Learning",
+      "discipline": "code",
+      "status": "case-study",
+      "role": "Reinforcement Learning",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "// The challenge was stabilizing the agent's gait\r\n// and preventing \"catastrophic forgetting\" during \r\n// training in a continuous 4-joint action space.\r\n\r\nfunction computeRewardPolicy() {\r\n  const rewards = {\r\n    forward_movement: \"+pos\",\r\n    energy_expenditure: \"-neg\",\r\n    head_stability: \"+balance\",\r\n    collision: \"-fatal\"\r\n  };\r\n  \r\n  return \"Optimizing objective function...\";\r\n}",
+      "solution": "// Implementation of Proximal Policy Optimization (PPO)\r\n// Clipping the surrogate objective to ensure stable \r\n// updates and avoid large policy shifts.\r\n\r\nconst ppoConfig = {\r\n  policy: \"MlpPolicy\",\r\n  learning_rate: 3e-4,\r\n  n_steps: 2048,\r\n  batch_size: 64,\r\n  clip_range: 0.2\r\n};\r\n\r\n// Result: Agent achieved stable gait after 1M steps.",
+      "links": [
+        {
+          "label": "Github",
+          "url": "https://github.com/danielsolo707/BipedalWalker-PPO",
+          "type": "github"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "/uploads/e9c6ca3f-b14d-420b-81f5-e155aa4a872e.png",
+          "storage": "local",
+          "fileId": "e9c6ca3f-b14d-420b-81f5-e155aa4a872e",
+          "thumbUrl": "/uploads/d5272d96-716c-4d71-8e05-651f41ea9361.png"
+        }
+      ]
+    },
+    {
+      "id": "studio-portfolio-v2",
+      "name": "Portfolio Studio 2.0",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "/uploads/de652d92-0d21-417a-af67-016685e843ed.png",
+      "videoUrl": "",
+      "description": "The architectural core of my digital presence. A high-performance portfolio crafted with Next.js, featuring smooth state transitions, custom-built UI components, and integrated 3D elements. Designed to bridge the gap between motion design and functional web engineering.",
+      "tools": "NEXT.JS / REACT / THREE.JS / TAILWIND CSS / FRAMER MOTION",
+      "category": "Web Architecture",
+      "discipline": "code",
+      "status": "case-study",
+      "role": "Web Architecture",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "// The challenge was creating a seamless dark-minimal\r\n// aesthetic while maintaining high Lighthouse scores\r\n// and fluid animations across all device types.\r\n\r\nfunction syncBrandAesthetics() {\r\n  const theme = {\r\n    background: \"#000000\",\r\n    accent: \"#DFFF00\", // The lime-neon highlight\r\n    typography: \"Inter / JetBrains Mono\",\r\n    motion: \"Framer Motion Reduced\"\r\n  };\r\n  \r\n  return \"System UI harmonized\";\r\n}",
+      "solution": "// Implementation of a dynamic project routing system\r\n// with complex layout transitions and optimized \r\n// asset loading for 3D/Video content.\r\n\r\nexport default function ProjectLayout({ children }) {\r\n  return (\r\n    <motion.div\r\n      initial={{ opacity: 0, filter: \"blur(10px)\" }}\r\n      animate={{ opacity: 1, filter: \"blur(0px)\" }}\r\n      transition={{ duration: 0.8, ease: \"circOut\" }}\r\n    >\r\n      {children}\r\n    </motion.div>\r\n  );\r\n}",
+      "links": [
+        {
+          "label": "Github",
+          "url": "https://github.com/danielsolo707/studio2.0",
+          "type": "github"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "/uploads/de652d92-0d21-417a-af67-016685e843ed.png",
+          "storage": "local",
+          "fileId": "de652d92-0d21-417a-af67-016685e843ed",
+          "thumbUrl": "/uploads/aefc1ef1-9aa3-4729-88d9-2f271a1a4feb.png"
+        }
+      ]
+    },
+    {
+      "id": "alpha-math-reasoning-agent",
+      "name": "ALPHA-MATH: Logic-Transplanted Reasoning Agent",
+      "subtitle": "",
+      "details": "",
+      "year": "2026",
+      "color": "#DFFF00",
+      "imageUrl": "/uploads/e04b2662-1779-43e5-b848-788c0fdf15d5.png",
+      "videoUrl": "",
+      "description": "A specialized reasoning agent designed for IMO-level mathematical problem solving. ALPHA-MATH combines surgical logic distillation from 70B models into lightweight 8B architectures, integrated with a \"System 2\" Pythonic execution loop for self-correction and symbolic verification.",
+      "tools": "PYTORCH / LLAMA-3 / QLORA / SYMPY / DISTILLATION",
+      "category": "Neural Architecture & Reasoning",
+      "discipline": "code",
+      "status": "In-Development / Research",
+      "role": "Neural Architecture & Reasoning",
+      "objective": "",
+      "approach": "",
+      "outcome": "",
+      "nextStep": "",
+      "challenge": "// Phase 1: Logic Surgery & Feature Distillation\r\n// Extracting \"Chain-of-Thought\" neurons from Teacher models\r\n// and grafting them into the 8B base via Weight-Space Distillation.\r\n\r\nfunction extractReasoningLogic(teacherModel) {\r\n  const activationMap = teacherModel.analyze(\"multi-step-logic\");\r\n  const logicWeights = activationMap.identify(SALIENCY_THRESHOLD);\r\n  \r\n  return {\r\n    target: \"Llama-3-8B\",\r\n    action: \"Graft Logic Weights\",\r\n    method: \"Activation Mapping\"\r\n  };\r\n}",
+      "solution": "// Phase 3: The Engine & Pythonic Verifier\r\n// Implementing a closed-loop system where the LLM's \r\n// output is validated through real-time code execution.\r\n\r\nconst verifierLoop = async (problem) => {\r\n  let solution = await agent.generatePython(problem);\r\n  let result = await sandbox.execute(solution);\r\n  \r\n  while (result.status === \"inconsistent\") {\r\n    // Trigger \"Backtrack Signal\" for self-correction\r\n    solution = await agent.refine(result.errors);\r\n    result = await sandbox.execute(solution);\r\n  }\r\n  \r\n  return result.finalProof;\r\n};",
+      "links": [
+        {
+          "label": "Kaggle",
+          "url": "https://www.kaggle.com/competitions/ai-mathematical-olympiad-progress-prize-3",
+          "type": "kaggle"
+        }
+      ],
+      "media": [
+        {
+          "type": "image",
+          "url": "/uploads/e04b2662-1779-43e5-b848-788c0fdf15d5.png",
+          "storage": "local",
+          "fileId": "e04b2662-1779-43e5-b848-788c0fdf15d5",
+          "thumbUrl": "/uploads/736dc6ed-aba9-41f7-9c45-53a5e43f68ae.png"
+        }
+      ]
     }
   ],
   "options": {
@@ -118,30 +235,34 @@
       "Case Study",
       "Prototype",
       "Experiment",
-      "Learning Project"
+      "Learning Project",
+      "In-Development / Research"
     ],
     "categories": [
-      "Motion Design",
-      "Experimental",
-      "Creative Code",
-      "Art Direction",
       "Web App",
+      "Website",
       "Data Visualization",
-      "Productivity Tool"
+      "Tool",
+      "Interactive",
+      "Game",
+      "API/Backend",
+      "Machine Learning",
+      "Neural Architecture & Reasoning"
     ],
     "tools": [
       "React",
       "Next.js",
+      "TypeScript",
       "Python",
-      "TensorFlow",
+      "Node.js",
       "Three.js",
-      "Blender",
-      "After Effects",
-      "Cinema 4D",
-      "D3.js",
-      "Tailwind CSS",
+      "TensorFlow",
+      "PostgreSQL",
       "MongoDB",
-      "Octane"
+      "Docker",
+      "Figma",
+      "Pytorch",
+      "Qlora"
     ],
     "disciplines": [
       "Motion",
@@ -154,6 +275,65 @@
       "Demo",
       "Notebook",
       "Video"
-    ]
+    ],
+    "motion": {
+      "statuses": [
+        "Case Study",
+        "Prototype",
+        "Experiment",
+        "Showreel"
+      ],
+      "categories": [
+        "Logo Animation",
+        "Title Sequence",
+        "Explainer Video",
+        "Motion Graphics",
+        "Visual Effects",
+        "Brand Film",
+        "Music Video",
+        "Social Media"
+      ],
+      "tools": [
+        "After Effects",
+        "Cinema 4D",
+        "Blender",
+        "Premiere Pro",
+        "Illustrator",
+        "Photoshop",
+        "Houdini",
+        "Nuke"
+      ]
+    },
+    "code": {
+      "statuses": [
+        "Case Study",
+        "Prototype",
+        "Experiment",
+        "Learning Project"
+      ],
+      "categories": [
+        "Web App",
+        "Website",
+        "Data Visualization",
+        "Tool",
+        "Interactive",
+        "Game",
+        "API/Backend",
+        "Machine Learning"
+      ],
+      "tools": [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "Python",
+        "Node.js",
+        "Three.js",
+        "TensorFlow",
+        "PostgreSQL",
+        "MongoDB",
+        "Docker",
+        "Figma"
+      ]
+    }
   }
 }

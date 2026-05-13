@@ -46,7 +46,7 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
   
   const defaultStatus = options.statuses[0] || 'Case Study'
   const defaultCategory = options.categories[0] || ''
-  const defaultTools = options.tools[0] || ''
+  const defaultTools = ''
   
   const [status, setStatus] = useState(defaultStatus)
   const [category, setCategory] = useState(defaultCategory)
@@ -177,6 +177,7 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
           options={options.tools}
           value={tools}
           onChange={setTools}
+          multiple
         />
       </div>
       <div className="md:col-span-2">

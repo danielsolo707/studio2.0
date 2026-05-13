@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useActionState } from 'react'
+import { useState, useActionState, startTransition } from 'react'
 import { updateOptionsAction } from './actions'
 
 type EditableSelectProps = {
@@ -17,8 +17,7 @@ export function EditableSelect({ label, name, options, defaultValue }: EditableS
   const [newOption, setNewOption] = useState('')
   const [state, formAction] = useActionState(updateOptionsAction, initialState)
 
-  const addOption = (e: React.FormEvent) => {
-    e.preventDefault()
+  const addOption = () => {
     if (!newOption.trim()) return
     
     const updatedOptions = [...localOptions, newOption.trim()]
@@ -27,7 +26,7 @@ export function EditableSelect({ label, name, options, defaultValue }: EditableS
     
     const formData = new FormData()
     formData.append(name, JSON.stringify(updatedOptions))
-    formAction(formData)
+    startTransition(() => formAction(formData))
   }
 
   const removeOption = (optionToRemove: string) => {
@@ -36,7 +35,7 @@ export function EditableSelect({ label, name, options, defaultValue }: EditableS
     
     const formData = new FormData()
     formData.append(name, JSON.stringify(updatedOptions))
-    formAction(formData)
+    startTransition(() => formAction(formData))
   }
 
   return (
@@ -70,22 +69,24 @@ export function EditableSelect({ label, name, options, defaultValue }: EditableS
         ))}
       </div>
 
-      <form onSubmit={addOption} className="flex gap-2">
+      <div className="flex gap-2">
         <input
           type="text"
           value={newOption}
           onChange={(e) => setNewOption(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addOption(); } }}
           placeholder="Add new..."
           className="flex-1 bg-transparent border border-white/10 px-2 py-1 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={addOption}
           disabled={!newOption.trim()}
           className="px-2 py-1 border border-white/20 text-[10px] text-white/50 hover:border-[#DFFF00] hover:text-[#DFFF00] disabled:opacity-30 transition-colors"
         >
           +
         </button>
-      </form>
+      </div>
     </div>
   )
 }

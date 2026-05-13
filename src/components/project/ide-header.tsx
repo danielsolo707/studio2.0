@@ -1,8 +1,9 @@
 "use client"
 
-import { motion } from "framer-motion"
-import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, GitBranch, FileCode2 } from "lucide-react"
+import { useState } from "react"
 
 interface IDEHeaderProps {
   projectSlug: string
@@ -10,21 +11,52 @@ interface IDEHeaderProps {
 }
 
 export function IDEHeader({ projectSlug, projectName }: IDEHeaderProps) {
+  const router = useRouter()
+  const [isClearing, setIsClearing] = useState(false)
+
+  const handleBack = async () => {
+    setIsClearing(true)
+    await new Promise(resolve => setTimeout(resolve, 800))
+    router.push("/works/code")
+  }
+
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border"
-    >
-      <div className="flex items-center justify-between px-3 md:px-6 py-3">
-        <Link 
-          href="/works/code"
-          className="flex items-center gap-2 text-muted-foreground hover:text-lime transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-mono text-sm">cd ..</span>
-        </Link>
+    <>
+      <AnimatePresence>
+        {isClearing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.6, times: [0, 0.3, 1] }}
+              className="font-mono text-lime text-lg"
+            >
+              <span className="inline-block animate-pulse">_</span>
+              <span> clearing terminal...</span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border"
+      >
+        <div className="flex items-center justify-between px-3 md:px-6 py-3">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 text-muted-foreground hover:text-lime transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-mono text-sm">cd ..</span>
+          </button>
 
         <div className="hidden sm:flex items-center gap-3">
           <div className="flex items-center gap-2 px-4 py-1.5 bg-muted/50 rounded-t-md border-b-2 border-lime">
@@ -57,5 +89,6 @@ export function IDEHeader({ projectSlug, projectName }: IDEHeaderProps) {
         </div>
       </div>
     </motion.header>
+    </>
   )
 }

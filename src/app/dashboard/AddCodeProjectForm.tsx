@@ -54,7 +54,7 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
   const opts = options ?? defaultOptions
   const [status, setStatus] = useState(opts.statuses[0] || 'Case Study')
   const [category, setCategory] = useState(opts.categories[0] || '')
-  const [tools, setTools] = useState(opts.tools[0] || '')
+  const [tools, setTools] = useState('')
   
   const [formValues, setFormValues] = useState<FormValues>({})
   const [imageUrls, setImageUrls] = useState<string[]>([''])
@@ -164,6 +164,7 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
           options={opts.tools}
           value={tools}
           onChange={setTools}
+          multiple
         />
       </div>
       <div className="md:col-span-2">

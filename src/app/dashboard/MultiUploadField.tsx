@@ -1,9 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Uppy from '@uppy/core'
-import Tus from '@uppy/tus'
 
 type UploadItem = {
   id: string
@@ -13,144 +11,96 @@ type UploadItem = {
   progress: number
   status: 'queued' | 'uploading' | 'complete' | 'error'
   error?: string
+  file: File
 }
 
 export function MultiUploadField({ projectId }: { projectId: string }) {
   const router = useRouter()
   const [items, setItems] = useState<UploadItem[]>([])
-  const [uppy, setUppy] = useState<any>(null)
+  const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const saveToProject = useCallback(async (filename: string, type: string, uploadData?: { url?: string; fileId?: string; storage?: string }) => {
-    const url = uploadData?.url || `/uploads/${filename}`
-    const fileId = uploadData?.fileId
-    const storage = 'local'
-    
-    await fetch('/api/admin/upload/media', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-project-id': projectId,
-      },
-      body: JSON.stringify({
-        url,
-        fileId,
-        storage,
-        type: type.startsWith('image') ? 'image' : 'video',
-      }),
-    })
-  }, [projectId])
+  const updateItem = (id: string, patch: Partial<UploadItem>) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, ...patch } : item))
+  }
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && uppy) {
-      Array.from(e.target.files).forEach((f) => {
-        uppy.addFile({
-          source: 'file-input',
-          name: f.name,
-          type: f.type,
-          data: f,
-          size: f.size,
+    if (!e.target.files) return
+    const newItems: UploadItem[] = Array.from(e.target.files).map(f => ({
+      id: crypto.randomUUID(),
+      name: f.name,
+      size: f.size,
+      type: f.type,
+      progress: 0,
+      status: 'queued' as const,
+      file: f,
+    }))
+    setItems(prev => [...prev, ...newItems])
+    e.target.value = ''
+  }, [])
+
+  const startUpload = useCallback(async () => {
+    const queued = items.filter(i => i.status === 'queued')
+    if (queued.length === 0) return
+    setUploading(true)
+
+    for (const item of queued) {
+      updateItem(item.id, { status: 'uploading', progress: 0 })
+
+      try {
+        const buffer = await item.file.arrayBuffer()
+
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', '/api/admin/upload/media')
+        xhr.setRequestHeader('x-project-id', projectId)
+        xhr.setRequestHeader('x-file-name', item.name)
+        xhr.setRequestHeader('x-file-type', item.type)
+        xhr.setRequestHeader('Content-Type', item.type)
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            updateItem(item.id, { progress: Math.round((e.loaded / e.total) * 100) })
+          }
+        }
+
+        await new Promise<void>((resolve, reject) => {
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve()
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`))
+            }
+          }
+          xhr.onerror = () => reject(new Error('Network error'))
+          xhr.send(new Blob([buffer], { type: item.type }))
         })
-      })
-      e.target.value = ''
-    }
-  }, [uppy])
 
-  const startUpload = useCallback(() => {
-    if (uppy) {
-      uppy.upload()
+        updateItem(item.id, { status: 'complete', progress: 100 })
+      } catch (err) {
+        updateItem(item.id, { status: 'error', error: err instanceof Error ? err.message : 'Upload failed' })
+      }
     }
-  }, [uppy])
 
-  const clearItems = useCallback(() => {
-    setItems([])
-    if (uppy) {
-      uppy.cancelAll()
-    }
-  }, [uppy])
+    setUploading(false)
+    router.refresh()
+  }, [items, projectId, router])
+
+  const removeItem = (id: string) => {
+    setItems(prev => prev.filter(i => i.id !== id))
+  }
+
+  const clearAll = () => setItems([])
 
   const hasQueuedItems = items.some(i => i.status === 'queued')
-  const hasUploadingItems = items.some(i => i.status === 'uploading')
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const uppyInstance = new Uppy({
-      id: `upload-${projectId}`,
-      autoProceed: false,
-      restrictions: {
-        maxFileSize: null,
-        allowedFileTypes: ['image/*', 'video/*'],
-      },
-    })
-
-    uppyInstance.use(Tus, {
-      endpoint: '/api/admin/upload/local',
-      chunkSize: 50 * 1024 * 1024,
-      retryDelays: [0, 1000, 3000, 5000],
-    })
-
-    uppyInstance.on('file-added', (file: any) => {
-      setItems(prev => [...prev, {
-        id: file.id,
-        name: file.name,
-        size: file.size || 0,
-        type: file.type || 'application/octet-stream',
-        progress: 0,
-        status: 'queued',
-      }])
-    })
-
-    uppyInstance.on('upload-progress', (file: any, progress: any) => {
-      setItems(prev => prev.map(item => 
-        item.id === file.id 
-          ? { ...item, progress: Math.round((progress.bytesUploaded / (progress.bytesTotal || 1)) * 100), status: 'uploading' }
-          : item
-      ))
-    })
-
-    uppyInstance.on('complete', (result: any) => {
-      if (result.successful) {
-        result.successful.forEach((file: any) => {
-          setItems(prev => prev.map(item => 
-            item.id === file.id 
-              ? { ...item, progress: 100, status: 'complete' }
-              : item
-          ))
-
-          const uploadData = file.response?.uploadData as { url?: string; fileId?: string } | undefined
-          saveToProject(file.name, file.type || 'application/octet-stream', uploadData)
-        })
-        router.refresh()
-      }
-    })
-
-    uppyInstance.on('error', (error: Error) => {
-      console.error('Uppy error:', error)
-      setItems(prev => prev.map(item => 
-        item.status === 'uploading'
-          ? { ...item, status: 'error', error: error.message }
-          : item
-      ))
-    })
-
-    setUppy(uppyInstance)
-
-    return () => {
-      uppyInstance.destroy()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId])
 
   return (
     <div className="w-full max-w-xl border border-white/10 p-4 rounded-md">
-      {/* Storage Type Selector */}
       <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
         <div className="text-[10px] text-white/40">
           Saved to /public/uploads
         </div>
       </div>
 
-      {/* File Input */}
       <div className="flex items-center gap-2 mb-4">
         <input
           ref={fileInputRef}
@@ -158,13 +108,13 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
           multiple
           accept="image/*,video/*"
           onChange={handleFileSelect}
-          disabled={hasUploadingItems}
+          disabled={uploading}
           className="hidden"
         />
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          disabled={hasUploadingItems}
+          disabled={uploading}
           className="px-4 py-2 border border-white/30 text-xs tracking-widest hover:border-[#DFFF00]/50 hover:text-[#DFFF00] transition-colors disabled:opacity-40"
         >
           CHOOSE FILES
@@ -172,15 +122,15 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
         <button
           type="button"
           onClick={startUpload}
-          disabled={!hasQueuedItems || hasUploadingItems}
+          disabled={!hasQueuedItems || uploading}
           className="px-4 py-2 bg-[#DFFF00] text-black text-xs tracking-widest hover:bg-[#DFFF00]/80 disabled:opacity-40 transition-colors"
         >
-          {hasUploadingItems ? 'UPLOADING...' : 'START UPLOAD'}
+          {uploading ? 'UPLOADING...' : 'START UPLOAD'}
         </button>
-        {items.length > 0 && !hasUploadingItems && (
+        {items.length > 0 && !uploading && (
           <button
             type="button"
-            onClick={clearItems}
+            onClick={clearAll}
             className="px-3 py-2 border border-white/20 text-xs text-white/50 hover:text-white/80"
           >
             CLEAR
@@ -188,14 +138,10 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
         )}
       </div>
 
-      {/* Upload Queue */}
       {items.length > 0 && (
         <div className="space-y-2">
           {items.map((item) => (
-            <div 
-              key={item.id} 
-              className="border border-white/10 px-3 py-2 flex items-center justify-between gap-3"
-            >
+            <div key={item.id} className="border border-white/10 px-3 py-2 flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] truncate text-white/80">{item.name}</p>
                 <p className="text-[10px] text-white/40">
@@ -204,39 +150,40 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Progress Bar */}
                 <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full rounded-full transition-all ${
                       item.status === 'error' ? 'bg-red-500' :
-                      item.status === 'complete' ? 'bg-[#DFFF00]' :
-                      'bg-[#DFFF00]'
+                      item.status === 'complete' ? 'bg-[#DFFF00]' : 'bg-[#DFFF00]'
                     }`}
-                    style={{ 
+                    style={{
                       width: item.status === 'queued' ? '0%' : `${item.progress}%`,
-                      transition: 'width 0.2s ease'
+                      transition: 'width 0.2s ease',
                     }}
                   />
                 </div>
 
-                {/* Status */}
                 <span className="text-[10px] w-16 text-right">
                   {item.status === 'queued' && 'Ready'}
                   {item.status === 'uploading' && `${item.progress}%`}
                   {item.status === 'complete' && '✓ Done'}
                   {item.status === 'error' && 'Failed'}
                 </span>
+
+                {item.status === 'error' && (
+                  <button onClick={() => removeItem(item.id)} className="text-[10px] text-red-400 hover:text-red-300">
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Info */}
       <div className="mt-4 pt-4 border-t border-white/5 text-[10px] text-white/40 space-y-1">
         <p>• No file size limit - upload any size</p>
-        <p>• Resumable - resumes automatically if interrupted</p>
-        <p>• Supports pause/resume during upload</p>
+        <p>• Uploads directly to /public/uploads</p>
       </div>
     </div>
   )
