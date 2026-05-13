@@ -49,20 +49,20 @@ export async function submitContact(
   const data = result.data;
 
   try {
-    // Persist message locally for dashboard access
-    await addMessage({
-      name: data.name,
-      email: data.email,
-      message: data.message,
-    });
+    // Run DB save + email send in parallel (no sequential waiting)
+    await Promise.allSettled([
+      addMessage({
+        name: data.name,
+        email: data.email,
+        message: data.message,
+      }),
+      (async () => {
+        const apiKey = process.env.RESEND_API_KEY;
+        const from = process.env.RESEND_FROM;
+        const to = process.env.RESEND_TO;
 
-    // Send email via Resend (if configured)
-    const apiKey = process.env.RESEND_API_KEY;
-    const from = process.env.RESEND_FROM;
-    const to = process.env.RESEND_TO;
+        if (!apiKey || !from || !to) return;
 
-    if (apiKey && from && to) {
-      try {
         const response = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -81,11 +81,8 @@ export async function submitContact(
         if (!response.ok) {
           console.error('Resend API error:', await response.text());
         }
-      } catch (emailError) {
-        console.error('Resend email failed:', emailError);
-        // Proceed without blocking the user - log the error but don't fail the action
-      }
-    }
+      })(),
+    ]);
 
     return {
       success: true,

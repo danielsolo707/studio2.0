@@ -1,11 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { ObjectId } from 'mongodb';
 import { getSession } from '@/lib/auth';
 import { readContent, writeContent } from '@/lib/content';
-import { getBucket } from '@/lib/gridfs';
-import { Readable } from 'stream';
-import { finished } from 'stream/promises';
+import { uploadFile } from '@/lib/gridfs';
 
 export const runtime = 'nodejs';
 
@@ -40,7 +37,6 @@ export async function POST(request: NextRequest) {
     const projectId = (request.headers.get('x-project-id') || '').trim();
     const filename = request.headers.get('x-file-name') || 'upload.bin';
     const mimeType = request.headers.get('x-file-type') || request.headers.get('content-type') || 'application/octet-stream';
-    const contentLength = Number(request.headers.get('content-length') || 0);
     const kind = detectKind({ type: mimeType } as File);
     if (!projectId) {
       return NextResponse.json({ error: 'Missing project id' }, { status: 400 });
@@ -49,71 +45,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Unsupported file type: ${mimeType}` }, { status: 400 });
     }
 
-    const bucket = await getBucket();
     const content = await readContent();
-    const saved: Array<{
-      fileId: string;
-      url: string;
-      kind: 'image' | 'video';
-      thumbUrl?: string;
-      thumbFileId?: string;
-    }> = [];
-
     const projIndex = content.projects.findIndex((p) => p.id === projectId);
     if (projIndex === -1) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // Stream upload
-    const uploadStream = bucket.openUploadStream(filename, {
-      contentType: mimeType,
-      metadata: {
-        projectId,
-        kind,
-        originalName: filename,
-        mime: mimeType,
-        role: 'original',
-      },
-    });
+    const buffer = Buffer.from(await request.arrayBuffer());
 
-    const nodeStream = Readable.fromWeb(request.body as any);
-    const imageChunks: Buffer[] = [];
-
-    nodeStream.on('data', (chunk: Buffer) => {
-      if (kind === 'image') imageChunks.push(chunk);
-    });
-
-    nodeStream.pipe(uploadStream);
-    await finished(uploadStream);
-
-    const fileId = uploadStream.id instanceof ObjectId ? uploadStream.id.toHexString() : String(uploadStream.id);
-    const url = `/api/media/${fileId}`;
+    const fileId = await uploadFile(buffer, filename, mimeType);
+    const ext = filename.includes('.') ? filename.substring(filename.lastIndexOf('.')) : '';
+    const url = `/uploads/${fileId}${ext}`;
     let thumbUrl: string | undefined;
-    let thumbFileId: string | undefined;
 
-    if (kind === 'image' && imageChunks.length > 0) {
-      const buffer = Buffer.concat(imageChunks);
+    if (kind === 'image') {
       const thumb = await maybeMakeThumbnail(buffer, mimeType || 'image/jpeg');
       if (thumb) {
-        const thumbStream = bucket.openUploadStream(`thumb-${filename}`, {
-          contentType: thumb.mime,
-          metadata: {
-            projectId,
-            kind,
-            originalName: filename,
-            mime: thumb.mime,
-            role: 'thumb',
-          },
-        });
-        Readable.from(thumb.buffer).pipe(thumbStream);
-        await finished(thumbStream);
-        thumbFileId =
-          thumbStream.id instanceof ObjectId ? thumbStream.id.toHexString() : String(thumbStream.id);
-        thumbUrl = `/api/media/${thumbFileId}`;
+        const thumbId = await uploadFile(thumb.buffer, `thumb-${filename}`, thumb.mime);
+        thumbUrl = `/uploads/${thumbId}${ext}`;
       }
     }
 
-    saved.push({ fileId, url, kind, thumbUrl, thumbFileId });
+    const saved = [{ fileId, url, kind, thumbUrl }];
 
     const project = content.projects[projIndex];
     project.media = project.media || [];
@@ -121,10 +74,9 @@ export async function POST(request: NextRequest) {
       project.media.push({
         type: item.kind,
         url: item.url,
-        storage: 'gridfs',
+        storage: 'local',
         fileId: item.fileId,
         thumbUrl: item.thumbUrl,
-        thumbFileId: item.thumbFileId,
       });
       if (item.kind === 'image' && !project.imageUrl) {
         project.imageUrl = item.url;

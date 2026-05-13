@@ -13,28 +13,52 @@ import { motion, AnimatePresence } from 'framer-motion';
  * Accessibility:
  * - `role="progressbar"` with `aria-valuenow` / `aria-valuemin` / `aria-valuemax`
  */
+const VISITED_KEY = 'studio2_intro_seen_v2';
+type LoadingMode = 'checking' | 'intro' | 'loading';
+
 export function LoadingScreen() {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [mode, setMode] = useState<LoadingMode>('checking');
 
   useEffect(() => {
-    const duration = 2000;
-    const interval = 20;
-    const increment = 100 / (duration / interval);
-
-    const timer = setInterval(() => {
-      setCount((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setTimeout(() => setIsVisible(false), 800);
-          return 100;
-        }
-        return Math.min(prev + increment, 100);
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
+    const visited = localStorage.getItem(VISITED_KEY);
+    if (visited) {
+      setMode('loading');
+      const timer = setTimeout(() => setIsVisible(false), 600);
+      return () => clearTimeout(timer);
+    }
+    localStorage.setItem(VISITED_KEY, 'true');
+    setMode('intro');
   }, []);
+
+  useEffect(() => {
+    if (mode !== 'intro') return;
+
+    const duration = 2000;
+    let frameId = 0;
+    let hideTimer = 0;
+    const startedAt = performance.now();
+
+    const tick = (now: number) => {
+      const progress = Math.min(((now - startedAt) / duration) * 100, 100);
+      setCount(progress);
+
+      if (progress >= 100) {
+        hideTimer = window.setTimeout(() => setIsVisible(false), 800);
+        return;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      window.clearTimeout(hideTimer);
+    };
+  }, [mode]);
 
   return (
     <AnimatePresence>
@@ -48,31 +72,40 @@ export function LoadingScreen() {
             transition: { duration: 1.2, ease: 'easeInOut' },
           }}
           role="progressbar"
-          aria-valuenow={Math.floor(count)}
+          aria-valuenow={mode === 'intro' ? Math.floor(count) : 0}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label="Loading portfolio"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative"
-          >
-            <span className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none">
-              {Math.floor(count)}
-            </span>
-            <motion.div
-              className="absolute inset-0 bg-accent/20 blur-3xl rounded-full"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </motion.div>
-
-          <div className="absolute bottom-12 left-12" aria-hidden="true">
-            <p className="font-headline text-xs tracking-widest text-muted-foreground uppercase">
-              Initializing Experience
-            </p>
-          </div>
+          {mode === 'intro' ? (
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative"
+              >
+                <span className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none">
+                  {Math.floor(count)}
+                </span>
+                <motion.div
+                  className="absolute inset-0 bg-accent/20 blur-3xl rounded-full"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </motion.div>
+              <div className="absolute bottom-12 left-12" aria-hidden="true">
+                <p className="font-headline text-xs tracking-widest text-muted-foreground uppercase">
+                  Initializing Experience
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="animate-pulse">
+              <div className="font-headline text-2xl tracking-[0.5em] text-[#DFFF00]/40">
+                LOADING
+              </div>
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

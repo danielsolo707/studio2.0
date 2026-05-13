@@ -2,10 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { HardDrive } from 'lucide-react'
 import Uppy from '@uppy/core'
 import Tus from '@uppy/tus'
-import { DriveBrowser } from './DriveBrowser'
 
 type UploadItem = {
   id: string
@@ -19,17 +17,14 @@ type UploadItem = {
 
 export function MultiUploadField({ projectId }: { projectId: string }) {
   const router = useRouter()
-  const [storageType, setStorageType] = useState<'gridfs' | 'local'>('local')
   const [items, setItems] = useState<UploadItem[]>([])
   const [uppy, setUppy] = useState<any>(null)
-  const [showDriveBrowser, setShowDriveBrowser] = useState(false)
-  const [driveConnected, setDriveConnected] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const saveToProject = useCallback(async (filename: string, type: string, uploadData?: { url?: string; fileId?: string; storage?: string }) => {
     const url = uploadData?.url || `/uploads/${filename}`
     const fileId = uploadData?.fileId
-    const storage = uploadData?.storage || storageType
+    const storage = 'local'
     
     await fetch('/api/admin/upload/media', {
       method: 'POST',
@@ -44,7 +39,7 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
         type: type.startsWith('image') ? 'image' : 'video',
       }),
     })
-  }, [projectId, storageType])
+  }, [projectId])
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && uppy) {
@@ -89,9 +84,7 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
     })
 
     uppyInstance.use(Tus, {
-      endpoint: storageType === 'local' 
-        ? '/api/admin/upload/local' 
-        : '/api/admin/upload/tus',
+      endpoint: '/api/admin/upload/local',
       chunkSize: 50 * 1024 * 1024,
       retryDelays: [0, 1000, 3000, 5000],
     })
@@ -146,48 +139,14 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
       uppyInstance.destroy()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, storageType])
-
-  useEffect(() => {
-    checkDriveConnection()
-  }, [])
-
-  const checkDriveConnection = async () => {
-    try {
-      const res = await fetch('/api/drive/status')
-      if (res.ok) {
-        setDriveConnected(true)
-      }
-    } catch {
-      setDriveConnected(false)
-    }
-  }
-
-  const handleFileImport = (url: string, kind: 'image' | 'video', filename: string) => {
-    saveToProject(url, kind, { url, storage: 'gridfs' })
-    setShowDriveBrowser(false)
-  }
+  }, [projectId])
 
   return (
     <div className="w-full max-w-xl border border-white/10 p-4 rounded-md">
       {/* Storage Type Selector */}
       <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <label className="text-[10px] tracking-[0.3em] text-white/60 font-headline">
-            STORAGE:
-          </label>
-          <select
-            value={storageType}
-            onChange={(e) => setStorageType(e.target.value as 'gridfs' | 'local')}
-            disabled={hasUploadingItems}
-            className="bg-[#030305] border border-white/20 px-3 py-1.5 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
-          >
-            <option value="gridfs">Database (GridFS)</option>
-            <option value="local">Local Files</option>
-          </select>
-        </div>
         <div className="text-[10px] text-white/40">
-          {storageType === 'gridfs' ? 'No disk space used' : 'Saved to /public/uploads'}
+          Saved to /public/uploads
         </div>
       </div>
 
@@ -225,17 +184,6 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
             className="px-3 py-2 border border-white/20 text-xs text-white/50 hover:text-white/80"
           >
             CLEAR
-          </button>
-        )}
-        {driveConnected && (
-          <button
-            type="button"
-            onClick={() => setShowDriveBrowser(true)}
-            disabled={hasUploadingItems}
-            className="flex items-center gap-2 px-4 py-2 border border-white/30 text-xs tracking-widest hover:border-[#DFFF00]/50 hover:text-[#DFFF00] transition-colors disabled:opacity-40"
-          >
-            <HardDrive size={14} />
-            GOOGLE DRIVE
           </button>
         )}
       </div>
@@ -290,14 +238,6 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
         <p>• Resumable - resumes automatically if interrupted</p>
         <p>• Supports pause/resume during upload</p>
       </div>
-
-      {showDriveBrowser && (
-        <DriveBrowser
-          projectId={projectId}
-          onClose={() => setShowDriveBrowser(false)}
-          onFileImported={handleFileImport}
-        />
-      )}
     </div>
   )
 }

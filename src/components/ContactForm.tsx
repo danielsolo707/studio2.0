@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useActionState, useState } from 'react';
+import React, { useActionState, useEffect, useRef } from 'react';
 import { submitContact, type ContactState } from '@/app/actions/contact';
 
 const initialState: ContactState = { success: false, message: '', errors: {} };
@@ -10,21 +10,27 @@ const initialState: ContactState = { success: false, message: '', errors: {} };
  * Works without JS (progressive enhancement) and shows
  * inline validation feedback.
  */
-export function ContactForm() {
+export function ContactForm({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
   const [state, formAction, isPending] = useActionState(submitContact, initialState);
-  const [formKey, setFormKey] = useState(0);
+  const successRef = useRef(false);
 
-  const handleSuccess = () => {
-    setFormKey(prev => prev + 1);
-  };
+  useEffect(() => {
+    if (state.success && !successRef.current) {
+      successRef.current = true;
+      onSuccess?.();
+    }
+    if (!state.success) {
+      successRef.current = false;
+    }
+  }, [state.success, onSuccess]);
 
   return (
-    <form action={formAction} key={formKey} onSubmit={(e) => {
-      if (state.success) {
-        handleSuccess();
-      }
-    }} className="space-y-6 max-w-lg w-full" noValidate>
-      <div>
+    <form action={formAction} className="w-full space-y-4 md:space-y-5" noValidate>
+      <div className="group">
         <label
           htmlFor="contact-name"
           className="block font-headline text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2"
@@ -38,14 +44,14 @@ export function ContactForm() {
           required
           autoComplete="name"
           placeholder="Your name"
-          className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors"
+          className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all"
         />
         {state.errors?.name && (
           <p className="text-xs text-red-400 mt-1">{state.errors.name}</p>
         )}
       </div>
 
-      <div>
+      <div className="group">
         <label
           htmlFor="contact-email"
           className="block font-headline text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2"
@@ -59,14 +65,14 @@ export function ContactForm() {
           required
           autoComplete="email"
           placeholder="your@email.com"
-          className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors"
+          className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all"
         />
         {state.errors?.email && (
           <p className="text-xs text-red-400 mt-1">{state.errors.email}</p>
         )}
       </div>
 
-      <div>
+      <div className="group">
         <label
           htmlFor="contact-message"
           className="block font-headline text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2"
@@ -77,9 +83,9 @@ export function ContactForm() {
           id="contact-message"
           name="message"
           required
-          rows={4}
+          rows={3}
           placeholder="Tell me about your project..."
-          className="w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/30 transition-colors resize-none"
+          className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all resize-none"
         />
         {state.errors?.message && (
           <p className="text-xs text-red-400 mt-1">{state.errors.message}</p>
@@ -89,7 +95,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full px-8 py-4 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em] hover:bg-[#DFFF00]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        className="block box-border w-full px-8 py-3.5 bg-[#DFFF00] text-black font-headline text-xs tracking-[0.3em] hover:bg-[#DFFF00]/85 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-[0_10px_30px_rgba(223,255,0,0.12)]"
       >
         {isPending ? 'SENDING...' : 'SEND MESSAGE'}
       </button>
@@ -100,14 +106,6 @@ export function ContactForm() {
           className="font-body text-sm text-center text-red-400"
         >
           {state.message}
-        </p>
-      )}
-      {state.success && (
-        <p
-          role="status"
-          className="font-body text-sm text-center text-[#DFFF00]"
-        >
-          Message sent successfully! I will get back to you soon.
         </p>
       )}
     </form>

@@ -1,12 +1,12 @@
 {
   "hero": {
     "headline": "CREATIVE\nDEVELOPER",
-    "description": "Creative developer specializing in motion design (After Effects, Cinema 4D) and machine learning. Building interactive web experiences that blend visual storytelling with intelligent systems."
+    "description": "Designing visual systems in motion. Blending cinematic craft with intelligent interaction to shape immersive digital experiences."
   },
   "about": {
     "label": "ABOUT DANIEL",
     "headline": "CREATIVE DEVELOPER IN MOTION",
-    "body": "I build small visual systems that connect motion graphics, interactive code, and early ML/data experiments. My work is still growing, but it is grounded in curiosity, clear process, and a love for turning abstract ideas into moving, usable things.",
+    "body": "I build visual systems that connect motion graphics, interactive code, and early ML experiments. The focus is always on translating abstract ideas into precise, cinematic experiences.",
     "skills": [
       "AFTER EFFECTS",
       "CINEMA 4D",
@@ -32,9 +32,7 @@
       "approach": "Built custom expressions in After Effects to create reactive shapes. Used particular for particle effects and added glow through adjustment layers.",
       "outcome": "A 45-second loop suitable for music visualizers or social media content that received positive feedback from the target audience.",
       "nextStep": "Add interactive controls for beat detection and color palette customization.",
-      "links": [
-        
-      ],
+      "links": [],
       "media": [
         {
           "type": "image",
@@ -47,41 +45,6 @@
         {
           "type": "image",
           "url": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&h=600&fit=crop"
-        }
-      ]
-    },
-    {
-      "id": "liquid-flow",
-      "name": "LIQUID FLOW",
-      "year": "2024",
-      "color": "#00FFFF",
-      "imageUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop",
-      "videoUrl": "",
-      "description": "An abstract fluid simulation exploring organic motion and color blending. Created in Cinema 4D with Octane render, this piece focuses on the beauty of natural fluid dynamics.",
-      "tools": "CINEMA 4D / OCTANE / AFTER EFFECTS",
-      "category": "EXPERIMENTAL",
-      "discipline": "motion",
-      "status": "case-study",
-      "role": "3D Artist & Motion Designer",
-      "objective": "Explore the intersection of organic forms and digital simulation to create visually striking abstract art.",
-      "approach": "Started with reference收集 of ink in water and oil mixing. Used Cinema 4D's Pyro solver for fluid simulation, then enhanced with Octane's volumetric lighting.",
-      "outcome": "A series of 5 abstract loopable animations that have been featured in digital art exhibitions and shared across creative platforms.",
-      "nextStep": "Create an interactive web version where users can control fluid parameters in real-time.",
-      "links": [
-        {
-          "label": "Behance Gallery",
-          "url": "https://behance.net",
-          "type": "demo"
-        }
-      ],
-      "media": [
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop"
-        },
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600&fit=crop"
         }
       ]
     },
@@ -122,46 +85,6 @@
         {
           "type": "image",
           "url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
-        }
-      ]
-    },
-    {
-      "id": "climate-viz",
-      "name": "CLIMATE VIZ",
-      "year": "2023",
-      "color": "#10B981",
-      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
-      "videoUrl": "",
-      "description": "An interactive data visualization project that presents climate change data in an engaging, understandable way. Users can explore temperature trends, carbon emissions, and sea level changes through intuitive charts.",
-      "tools": "PYTHON / D3.JS / NEXT.JS / PANDAS",
-      "category": "DATA VISUALIZATION",
-      "discipline": "code",
-      "status": "prototype",
-      "role": "Data Visualization Engineer",
-      "objective": "Make complex climate data accessible and engaging for general audiences without sacrificing accuracy.",
-      "approach": "Processed raw climate datasets using Pandas, then created custom D3.js visualizations with smooth transitions. Added tooltips with detailed information and comparison features.",
-      "outcome": "A web application that presents 50 years of climate data through 15 interactive visualizations. Average session time of 8 minutes indicates deep engagement.",
-      "nextStep": "Add time-lapse animations showing decade-by-decade changes and integrate real-time current data feeds.",
-      "links": [
-        {
-          "label": "Explore Data",
-          "url": "https://climateviz.app",
-          "type": "demo"
-        },
-        {
-          "label": "Analysis Notebook",
-          "url": "https://github.com/danielsolo707/climate-viz",
-          "type": "notebook"
-        }
-      ],
-      "media": [
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop"
-        },
-        {
-          "type": "image",
-          "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop"
         }
       ]
     },

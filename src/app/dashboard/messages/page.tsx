@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { MessagesPanel } from '../MessagesPanel';
 import { StatusBadge } from '../StatusBadge';
 
+export const dynamic = 'force-dynamic';
+
 export default async function MessagesPage() {
   const session = await getSession();
   if (!session) redirect('/dashboard');

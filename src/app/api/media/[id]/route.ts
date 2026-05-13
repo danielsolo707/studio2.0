@@ -1,61 +1,66 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ObjectId } from 'mongodb';
-import { getBucket } from '@/lib/gridfs';
+import fs from 'fs/promises';
+import path from 'path';
 
 export const runtime = 'nodejs';
+
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+
+const MIME_MAP: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mov': 'video/quicktime',
+  '.pdf': 'application/pdf',
+};
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    
-    // Validate ID format
-    let objectId: ObjectId;
-    try {
-      objectId = new ObjectId(id);
-    } catch {
-      return NextResponse.json({ error: 'Invalid media id format' }, { status: 400 });
-    }
 
-    const bucket = await getBucket();
-    const files = await bucket.find({ _id: objectId }).toArray();
-    
-    if (files.length === 0) {
+    const files = await fs.readdir(UPLOAD_DIR);
+    const match = files.find((f) => f.startsWith(id));
+    if (!match) {
       return NextResponse.json({ error: 'Media not found' }, { status: 404 });
     }
-    
-    const file = files[0];
-    const mime = (file.metadata as any)?.mime || file.contentType || 'application/octet-stream';
-    const size = Number(file.length);
+
+    const filePath = path.join(UPLOAD_DIR, match);
+    const ext = path.extname(match).toLowerCase();
+    const mime = MIME_MAP[ext] || 'application/octet-stream';
+    const stat = await fs.stat(filePath);
+    const size = stat.size;
+    const etag = `"${id}"`;
 
     const headers: Record<string, string> = {
       'Content-Type': mime,
       'Accept-Ranges': 'bytes',
       'Cache-Control': 'public, max-age=31536000, immutable',
-      'ETag': `"${objectId.toString()}"`,
+      'ETag': etag,
     };
 
-    // Handle range requests (videos)
     const range = _req.headers.get('range');
     if (range) {
-      const match = /bytes=(\d+)-(\d*)/.exec(range);
-      if (match) {
-        const start = Number(match[1]);
-        const end = match[2] ? Number(match[2]) : size - 1;
-        
-        // Validate range
+      const matchRange = /bytes=(\d+)-(\d*)/.exec(range);
+      if (matchRange) {
+        const start = Number(matchRange[1]);
+        const end = matchRange[2] ? Number(matchRange[2]) : size - 1;
         if (start >= size || end >= size || start > end) {
           return new Response('Requested Range Not Satisfiable', {
             status: 416,
-            headers: {
-              'Content-Range': `bytes */${size}`
-            }
+            headers: { 'Content-Range': `bytes */${size}` },
           });
         }
-        
         const chunkSize = end - start + 1;
-        const stream = bucket.openDownloadStream(objectId, { start, end: end + 1 });
-        
-        return new Response(stream as any, {
+        const fd = await fs.open(filePath, 'r');
+        const buffer = Buffer.alloc(chunkSize);
+        await fd.read(buffer, 0, chunkSize, start);
+        await fd.close();
+        return new Response(buffer, {
           status: 206,
           headers: {
             ...headers,
@@ -66,12 +71,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
-    const stream = bucket.openDownloadStream(objectId);
-    return new Response(stream as any, {
-      headers: {
-        ...headers,
-        'Content-Length': String(size),
-      },
+    const buffer = await fs.readFile(filePath);
+    return new Response(buffer, {
+      headers: { ...headers, 'Content-Length': String(size) },
     });
   } catch (error) {
     console.error('Media API error:', error);

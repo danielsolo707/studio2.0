@@ -82,11 +82,11 @@ export function MobileMenu() {
                     ABOUT
                   </a>
                   <a
-                    href="/gateway"
+                    href="#works"
                     onClick={closeMenu}
                     className="font-headline text-xl tracking-[0.3em] text-white/80 hover:text-[#DFFF00] transition-colors py-3"
                   >
-                    PROJECTS
+                    WORKS
                   </a>
                   <a
                     href="#contact"

@@ -1,81 +1,42 @@
-import { GridFSBucket, ObjectId } from 'mongodb';
-import { getDb } from './db';
+import fs from 'fs/promises';
+import path from 'path';
+import crypto from 'crypto';
 
-let bucketCache: GridFSBucket | null = null;
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 
-export async function getBucket(): Promise<GridFSBucket> {
-  if (bucketCache) {
-    return bucketCache;
-  }
-
-  try {
-    const db = await getDb();
-    bucketCache = new GridFSBucket(db, { bucketName: 'media' });
-    return bucketCache;
-  } catch (error) {
-    console.error('Failed to create GridFS bucket:', error);
-    // Return mock bucket for development
-    return createMockBucket();
-  }
+async function ensureDir() {
+  await fs.mkdir(UPLOAD_DIR, { recursive: true });
 }
 
-// Mock bucket for development
-function createMockBucket(): GridFSBucket {
-  return {
-    openUploadStream: (_filename: string, _options?: unknown) => ({
-      id: new ObjectId(),
-      on: (event: string, callback: (...args: unknown[]) => void) => {
-        if (event === 'finish') setTimeout(callback, 100);
-      },
-      end: () => {},
-      write: () => true
-    }),
-    openDownloadStream: (_id: ObjectId, _options?: unknown) => ({
-      on: (event: string, callback: (...args: unknown[]) => void) => {
-        if (event === 'data') setTimeout(() => callback(Buffer.from('')), 100);
-        if (event === 'end') setTimeout(callback, 200);
-      },
-      pipe: () => {}
-    }),
-    find: (_filter?: unknown) => ({
-      toArray: async () => [],
-      sort: () => ({ toArray: async () => [] })
-    }),
-    delete: async (_id: ObjectId) => {}
-  } as unknown as GridFSBucket;
+export async function getBucket() {
+  // No longer needed — media is stored on the local filesystem.
+  // Kept as a no‑op for backward compatibility.
 }
 
-export async function uploadFile(buffer: Buffer, filename: string, mimeType: string) {
-  try {
-    const bucket = await getBucket();
-    const uploadStream = bucket.openUploadStream(filename, {
-      contentType: mimeType,
-      metadata: { mime: mimeType }
-    });
-    
-    return new Promise<ObjectId>((resolve, reject) => {
-      uploadStream.on('finish', () => resolve(uploadStream.id));
-      uploadStream.on('error', reject);
-      uploadStream.end(buffer);
-    });
-  } catch (error) {
-    console.error('File upload failed:', error);
-    throw new Error('Upload failed - database connection issue');
-  }
+export async function uploadFile(
+  buffer: Buffer,
+  filename: string,
+  _mimeType: string,
+): Promise<string> {
+  await ensureDir();
+  const id = crypto.randomUUID();
+  const ext = path.extname(filename);
+  const savedName = `${id}${ext}`;
+  await fs.writeFile(path.join(UPLOAD_DIR, savedName), buffer);
+  return id;
 }
 
 export async function deleteFile(fileId: string) {
-  try {
-    const bucket = await getBucket();
-    const objectId = new ObjectId(fileId);
-    await bucket.delete(objectId);
-  } catch (error) {
-    console.error('File deletion failed:', error);
-    // Don't throw error for deletion failures to prevent UI crashes
+  await ensureDir();
+  const files = await fs.readdir(UPLOAD_DIR);
+  for (const name of files) {
+    if (name.startsWith(fileId)) {
+      await fs.unlink(path.join(UPLOAD_DIR, name));
+      break;
+    }
   }
 }
 
-// Alias for backward compatibility
 export async function deleteGridFsFile(fileId: string) {
   return deleteFile(fileId);
 }

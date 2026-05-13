@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, Float, RoundedBox } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { ContactShadows, Environment, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 
 /* ─────────────────────────────────────────────────────────
@@ -19,7 +19,6 @@ import * as THREE from 'three';
  * Float from drei adds the weightless drift.
  * ───────────────────────────────────────────────────────── */
 
-const LERP = 0.018;
 const SUB_SIZE = 0.52;
 const GAP = 0.56;
 const RADIUS = 0.035;
@@ -168,12 +167,12 @@ function SubCube({
         return (
           <meshPhysicalMaterial
             color="#1a1a24"
-            metalness={0.85}
-            roughness={0.05}
-            clearcoat={1.0}
-            clearcoatRoughness={0.03}
-            envMapIntensity={2.5}
-            reflectivity={1}
+            metalness={0.75}
+            roughness={0.16}
+            clearcoat={0.8}
+            clearcoatRoughness={0.12}
+            envMapIntensity={1.6}
+            reflectivity={0.6}
           />
         );
       case 1: // Dot perforated metal
@@ -181,9 +180,9 @@ function SubCube({
           <meshStandardMaterial
             map={textures.dot}
             color="#252530"
-            metalness={0.7}
-            roughness={0.3}
-            envMapIntensity={1.2}
+            metalness={0.65}
+            roughness={0.38}
+            envMapIntensity={0.9}
           />
         );
       case 2: // Fine grid mesh
@@ -191,18 +190,18 @@ function SubCube({
           <meshStandardMaterial
             map={textures.grid}
             color="#222230"
-            metalness={0.6}
-            roughness={0.35}
-            envMapIntensity={1.0}
+            metalness={0.55}
+            roughness={0.42}
+            envMapIntensity={0.85}
           />
         );
       case 3: // Matte dark grey
         return (
           <meshStandardMaterial
             color="#1e1e26"
-            metalness={0.3}
-            roughness={0.65}
-            envMapIntensity={0.6}
+            metalness={0.25}
+            roughness={0.7}
+            envMapIntensity={0.5}
           />
         );
       case 4: // Brushed / speckled metal
@@ -212,9 +211,9 @@ function SubCube({
             bumpMap={textures.speckle}
             bumpScale={0.02}
             color="#222230"
-            metalness={0.65}
-            roughness={0.38}
-            envMapIntensity={1.0}
+            metalness={0.6}
+            roughness={0.45}
+            envMapIntensity={0.85}
           />
         );
     }
@@ -226,88 +225,130 @@ function SubCube({
       radius={RADIUS}
       smoothness={4}
       position={position}
+      castShadow
+      receiveShadow
     >
       {material}
     </RoundedBox>
   );
 }
 
-/** The 3×3×3 Rubik's assembly */
-function RubiksCube() {
-  const groupRef = useRef<THREE.Group>(null);
-  const { pointer } = useThree();
-  const rot = useRef({ x: 0.45, y: -0.6 });
+/** Build 3 layers along X, each with 9 sub‑cubes (Y × Z) */
+function buildLayers() {
+  const layers: { pos: [number, number, number]; variant: MaterialVariant }[][] = [[], [], []];
+  let idx = 0;
+  for (let x = 0; x < 3; x++)
+    for (let y = 0; y < 3; y++)
+      for (let z = 0; z < 3; z++) {
+        layers[x].push({
+          pos: [(x - 1) * GAP, (y - 1) * GAP, (z - 1) * GAP],
+          variant: VARIANT_MAP[idx],
+        });
+        idx++;
+      }
+  return layers;
+}
 
-  // Create procedural textures once
+/** The 3×3×3 Rubik's assembly with layer‑flip animation + drag rotation */
+function RubiksCube() {
   const textures = useMemo(() => ({
     dot: createDotTexture(),
     grid: createGridTexture(),
     brushed: createBrushedTexture(),
     speckle: createSpeckleTexture(),
   }), []);
+  const layersData = useMemo(() => buildLayers(), []);
 
-  // Cleanup textures on unmount
+  const outerRef = useRef<THREE.Group>(null);
+  const innerRef = useRef<THREE.Group>(null);
+  const layerRefs = useRef<(THREE.Group | null)[]>([null, null, null]);
+  const targetX = useRef([0, 0, 0]);
+  const flipTimer = useRef(0);
+  const nextDelay = useRef(2000 + Math.random() * 2000);
+  const isDragging = useRef(false);
+  const prevPointer = useRef({ x: 0, y: 0 });
+
+  // Drag rotation (window‑level)
   useEffect(() => {
-    return () => {
-      textures.dot.dispose();
-      textures.grid.dispose();
-      textures.brushed.dispose();
-      textures.speckle.dispose();
+    const onDown = (e: MouseEvent) => {
+      isDragging.current = true;
+      prevPointer.current = { x: e.clientX, y: e.clientY };
     };
-  }, [textures]);
-
-  // Build 3×3×3 positions
-  const cubes = useMemo(() => {
-    const arr: { pos: [number, number, number]; variant: MaterialVariant }[] = [];
-    let idx = 0;
-    for (let z = 0; z < 3; z++) {
-      for (let y = 0; y < 3; y++) {
-        for (let x = 0; x < 3; x++) {
-          arr.push({
-            pos: [(x - 1) * GAP, (y - 1) * GAP, (z - 1) * GAP],
-            variant: VARIANT_MAP[idx % VARIANT_MAP.length],
-          });
-          idx++;
-        }
-      }
-    }
-    return arr;
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging.current || !outerRef.current) return;
+      const dx = e.clientX - prevPointer.current.x;
+      const dy = e.clientY - prevPointer.current.y;
+      prevPointer.current = { x: e.clientX, y: e.clientY };
+      const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(dy * 0.008, dx * 0.008, 0, 'XYZ'));
+      outerRef.current.quaternion.premultiply(q);
+    };
+    const onUp = () => { isDragging.current = false; };
+    window.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
   }, []);
 
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    const t = state.clock.getElapsedTime();
+  useFrame((state, delta) => {
+    const dt = Math.min(delta, 0.05);
 
-    // Target: mouse influence + gentle auto-spin
-    const tx = pointer.y * 0.4 + Math.sin(t * 0.1) * 0.12;
-    const ty = pointer.x * 0.6 + t * 0.05;
+    // Gentle auto‑rotation
+    if (innerRef.current) {
+      innerRef.current.rotation.x += dt * 0.08;
+      innerRef.current.rotation.y += dt * 0.12;
+      innerRef.current.rotation.z += dt * 0.04;
+    }
 
-    // Heavy lerp → weighty, cinematic feel
-    rot.current.x += (tx - rot.current.x) * LERP;
-    rot.current.y += (ty - rot.current.y) * LERP;
+    if (outerRef.current && !isDragging.current) {
+      outerRef.current.rotation.x += (state.pointer.y * 0.4 - outerRef.current.rotation.x) * 0.02;
+      outerRef.current.rotation.y += (state.pointer.x * 0.5 - outerRef.current.rotation.y) * 0.02;
+    }
 
-    groupRef.current.rotation.x = rot.current.x;
-    groupRef.current.rotation.y = rot.current.y;
+    // Lerp each layer towards target rotation on X
+    layerRefs.current.forEach((layer, i) => {
+      if (!layer) return;
+      layer.rotation.x += (targetX.current[i] - layer.rotation.x) * 0.05;
+    });
+
+    // Trigger next layer flip
+    flipTimer.current += dt * 1000;
+    if (flipTimer.current >= nextDelay.current) {
+      flipTimer.current = 0;
+      nextDelay.current = 2000 + Math.random() * 3000;
+
+      // Rotate inner wrapper 90° so a different face is shown
+      if (innerRef.current) {
+        if (Math.random() > 0.5) innerRef.current.rotateY(Math.PI / 2);
+        else innerRef.current.rotateZ(Math.PI / 2);
+      }
+
+      // Flip a random layer 180°
+      const li = Math.floor(Math.random() * 3);
+      targetX.current[li] += Math.random() > 0.5 ? Math.PI : -Math.PI;
+    }
   });
 
+  // Texture cleanup
+  useEffect(() => {
+    return () => { Object.values(textures).forEach((t) => t.dispose()); };
+  }, [textures]);
+
   return (
-    <Float
-      speed={1.0}
-      rotationIntensity={0.03}
-      floatIntensity={0.3}
-      floatingRange={[-0.08, 0.08]}
-    >
-      <group ref={groupRef}>
-        {cubes.map((c, i) => (
-          <SubCube
-            key={i}
-            position={c.pos}
-            variant={c.variant}
-            textures={textures}
-          />
+    <group ref={outerRef}>
+      <group ref={innerRef}>
+        {layersData.map((layer, i) => (
+          <group key={i} ref={(el) => { layerRefs.current[i] = el; }}>
+            {layer.map((c, j) => (
+              <SubCube key={j} position={c.pos} variant={c.variant} textures={textures} />
+            ))}
+          </group>
         ))}
       </group>
-    </Float>
+    </group>
   );
 }
 
@@ -320,24 +361,31 @@ export function HeroCube() {
       style={{ pointerEvents: 'auto' }}
     >
       <Canvas
+        shadows
         camera={{ position: [5.5, 3.5, 5.0], fov: 28 }}
-        dpr={[1, 2]}
+        dpr={[1, 1.75]}
         gl={{
           antialias: true,
           alpha: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.4,
+          toneMappingExposure: 1.25,
         }}
         style={{ background: 'transparent' }}
       >
+        <fog attach="fog" args={['#050507', 7, 16]} />
         {/* Ambient — enough to see the dark faces */}
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={0.2} />
 
         {/* Key light — strong top-right, warm tone (dramatic like reference) */}
         <directionalLight
           position={[5, 8, 4]}
-          intensity={2.5}
+          intensity={2.2}
           color="#f0e8e0"
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          shadow-camera-near={1}
+          shadow-camera-far={20}
         />
 
         {/* Secondary key — front-left, softer */}
@@ -357,7 +405,7 @@ export function HeroCube() {
         {/* Rim / edge highlight from behind-right */}
         <directionalLight
           position={[3, -1, -6]}
-          intensity={0.8}
+          intensity={0.65}
           color="#c0c8e0"
         />
 
@@ -372,11 +420,12 @@ export function HeroCube() {
         {/* Top accent spot */}
         <spotLight
           position={[2, 6, 2]}
-          intensity={1.5}
+          intensity={1.0}
           angle={0.5}
           penumbra={0.8}
           color="#e0dcd4"
           distance={15}
+          castShadow
         />
 
         {/* Programmatic environment for reflections — no external HDR needed */}
@@ -389,11 +438,11 @@ export function HeroCube() {
           {/* Emissive panels baked into env map for glossy reflections */}
           <mesh position={[5, 5, -3]}>
             <sphereGeometry args={[1.5, 16, 16]} />
-            <meshBasicMaterial color="#556" />
+            <meshBasicMaterial color="#2f313b" />
           </mesh>
           <mesh position={[-4, 3, 4]}>
             <sphereGeometry args={[1.0, 16, 16]} />
-            <meshBasicMaterial color="#445" />
+            <meshBasicMaterial color="#2a2c36" />
           </mesh>
           <mesh position={[0, -5, 0]}>
             <sphereGeometry args={[0.8, 16, 16]} />
@@ -402,6 +451,14 @@ export function HeroCube() {
         </Environment>
 
         <RubiksCube />
+
+        <ContactShadows
+          position={[0, -2.2, 0]}
+          opacity={0.45}
+          blur={2.2}
+          scale={12}
+          far={6}
+        />
       </Canvas>
     </div>
   );

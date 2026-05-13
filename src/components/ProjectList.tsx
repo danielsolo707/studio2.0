@@ -38,6 +38,7 @@ export function ProjectList({
   const [errorPreviewId, setErrorPreviewId] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<ProjectFilter>('all');
   const rafRef = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const filteredProjects = projects.filter((project) => {
     if (selectedFilter === 'all') return true;
@@ -71,6 +72,26 @@ export function ProjectList({
     });
   }, []);
 
+  const getPreviewPosition = useCallback(() => {
+    const previewWidth = 320;
+    const previewHeight = 192;
+    const margin = 18;
+    const sectionRect = sectionRef.current?.getBoundingClientRect();
+    const maxTopByViewport = (viewport.h || window.innerHeight || 9999) - previewHeight - margin;
+    const maxTopBySection = sectionRect
+      ? sectionRect.bottom - previewHeight - margin
+      : maxTopByViewport;
+    const minTopBySection = sectionRect ? Math.max(margin, sectionRect.top + margin) : margin;
+
+    return {
+      left: Math.max(margin, Math.min(mousePos.x + 30, (viewport.w || 9999) - previewWidth - margin)),
+      top: Math.max(
+        minTopBySection,
+        Math.min(mousePos.y + 30, maxTopByViewport, maxTopBySection),
+      ),
+    };
+  }, [mousePos.x, mousePos.y, viewport.h, viewport.w]);
+
   const handleImageError = useCallback((id: string) => {
     setFailedImages((prev) => new Set([...prev, id]));
     setErrorPreviewId(id);
@@ -90,10 +111,12 @@ export function ProjectList({
 
   return (
     <section
+      ref={sectionRef}
       id="works"
       aria-labelledby="works-heading"
       className="relative z-20 min-h-screen py-[12vh] px-6 md:px-16 overflow-hidden"
       onMouseMove={handleMouseMove}
+      onMouseLeave={() => setActiveProject(null)}
     >
       <div className="max-w-7xl mx-auto">
         <div className="mb-20 flex flex-col gap-8 md:ml-12 md:flex-row md:items-end md:justify-between">
@@ -161,6 +184,7 @@ export function ProjectList({
               }}
               className="group relative border-b border-white/5 cursor-pointer transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-6"
             >
+              <div className="absolute inset-x-0 -top-3 bottom-0 rounded-sm bg-[linear-gradient(100deg,rgba(223,255,0,0),rgba(223,255,0,0.1),rgba(80,120,255,0.055),rgba(223,255,0,0))] bg-[length:220%_100%] opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 group-hover:animate-gradient-shift" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
               <TiltCard maxTilt={6} glareOpacity={0.0}>
                 <motion.div
@@ -213,11 +237,11 @@ export function ProjectList({
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             style={{
               position: 'fixed',
-              left: Math.max(16, Math.min(mousePos.x + 30, (viewport.w || 9999) - 340)),
-              top: Math.max(16, Math.min(mousePos.y + 30, (viewport.h || 9999) - 220)),
+              ...getPreviewPosition(),
               pointerEvents: 'none',
               zIndex: 100,
             }}
+            data-project-preview="true"
             className="relative w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_50px_rgba(223,255,0,0.1)] hidden md:block"
           >
             {(() => {

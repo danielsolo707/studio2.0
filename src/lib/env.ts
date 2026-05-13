@@ -29,10 +29,6 @@ export function getRequiredEnvVar(name: string): string {
 
 // Environment configuration
 export const config = {
-  // Database
-  mongodbUri: getEnvVar('MONGODB_URI', 'mongodb://127.0.0.1:27017/portfolio'),
-  mongodbDb: getEnvVar('MONGODB_DB', 'portfolio'),
-  
   // Authentication
   adminSessionSecret: getEnvVar('ADMIN_SESSION_SECRET', 'dev-secret-change-me'),
   

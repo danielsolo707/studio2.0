@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Board, createEmptyBoard, addRandomTile, move, hasMoves, Direction, cloneBoard } from '@/lib/game2048';
+import { useLockScroll } from '@/hooks/useLockScroll';
 
 type GameState = {
   board: Board;
@@ -59,6 +60,7 @@ function initGame(): GameState {
 }
 
 export function Arcade2048() {
+  useLockScroll(true);
   const [state, setState] = useState<GameState | null>(null);
   const [prevBoard, setPrevBoard] = useState<Board | null>(null);
   const [prevScore, setPrevScore] = useState(0);

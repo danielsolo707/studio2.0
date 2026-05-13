@@ -1,12 +1,13 @@
+import fs from 'fs/promises';
+import path from 'path';
 import crypto from 'crypto';
-import { getDb } from './db';
 
 export type StoredMessage = {
   id: string;
   name: string;
   email: string;
   message: string;
-  receivedAt: string; // ISO timestamp
+  receivedAt: string;
   isRead: boolean;
   archived: boolean;
   replies?: MessageReply[];
@@ -17,28 +18,38 @@ export type MessageReply = {
   to: string;
   subject: string;
   body: string;
-  sentAt: string; // ISO timestamp
+  sentAt: string;
 };
 
-function sanitize(text: string): string {
-  // Strip simple HTML tags and collapse whitespace to reduce XSS risk.
-  return text
-    .replace(/<[^>]*>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 2000); // prevent oversized payloads
+const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'contact-log.json');
+
+let cache: StoredMessage[] | null = null;
+
+async function readAll(): Promise<StoredMessage[]> {
+  try {
+    const raw = await fs.readFile(DATA_PATH, 'utf-8');
+    cache = JSON.parse(raw) as StoredMessage[];
+  } catch {
+    cache = [];
+  }
+  return cache!;
 }
 
-const COLLECTION_NAME = 'messages';
+async function writeAll(messages: StoredMessage[]): Promise<void> {
+  cache = messages;
+  await fs.writeFile(DATA_PATH, JSON.stringify(messages, null, 2), 'utf-8');
+}
+
+function sanitize(text: string): string {
+  return text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 2000);
+}
 
 export async function addMessage(entry: {
   name: string;
   email: string;
   message: string;
 }): Promise<StoredMessage> {
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-
+  const messages = await readAll();
   const saved: StoredMessage = {
     id: crypto.randomUUID(),
     name: sanitize(entry.name),
@@ -49,69 +60,44 @@ export async function addMessage(entry: {
     archived: false,
     replies: [],
   };
-
-  await collection.insertOne(saved);
+  messages.unshift(saved);
+  await writeAll(messages);
   return saved;
 }
 
 export async function listMessages(limit = 100): Promise<StoredMessage[]> {
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-
-  const docs = await collection
-    .find({})
-    .sort({ receivedAt: -1 })
-    .limit(limit)
-    .toArray();
-
-return docs.map((doc: any) => {
-    const { _id: _removed, replies = [], ...rest } = doc;
-    return {
-      ...rest,
-      replies,
-      isRead: doc.isRead ?? false,
-      archived: doc.archived ?? false,
-    } as StoredMessage;
-  });
+  const messages = await readAll();
+  return messages.slice(0, limit);
 }
 
 export async function updateMessage(
   id: string,
   updates: Partial<Pick<StoredMessage, 'isRead' | 'archived'>>,
 ): Promise<StoredMessage | null> {
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-
-  const result = await collection.findOneAndUpdate(
-    { id },
-    { $set: updates },
-    { returnDocument: 'after' },
-  );
-
-  return result ?? null;
+  const messages = await readAll();
+  const idx = messages.findIndex((m) => m.id === id);
+  if (idx === -1) return null;
+  messages[idx] = { ...messages[idx], ...updates };
+  await writeAll(messages);
+  return messages[idx];
 }
 
 export async function appendReply(id: string, reply: MessageReply): Promise<void> {
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-  await collection.updateOne(
-    { id },
-    { $push: { replies: reply }, $set: { isRead: true } },
-  );
+  const messages = await readAll();
+  const idx = messages.findIndex((m) => m.id === id);
+  if (idx === -1) return;
+  messages[idx].replies = [...(messages[idx].replies || []), reply];
+  messages[idx].isRead = true;
+  await writeAll(messages);
 }
 
 export async function deleteMessage(id: string): Promise<void> {
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-  await collection.deleteOne({ id });
+  const messages = await readAll();
+  await writeAll(messages.filter((m) => m.id !== id));
 }
 
 export async function bulkDelete(ids: string[]): Promise<void> {
   if (ids.length === 0) return;
-
-  const db = await getDb();
-  const collection = db.collection<StoredMessage>(COLLECTION_NAME);
-
-  await collection.deleteMany({ id: { $in: ids } });
+  const messages = await readAll();
+  await writeAll(messages.filter((m) => !ids.includes(m.id)));
 }
-

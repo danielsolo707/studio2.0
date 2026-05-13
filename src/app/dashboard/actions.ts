@@ -454,17 +454,8 @@ export async function deleteMediaAction(formData: FormData) {
 
   await writeContent(content);
 
-  if (storage === 'gridfs') {
-    if (fileId) await deleteGridFsFile(fileId);
-    if (thumbFileId) await deleteGridFsFile(thumbFileId);
-  } else if (url.startsWith('/images/') || url.startsWith('/videos/')) {
-    const targetPath = path.join(process.cwd(), 'public', url);
-    try {
-      await fs.unlink(targetPath);
-    } catch {
-      // Ignore missing files
-    }
-  }
+  if (fileId) await deleteGridFsFile(fileId);
+  if (thumbFileId) await deleteGridFsFile(thumbFileId);
 
   revalidatePath('/');
   revalidatePath(`/projects/${id}`);

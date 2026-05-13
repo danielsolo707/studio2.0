@@ -9,6 +9,7 @@ import type { Project } from '@/types/project';
 import {
   DISCIPLINE_LABELS,
   getProjectDiscipline,
+  getProjectRole,
   getProjectStatus,
   STATUS_LABELS,
 } from '@/lib/project-meta';
@@ -27,12 +28,13 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
   const [loadingPreviewId, setLoadingPreviewId] = useState<string | null>(null);
   const [errorPreviewId, setErrorPreviewId] = useState<string | null>(null);
   const rafRef = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const featuredProjects = projects.slice(0, maxProjects);
 
   const handleSelect = useCallback(
     (project: Project) => {
-      router.push(`/gateway`);
+      router.push(`/projects/${project.id}`);
     },
     [router],
   );
@@ -53,6 +55,26 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
     });
   }, []);
 
+  const getPreviewPosition = useCallback(() => {
+    const previewWidth = 320;
+    const previewHeight = 192;
+    const margin = 18;
+    const sectionRect = sectionRef.current?.getBoundingClientRect();
+    const maxTopByViewport = (viewport.h || window.innerHeight || 9999) - previewHeight - margin;
+    const maxTopBySection = sectionRect
+      ? sectionRect.bottom - previewHeight - margin
+      : maxTopByViewport;
+    const minTopBySection = sectionRect ? Math.max(margin, sectionRect.top + margin) : margin;
+
+    return {
+      left: Math.max(margin, Math.min(mousePos.x + 30, (viewport.w || 9999) - previewWidth - margin)),
+      top: Math.max(
+        minTopBySection,
+        Math.min(mousePos.y + 30, maxTopByViewport, maxTopBySection),
+      ),
+    };
+  }, [mousePos.x, mousePos.y, viewport.h, viewport.w]);
+
   const handleImageError = useCallback((id: string) => {
     setFailedImages((prev) => new Set([...prev, id]));
     setErrorPreviewId(id);
@@ -72,22 +94,25 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
 
   return (
     <section
+      ref={sectionRef}
       id="works"
       aria-labelledby="works-heading"
-      className="relative z-20 py-[10vh] px-6 md:px-16 overflow-hidden"
+      className="relative z-20 py-16 md:py-20 px-6 md:px-16 overflow-hidden scroll-mt-24"
       onMouseMove={handleMouseMove}
+      onMouseLeave={() => setActiveProject(null)}
     >
+      <div className="absolute inset-0 section-sheen pointer-events-none" aria-hidden="true" />
       <div className="max-w-7xl mx-auto">
-        <div className="mb-16 flex flex-col gap-8 md:ml-12 md:flex-row md:items-end md:justify-between">
+        <div className="mb-10 flex flex-col gap-6 md:ml-8 md:flex-row md:items-end md:justify-between">
           <div>
             <h2
               id="works-heading"
-              className="font-headline text-[14px] tracking-[0.8em] text-[#DFFF00] uppercase opacity-60"
+              className="font-headline text-[12px] tracking-[0.7em] text-[#DFFF00] uppercase opacity-60"
             >
               FEATURED WORKS
             </h2>
-            <p className="mt-4 max-w-xl text-base md:text-xl text-white/45 font-body leading-relaxed">
-              A curated selection of motion and code projects.
+            <p className="mt-3 max-w-xl text-sm md:text-base text-white/45 font-body leading-relaxed">
+              A curated selection of motion studies and interactive systems.
             </p>
           </div>
 
@@ -101,6 +126,8 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
 
         {featuredProjects.map((project, index) => {
           const status = getProjectStatus(project);
+          const discipline = getProjectDiscipline(project);
+          const role = getProjectRole(project);
 
           return (
             <motion.div
@@ -128,27 +155,50 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                 setActiveProject(project);
                 startPreviewLoad(project);
               }}
-              className="group relative border-b border-white/5 cursor-pointer transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-6"
+              className="group relative border-b border-white/5 cursor-pointer transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-4"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
+              <div className="absolute inset-x-0 -top-3 bottom-0 rounded-sm bg-[linear-gradient(100deg,rgba(223,255,0,0),rgba(223,255,0,0.1),rgba(80,120,255,0.055),rgba(223,255,0,0))] bg-[length:220%_100%] opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 group-hover:animate-gradient-shift" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
+              <div className="absolute left-0 bottom-0 h-[1px] w-full bg-white/5" aria-hidden="true" />
               <TiltCard maxTilt={6} glareOpacity={0.0}>
                 <motion.div
                   whileHover={{ x: -10 }}
-                  transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+                  transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
                   style={{ willChange: 'transform' }}
-                  className="py-6 md:py-10 flex items-center justify-between gap-6 relative"
+                  className="py-5 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative"
                 >
-                  <h3 className="font-headline text-2xl md:text-5xl tracking-tighter text-white bg-transparent transition-all duration-300 group-hover:text-[#DFFF00]">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-3 text-[9px] font-headline tracking-[0.32em] text-white/45">
+                      <span className="text-[#DFFF00]/70">{DISCIPLINE_LABELS[discipline]}</span>
+                      <span className="h-[1px] w-6 bg-white/15" aria-hidden="true" />
+                      <span>{role || project.category}</span>
+                    </div>
+                    <h3 className="mt-2 font-headline text-2xl md:text-[clamp(2rem,3.25vw,3.5rem)] tracking-[-0.02em] text-white bg-transparent transition-all duration-300 group-hover:text-[#DFFF00]">
                       {project.name}
                     </h3>
+                    <motion.div
+                      className="mt-3 h-[1px] w-12 bg-white/15"
+                      initial={false}
+                      animate={{ width: activeProject?.id === project.id ? 96 : 48, opacity: activeProject?.id === project.id ? 0.9 : 0.4 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
 
                   <div className="flex items-center gap-6">
-                    <span className="font-headline text-[12px] tracking-[0.2em] text-white/70 hidden md:block">
+                    <motion.span
+                      className="font-headline text-[12px] tracking-[0.2em] text-white/70 hidden md:block"
+                      animate={{ opacity: activeProject?.id === project.id ? 1 : 0.7, y: activeProject?.id === project.id ? 0 : 4 }}
+                      transition={{ duration: 0.35 }}
+                    >
                       {STATUS_LABELS[status]}
-                    </span>
-                    <span className="font-headline text-[12px] tracking-widest text-white/70 group-hover:text-[#DFFF00] transition-colors">
+                    </motion.span>
+                    <motion.span
+                      className="font-headline text-[12px] tracking-widest text-white/70 group-hover:text-[#DFFF00] transition-colors"
+                      animate={{ opacity: activeProject?.id === project.id ? 1 : 0.7, y: activeProject?.id === project.id ? 0 : 4 }}
+                      transition={{ duration: 0.35, delay: 0.05 }}
+                    >
                       {project.year}
-                    </span>
+                    </motion.span>
                     <div className="w-2 h-2 rounded-full bg-white/40 group-hover:bg-[#DFFF00] transition-colors" />
                   </div>
                 </motion.div>
@@ -174,12 +224,12 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             style={{
               position: 'fixed',
-              left: Math.max(16, Math.min(mousePos.x + 30, (viewport.w || 9999) - 340)),
-              top: Math.max(16, Math.min(mousePos.y + 30, (viewport.h || 9999) - 220)),
+              ...getPreviewPosition(),
               pointerEvents: 'none',
               zIndex: 100,
             }}
-            className="relative w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_50px_rgba(223,255,0,0.1)] hidden md:block"
+            data-project-preview="true"
+            className="relative w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_60px_rgba(223,255,0,0.16)] hidden md:block"
           >
             {(() => {
               const showError =
@@ -214,6 +264,8 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                     onError={() => handleImageError(activeProject.id)}
                     onLoad={() => handleImageLoad(activeProject.id)}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(223,255,0,0.18),transparent_55%)] opacity-60" />
                   {showLoading && (
                     <div
                       className="absolute inset-0 preview-surface flex items-center justify-center"
