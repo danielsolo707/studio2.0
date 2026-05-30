@@ -54,9 +54,3 @@ next-env.d.ts
 
 .genkit/*
 .env*
-
-
-
-# graphify — ephemeral files (graph.json IS committed)
-graphify-out/manifest.json
-graphify-out/cost.json
