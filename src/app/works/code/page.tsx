@@ -63,9 +63,9 @@ export default async function CodeWorksPage() {
           <div className="mt-8 h-px bg-zinc-800" />
 
           <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
-            {codeProjects.map((project, index) => (
+            {codeProjects.map((project) => (
               <div
-                key={index}
+                key={project.id}
                 className="block p-4 sm:p-6 border border-zinc-800 rounded-lg bg-zinc-900/30 hover:bg-zinc-900/50 hover:border-[#ADFF2F]/30 transition-colors group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

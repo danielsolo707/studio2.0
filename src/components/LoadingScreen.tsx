@@ -3,29 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Full-screen loading overlay.
- *
- * Counts from 0 → 100 over ~2 s, then fades out.
- * Renders as a fixed overlay so the rest of the page content
- * is always present in the DOM (important for SEO).
- *
- * Accessibility:
- * - `role="progressbar"` with `aria-valuenow` / `aria-valuemin` / `aria-valuemax`
- */
 const VISITED_KEY = 'studio2_intro_seen_v2';
-type LoadingMode = 'checking' | 'intro' | 'loading';
+type LoadingMode = 'checking' | 'intro' | 'loading' | 'done';
 
 export function LoadingScreen() {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
   const [mode, setMode] = useState<LoadingMode>('checking');
 
   useEffect(() => {
     const visited = localStorage.getItem(VISITED_KEY);
     if (visited) {
       setMode('loading');
-      const timer = setTimeout(() => setIsVisible(false), 600);
+      const timer = setTimeout(() => setMode('done'), 600);
       return () => clearTimeout(timer);
     }
     localStorage.setItem(VISITED_KEY, 'true');
@@ -45,7 +34,7 @@ export function LoadingScreen() {
       setCount(progress);
 
       if (progress >= 100) {
-        hideTimer = window.setTimeout(() => setIsVisible(false), 800);
+        hideTimer = window.setTimeout(() => setMode('done'), 800);
         return;
       }
 
@@ -60,54 +49,54 @@ export function LoadingScreen() {
     };
   }, [mode]);
 
+  if (mode === 'done') return null;
+
   return (
     <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden"
-          exit={{
-            opacity: 0,
-            filter: 'blur(100px)',
-            scale: 1.5,
-            transition: { duration: 1.2, ease: 'easeInOut' },
-          }}
-          role="progressbar"
-          aria-valuenow={mode === 'intro' ? Math.floor(count) : 0}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Loading portfolio"
-        >
-          {mode === 'intro' ? (
-            <>
+      <motion.div
+        className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden"
+        exit={{
+          opacity: 0,
+          filter: 'blur(100px)',
+          scale: 1.5,
+          transition: { duration: 1.2, ease: 'easeInOut' },
+        }}
+        role="progressbar"
+        aria-valuenow={mode === 'intro' ? Math.floor(count) : 0}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Loading portfolio"
+      >
+        {mode === 'intro' ? (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative"
+            >
+              <span className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none">
+                {Math.floor(count)}
+              </span>
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative"
-              >
-                <span className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none">
-                  {Math.floor(count)}
-                </span>
-                <motion.div
-                  className="absolute inset-0 bg-accent/20 blur-3xl rounded-full"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </motion.div>
-              <div className="absolute bottom-12 left-12" aria-hidden="true">
-                <p className="font-headline text-xs tracking-widest text-muted-foreground uppercase">
-                  Initializing Experience
-                </p>
-              </div>
-            </>
-          ) : (
-            <div className="animate-pulse">
-              <div className="font-headline text-2xl tracking-[0.5em] text-[#DFFF00]/40">
-                LOADING
-              </div>
+                className="absolute inset-0 bg-accent/20 blur-3xl rounded-full"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </motion.div>
+            <div className="absolute bottom-12 left-12" aria-hidden="true">
+              <p className="font-headline text-xs tracking-widest text-muted-foreground uppercase">
+                Initializing Experience
+              </p>
             </div>
-          )}
-        </motion.div>
-      )}
+          </>
+        ) : (
+          <div className="animate-pulse">
+            <div className="font-headline text-2xl tracking-[0.5em] text-[#DFFF00]/40">
+              LOADING
+            </div>
+          </div>
+        )}
+      </motion.div>
     </AnimatePresence>
   );
 }

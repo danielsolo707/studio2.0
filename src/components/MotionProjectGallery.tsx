@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Maximize2, Play, X } from 'lucide-react';
 import type { Project } from '@/types/project';
 import { getProjectStatus, STATUS_LABELS } from '@/lib/project-meta';
+import { VideoEmbed } from '@/components/VideoEmbed';
 
 interface MotionProjectGalleryProps {
   projects: Project[];
@@ -101,8 +102,8 @@ export function MotionProjectGallery({ projects, onProjectClick }: MotionProject
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : hasVideoMedia ? (
-                    <video
-                      src={project.media?.find((m) => m.type === 'video')?.url}
+                    <VideoEmbed
+                      url={project.media?.find((m) => m.type === 'video')?.url || ''}
                       className="absolute inset-0 w-full h-full object-cover"
                       autoPlay
                       muted

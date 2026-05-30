@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { VideoEmbed } from '@/components/VideoEmbed';
 
 type MediaItem = {
   type: 'image' | 'video';
@@ -100,8 +101,8 @@ export function GalleryModal({ isOpen, onClose, items, initialIndex, isIOS = fal
               loading="lazy"
             />
           ) : (
-            <video
-              src={current.url}
+            <VideoEmbed
+              url={current.url}
               controls
               autoPlay={!isIOS}
               loop

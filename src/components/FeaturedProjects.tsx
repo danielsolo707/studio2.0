@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TiltCard } from '@/components/three/TiltCard';
 import type { Project } from '@/types/project';
+import { VideoEmbed } from '@/components/VideoEmbed';
 import {
   DISCIPLINE_LABELS,
   getProjectDiscipline,
@@ -132,10 +133,10 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
           return (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true, margin: '0px 0px -80px 0px' }}
+              transition={{ delay: index * 0.08, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
               onMouseEnter={() => {
                 setActiveProject(project);
                 startPreviewLoad(project);
@@ -155,7 +156,7 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                 setActiveProject(project);
                 startPreviewLoad(project);
               }}
-              className="group relative border-b border-white/5 cursor-pointer transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-4"
+              className="group relative border-b border-white/5 cursor-pointer transition-all duration-300 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-4"
             >
               <div className="absolute inset-x-0 -top-3 bottom-0 rounded-sm bg-[linear-gradient(100deg,rgba(223,255,0,0),rgba(223,255,0,0.1),rgba(80,120,255,0.055),rgba(223,255,0,0))] bg-[length:220%_100%] opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 group-hover:animate-gradient-shift" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
@@ -267,14 +268,15 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                       onLoad={() => handleImageLoad(activeProject.id)}
                     />
                   ) : videoSrc ? (
-                    <video
+                    <VideoEmbed
                       key={videoSrc}
-                      src={videoSrc}
+                      url={videoSrc}
                       autoPlay
                       muted
                       loop
                       playsInline
                       className="absolute inset-0 h-full w-full object-cover grayscale"
+                      grayscale
                     />
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/20 to-transparent" />

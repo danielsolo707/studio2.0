@@ -59,20 +59,20 @@ export function AboutSection({
         <div>
           <motion.h2
             id="about-heading"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            viewport={{ once: true, margin: '0px 0px -60px 0px' }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="font-headline text-[clamp(2rem,4.6vw,4rem)] mb-8 leading-[1.1] tracking-[-0.02em] text-white"
           >
             {headline}
           </motion.h2>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 0.85 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            viewport={{ once: true, margin: '0px 0px -40px 0px' }}
+            transition={{ delay: 0.15, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="text-base md:text-lg font-body max-w-2xl mb-12 leading-relaxed text-white/80"
           >
             {body}

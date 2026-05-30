@@ -268,8 +268,13 @@ function RubiksCube() {
   const isDragging = useRef(false);
   const prevPointer = useRef({ x: 0, y: 0 });
 
-  // Drag rotation (window‑level)
+  // Drag rotation (window‑level) — desktop only
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if (isTouchDevice) return;
+
     const onDown = (e: MouseEvent) => {
       isDragging.current = true;
       prevPointer.current = { x: e.clientX, y: e.clientY };

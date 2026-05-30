@@ -8,6 +8,7 @@ import type { Project } from '@/types/project';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { FilmGrain } from '@/components/film-grain';
 import { GalleryModal } from '@/components/GalleryModal';
+import { VideoEmbed } from '@/components/VideoEmbed';
 import { IDEHeader } from '@/components/project/ide-header';
 import { JSDocOverview } from '@/components/project/jsdoc-overview';
 import { CodeAccordion } from '@/components/project/code-accordion';
@@ -305,8 +306,8 @@ const techStack = {
         transition={{ duration: 1.2, ease: 'easeOut' }}
       >
         {heroItem && heroItem.type === 'video' ? (
-          <video
-            src={heroItem.url}
+          <VideoEmbed
+            url={heroItem.url}
             className="absolute inset-0 w-full h-full object-cover"
             autoPlay={!isIOS}
             loop
@@ -495,8 +496,8 @@ const techStack = {
                         />
                       ) : (
                         <div className="relative w-full aspect-video">
-                          <video
-                            src={m.url}
+                          <VideoEmbed
+                            url={m.url}
                             className="w-full h-full object-cover"
                             muted
                             loop

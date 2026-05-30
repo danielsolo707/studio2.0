@@ -75,7 +75,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
             type="url"
             value={url}
             onChange={(e) => updateVideo(index, e.target.value)}
-            placeholder="https://youtube.com/... or .mp4"
+            placeholder="https://vimeo.com/..., https://youtube.com/... or .mp4"
             className="flex-1 bg-transparent border border-white/10 px-3 py-2 text-white text-sm placeholder:text-white/20 focus:border-[#DFFF00]/50 focus:outline-none"
           />
           <button

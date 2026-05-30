@@ -76,7 +76,7 @@ export function MediaFieldsEditable({ images, videos, onImagesChange, onVideosCh
               type="url"
               value={url}
               onChange={(e) => updateVideo(index, e.target.value)}
-              placeholder="https://youtube.com/..."
+              placeholder="https://vimeo.com/... or .mp4"
               className="flex-1 bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
             />
           </div>

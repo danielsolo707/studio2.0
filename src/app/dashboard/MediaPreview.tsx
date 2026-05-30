@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { VideoEmbed } from '@/components/VideoEmbed';
 
 type Props = {
   url: string;
@@ -23,8 +24,8 @@ export function MediaPreview({ url, type, label }: Props) {
   const previewThumb = (
     <div className="w-48 h-28 bg-black/80 border border-white/10 overflow-hidden rounded shadow-[0_0_20px_rgba(223,255,0,0.1)]">
       {type === 'video' ? (
-        <video
-          src={url}
+        <VideoEmbed
+          url={url}
           className="w-full h-full object-cover"
           muted
           loop
@@ -80,8 +81,8 @@ export function MediaPreview({ url, type, label }: Props) {
               CLOSE
             </button>
             {type === 'video' ? (
-              <video
-                src={url}
+              <VideoEmbed
+                url={url}
                 controls
                 autoPlay
                 className="w-full max-h-[80vh] object-contain bg-black"
