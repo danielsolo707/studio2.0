@@ -18,7 +18,8 @@ Organized by domain. **No page shells here** — only reusable building blocks.
 
 | File                       | Used by          | Description                          |
 |----------------------------|------------------|--------------------------------------|
-| `TypographicHero.tsx`      | Home page        | Hero section with 3D cube            |
+| `TypographicHero.tsx`      | Home page        | Hero section with Rick character     |
+| `RickHero.tsx`             | TypographicHero  | Rick character with hover bubble     |
 | `FeaturedProjects.tsx`     | Home page        | Featured works list                  |
 | `AboutSection.tsx`         | Home page        | About + skills                       |
 | `ContactSection.tsx`       | Home page        | Contact CTA + form                   |

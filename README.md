@@ -27,7 +27,7 @@
 
 This is a **personal portfolio website** for a creative developer. It features:
 
-- A **typographic hero** with an interactive 3D Rubik's-cube scene (Three.js)
+- A **typographic hero** with an interactive Rick character and hover speech-bubble
 - **Featured works** with hover previews and gradient animations
 - **Motion** and **code** project galleries with distinct visual identities
 - **Project detail pages** with a dual-view layout (motion vs code style)
@@ -123,7 +123,7 @@ studio.2/
 │   │
 │   ├── components/             # React components — NO page shells
 │   │   ├── ui/                 #   shadcn/Radix primitives (50+ components)
-│   │   ├── three/              #   Three.js 3D components (HeroCube, particles, TiltCard)
+│   │   ├── three/              #   Three.js 3D components (particles, TiltCard)
 │   │   ├── project/            #   Project detail sub-components
 │   │   ├── project-detail/     #   Project detail client wrapper
 │   │   ├── arcade/             #   Arcade game frame + thumbnails

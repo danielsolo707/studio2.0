@@ -1,13 +1,10 @@
 "use client"
 
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { MobileMenu } from '@/components/MobileMenu';
-
-const HeroCube = lazy(() =>
-  import('@/components/three/HeroCube').then((m) => ({ default: m.HeroCube }))
-);
+import { RickHero } from '@/components/RickHero';
 
 interface TypographicHeroProps {
   headline?: string;
@@ -15,14 +12,14 @@ interface TypographicHeroProps {
 }
 
 /**
- * Full-viewport hero with left-aligned text + right-side 3D cube.
+ * Full-viewport hero with left-aligned text + right-side Rick character.
  * Layout inspired by Resend.com — clean split design.
  *
  * Performance:
  * - Active-nav indicator is a continuous scroll-progress fill (like a scrollbar)
  *   driven by GPU-composited motion values — no per-scroll reflow, no flicker.
  * - Section ranges measured once on mount/resize (single getBoundingClientRect pass).
- * - Pauses the 3D cube when hero scrolls out of view.
+ * - Unmounts the hero image when it scrolls off-screen.
  *
  * Accessibility:
  * - Single semantic `<h1>` containing both text lines
@@ -73,7 +70,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
     };
   }, []);
 
-  // Pause 3D rendering when hero is off-screen (IntersectionObserver — zero reflow)
+  // Unmount hero image when off-screen (IntersectionObserver — zero reflow)
   useEffect(() => {
     const heroEl = heroRef.current;
     if (!heroEl) return;
@@ -245,7 +242,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
         <MobileMenu />
       </motion.header>
 
-      {/* ─── Hero: text left + cube right ─── */}
+      {/* ─── Hero: text left + Rick right ─── */}
       <div ref={heroRef} className="sticky top-0 min-h-[100svh] flex items-center overflow-hidden pt-16 md:pt-24">
         <div className="pointer-events-none absolute inset-0">
           <div
@@ -338,17 +335,10 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
             </motion.div>
           </div>
 
-          {/* Right — 3D interactive cube (unmounts when hero is off-screen for zero GPU cost) */}
+          {/* Right — Rick character with hover-to-bubble transition */}
           <div className="relative w-full h-[45svh] min-h-[280px] max-h-[420px] md:h-[min(70svh,720px)] md:min-h-[500px] md:max-h-[760px] md:basis-[48%] md:max-w-[720px] flex items-center justify-center pointer-events-auto">
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute inset-0 hero-cube-halo" aria-hidden="true" />
-            </div>
             {heroVisible ? (
-              <Suspense fallback={
-                <div className="w-48 h-48 border border-white/5 animate-pulse" />
-              }>
-                <HeroCube paused={!heroVisible} />
-              </Suspense>
+              <RickHero />
             ) : (
               <div className="w-48 h-48 border border-white/5" aria-hidden="true" />
             )}
