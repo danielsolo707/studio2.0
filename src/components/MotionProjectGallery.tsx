@@ -104,7 +104,7 @@ export function MotionProjectGallery({ projects, onProjectClick }: MotionProject
                   ) : hasVideoMedia ? (
                     <VideoEmbed
                       url={project.media?.find((m) => m.type === 'video')?.url || ''}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full [&_iframe]:!w-[120%] [&_iframe]:!h-[120%] [&_iframe]:!left-1/2 [&_iframe]:!top-1/2 [&_iframe]:!-translate-x-1/2 [&_iframe]:!-translate-y-1/2 [&_video]:object-cover"
                       autoPlay
                       muted
                       loop
