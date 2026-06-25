@@ -423,10 +423,10 @@ const techStack = {
                           loading="lazy"
                         />
                       ) : (
-                        <div className="relative w-full aspect-video bg-black/50 overflow-hidden">
+                        <div className="relative w-full aspect-video bg-black/50">
                           <VideoEmbed
                             url={m.url}
-                            className="w-full h-full [&_iframe]:!w-[120%] [&_iframe]:!h-[120%] [&_iframe]:!left-1/2 [&_iframe]:!top-1/2 [&_iframe]:!-translate-x-1/2 [&_iframe]:!-translate-y-1/2 [&_video]:object-cover"
+                            className="w-full h-full object-cover"
                             autoPlay
                             muted
                             loop
