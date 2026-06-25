@@ -64,7 +64,7 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
     };
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent | MouseEvent) => {
     if (rafRef.current !== null) return;
     const { clientX, clientY } = e;
     rafRef.current = requestAnimationFrame(() => {
@@ -73,30 +73,39 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
     });
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove as EventListener);
+    return () => window.removeEventListener('mousemove', handleMouseMove as EventListener);
+  }, [handleMouseMove]);
+
   const getPreviewPosition = useCallback(() => {
     if (focusPreviewPos) return focusPreviewPos;
     const previewWidth = 320;
     const previewHeight = 192;
-    const margin = 18;
-    if (!sectionRectRef.current && sectionRef.current) {
-      sectionRectRef.current = sectionRef.current.getBoundingClientRect();
-    }
-    const sectionRect = sectionRectRef.current;
-    const vh = viewport.h || window.innerHeight || 9999;
-    const maxTopByViewport = vh - previewHeight - margin;
-    const maxTopBySection = sectionRect
-      ? sectionRect.bottom - previewHeight - margin
-      : maxTopByViewport;
-    const minTopBySection = sectionRect ? Math.max(margin, sectionRect.top + margin) : margin;
+    const offset = 16;
+    const margin = 12;
+    const vw = viewport.w || window.innerWidth || 1920;
+    const vh = viewport.h || window.innerHeight || 1080;
 
-    return {
-      left: Math.max(margin, Math.min(mousePos.x + 30, (viewport.w || 9999) - previewWidth - margin)),
-      top: Math.max(
-        minTopBySection,
-        Math.min(mousePos.y + 30, maxTopByViewport, maxTopBySection),
-      ),
-    };
-  }, [mousePos.x, mousePos.y, viewport.h, viewport.w, focusPreviewPos]);
+    let left = mousePos.x + offset;
+    let top = mousePos.y + offset;
+
+    if (left + previewWidth > vw - margin) {
+      left = mousePos.x - previewWidth - offset;
+    }
+    if (left < margin) {
+      left = margin;
+    }
+
+    if (top + previewHeight > vh - margin) {
+      top = mousePos.y - previewHeight - offset;
+    }
+    if (top < margin) {
+      top = margin;
+    }
+
+    return { left, top };
+  }, [mousePos.x, mousePos.y, viewport.w, viewport.h, focusPreviewPos]);
 
   const handleImageError = useCallback((id: string) => {
     setFailedImages((prev) => new Set([...prev, id]));
@@ -121,7 +130,6 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
       id="works"
       aria-labelledby="works-heading"
       className="relative z-20 py-16 md:py-20 px-6 md:px-16 overflow-hidden scroll-mt-24"
-      onMouseMove={handleMouseMove}
       onMouseLeave={() => setActiveProject(null)}
       style={{ contentVisibility: 'auto' } as React.CSSProperties}
     >
