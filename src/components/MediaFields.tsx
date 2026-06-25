@@ -51,7 +51,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
         <div key={`img-${index}`} className="flex items-center gap-2">
           <Image size={14} className="text-white/40 flex-shrink-0" />
           <input
-            type="url"
+            type="text"
             value={url}
             onChange={(e) => updateImage(index, e.target.value)}
             placeholder="https://example.com/image.jpg"
@@ -72,7 +72,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
         <div key={`vid-${index}`} className="flex items-center gap-2">
           <Video size={14} className="text-white/40 flex-shrink-0" />
           <input
-            type="url"
+            type="text"
             value={url}
             onChange={(e) => updateVideo(index, e.target.value)}
             placeholder="https://vimeo.com/..., https://youtube.com/... or .mp4"
@@ -100,11 +100,11 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
         </button>
 
         {showAddMenu && (
-          <div className="absolute left-0 top-8 bg-[#161b22] border border-white/10 rounded p-2 z-10">
+          <div className="absolute left-0 bottom-full mb-1 bg-[#0a0a0a] border border-white/10 rounded p-2 z-50 shadow-lg">
             <button
               type="button"
               onClick={() => { addImage(); setShowAddMenu(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded whitespace-nowrap"
             >
               <Image size={14} />
               Add Image URL
@@ -112,7 +112,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
             <button
               type="button"
               onClick={() => { addVideo(); setShowAddMenu(false); }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded whitespace-nowrap"
             >
               <Video size={14} />
               Add Video URL

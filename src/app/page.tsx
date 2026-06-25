@@ -4,6 +4,7 @@ import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
+import { BackToTop } from '@/components/BackToTop';
 import { readContent } from '@/lib/content';
 
 /**
@@ -48,6 +49,8 @@ export default async function Home() {
         />
         <ContactSection />
       </div>
+
+      <BackToTop />
     </main>
   );
 }

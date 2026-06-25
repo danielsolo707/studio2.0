@@ -1,6 +1,18 @@
 import fs from 'fs/promises';
 import path from 'path';
 import type { SiteContent } from '@/types/project';
+import { isSupabaseConfigured, supabaseServer, TABLES } from './supabase';
+import {
+  supabaseServerReadProjects,
+  supabaseServerReadContent,
+  supabaseAddProject,
+  supabaseUpdateProject,
+  supabaseDeleteProject,
+  supabaseUpdateHero,
+  supabaseUpdateAbout,
+  supabaseUpdateOptions,
+  mapProjectToDB,
+} from './supabase-db';
 
 const LOCAL_STORAGE_KEY = 'portfolio_content';
 const USE_LOCAL_STORAGE = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_LOCAL_STORAGE === 'true';
@@ -90,6 +102,17 @@ const DEFAULT_CONTENT: SiteContent = {
 };
 
 export async function readContent(): Promise<SiteContent> {
+  if (isSupabaseConfigured) {
+    const [content, projects] = await Promise.all([
+      supabaseServerReadContent(),
+      supabaseServerReadProjects(),
+    ]);
+    if (content) {
+      return { ...content, projects };
+    }
+    console.warn('Supabase read returned null, falling back to file');
+  }
+
   if (USE_LOCAL_STORAGE) {
     const localData = getLocalStorageContent();
     if (localData) {
@@ -131,6 +154,37 @@ export async function readContent(): Promise<SiteContent> {
 }
 
 export async function writeContent(content: SiteContent): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseServer()
+      .from(TABLES.SITE_CONTENT)
+      .upsert({
+        id: 'default',
+        hero: content.hero ?? null,
+        about: content.about,
+        options: content.options ?? {},
+      }, { onConflict: 'id', ignoreDuplicates: false });
+
+    const existingIds = (await supabaseServer()
+      .from(TABLES.PROJECTS)
+      .select('id'))
+      .data?.map(r => r.id) ?? [];
+
+    const newIds = content.projects.map(p => p.id);
+    const toDelete = existingIds.filter(id => !newIds.includes(id));
+
+    if (toDelete.length > 0) {
+      await supabaseServer().from(TABLES.PROJECTS).delete().in('id', toDelete);
+    }
+
+    for (const project of content.projects) {
+      await supabaseServer()
+        .from(TABLES.PROJECTS)
+        .upsert(mapProjectToDB(project), { onConflict: 'id', ignoreDuplicates: false });
+    }
+
+    return;
+  }
+
   if (USE_LOCAL_STORAGE) {
     setLocalStorageContent(content);
   }
@@ -148,12 +202,20 @@ export async function writeContent(content: SiteContent): Promise<void> {
 
 // Helper functions for content manipulation
 export async function updateAbout(aboutData: Partial<SiteContent['about']>): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseUpdateAbout(aboutData);
+    return;
+  }
   const content = await readContent();
   content.about = { ...content.about, ...aboutData };
   await writeContent(content);
 }
 
 export async function updateHero(heroData: Partial<SiteContent['hero']>): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseUpdateHero(heroData);
+    return;
+  }
   const content = await readContent();
   content.hero = {
     headline: content.hero?.headline || '',
@@ -164,12 +226,20 @@ export async function updateHero(heroData: Partial<SiteContent['hero']>): Promis
 }
 
 export async function addProject(project: SiteContent['projects'][0]): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseAddProject(project);
+    return;
+  }
   const content = await readContent();
   content.projects.push(project);
   await writeContent(content);
 }
 
 export async function updateProject(projectId: string, updates: Partial<SiteContent['projects'][0]>): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseUpdateProject(projectId, updates);
+    return;
+  }
   const content = await readContent();
   const projectIndex = content.projects.findIndex((p: SiteContent['projects'][0]) => p.id === projectId);
   
@@ -182,6 +252,10 @@ export async function updateProject(projectId: string, updates: Partial<SiteCont
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseDeleteProject(projectId);
+    return;
+  }
   const content = await readContent();
   content.projects = content.projects.filter((p: SiteContent['projects'][0]) => p.id !== projectId);
   await writeContent(content);
@@ -193,6 +267,10 @@ export async function getOptions() {
 }
 
 export async function updateOptions(updates: Partial<SiteContent['options']>): Promise<void> {
+  if (isSupabaseConfigured) {
+    await supabaseUpdateOptions(updates);
+    return;
+  }
   const content = await readContent();
   content.options = {
     ...DEFAULT_CONTENT.options,

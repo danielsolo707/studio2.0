@@ -86,17 +86,13 @@ export function AboutSection({
             className="flex flex-wrap gap-x-4 gap-y-3 font-headline text-[10px] tracking-[0.3em]"
             aria-label="Skills and tools"
           >
-            {skills.map((skill, i) => (
-              <React.Fragment key={skill}>
-                {i > 0 && (
-                  <li aria-hidden="true" className="text-white/25">
-                    /
-                  </li>
-                )}
-                <li className="hover:text-[#DFFF00] transition-colors cursor-default text-white/60">
-                  {skill}
-                </li>
-              </React.Fragment>
+            {skills.map((skill) => (
+              <li
+                key={skill}
+                className="hover:text-[#DFFF00] transition-colors cursor-default text-white/60 after:content-['/'] after:ml-4 after:text-white/25 last:after:content-none"
+              >
+                {skill}
+              </li>
             ))}
           </motion.ul>
 

@@ -62,6 +62,10 @@ server.log
 # playwright mcp debug artifacts
 .playwright-mcp/
 
+# playwright test results
+test-results/
+playwright-report/
+
 # uploaded media (runtime-generated, not source)
 public/uploads/
 

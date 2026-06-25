@@ -22,7 +22,7 @@
       "color": "#DFFF00",
       "imageUrl": "",
       "videoUrl": "/uploads/58a11bc4-074e-4a4e-aa74-dc3f0a3e3ee4.mp4",
-      "description": "",
+      "description": "An abstract motion piece visualizing modern UI interfaces with geometric precision and playful animations. Perfect for hero headers and background motion.",
       "subtitle": "Abstract motion piece visualizing modern UI interfaces with geometric precision and playful animations.",
       "details": "Perfect for hero headers and background motion. Demonstrates mastery of timing, spatial organization, and turning static UI concepts into dynamic storytelling.",
       "tools": "After Effects",
@@ -34,7 +34,7 @@
       "media": [
         {
           "type": "video",
-          "url": "/uploads/L06_UI_Main H_1920x1080.mp4",
+          "url": "/uploads/L06_UI_Main%20H_1920x1080.mp4",
           "storage": "local"
         },
         {
@@ -372,6 +372,14 @@
           "url": "/uploads/33f8e06c-4325-42a9-9c1b-5ba8aabcad84.mp4",
           "storage": "local",
           "fileId": "33f8e06c-4325-42a9-9c1b-5ba8aabcad84"
+        },
+        {
+          "type": "video",
+          "url": "https://vimeo.com/1196314298"
+        },
+        {
+          "type": "video",
+          "url": "https://vimeo.com/1196316210"
         }
       ]
     },

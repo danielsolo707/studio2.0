@@ -55,9 +55,16 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
   // Lightweight scroll listener for header bg only (single state bit, no layout reads)
   useEffect(() => {
     let frame = 0;
+    let prevScrolled = false;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setIsScrolled(window.scrollY > 24));
+      frame = requestAnimationFrame(() => {
+        const next = window.scrollY > 24;
+        if (next !== prevScrolled) {
+          prevScrolled = next;
+          setIsScrolled(next);
+        }
+      });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
@@ -217,7 +224,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
                 href={item.href}
                 onClick={(event) => handleNavClick(event, item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`group relative font-headline text-[9px] tracking-[0.3em] transition-colors duration-200 ${colorClass}`}
+                className={`group relative font-headline text-[10px] tracking-[0.25em] md:tracking-[0.3em] transition-colors duration-200 ${colorClass}`}
               >
                 <span className="relative pb-2">
                   {item.label}
@@ -239,7 +246,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
       </motion.header>
 
       {/* ─── Hero: text left + cube right ─── */}
-      <div ref={heroRef} className="sticky top-0 min-h-[100svh] flex items-center overflow-hidden pt-20 md:pt-24">
+      <div ref={heroRef} className="sticky top-0 min-h-[100svh] flex items-center overflow-hidden pt-16 md:pt-24">
         <div className="pointer-events-none absolute inset-0">
           <div
             className="hero-ambient absolute -right-[15%] top-[-10%] h-[120%] w-[75%] opacity-70 animate-drift-slow"
@@ -253,7 +260,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
         </div>
         <motion.div
           style={{ opacity, y: yMove, scale }}
-          className="w-full min-h-[100svh] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10 px-6 py-24 md:px-12 lg:px-16 xl:px-20"
+          className="w-full min-h-[100svh] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10 px-6 py-12 md:py-24 md:px-12 lg:px-16 xl:px-20"
         >
           {/* Left — text content */}
           <div className="flex w-full flex-col justify-center z-10 md:basis-[52%] md:max-w-[760px] relative">
@@ -314,7 +321,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.2 }}
-              className="mt-10 hidden sm:block"
+              className="mt-10 block"
               aria-hidden="true"
             >
               <motion.div
@@ -332,7 +339,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
           </div>
 
           {/* Right — 3D interactive cube (unmounts when hero is off-screen for zero GPU cost) */}
-          <div className="relative w-full h-[34svh] min-h-[230px] max-h-[360px] md:h-[min(70svh,720px)] md:min-h-[500px] md:max-h-[760px] md:basis-[48%] md:max-w-[720px] flex items-center justify-center pointer-events-auto">
+          <div className="relative w-full h-[45svh] min-h-[280px] max-h-[420px] md:h-[min(70svh,720px)] md:min-h-[500px] md:max-h-[760px] md:basis-[48%] md:max-w-[720px] flex items-center justify-center pointer-events-auto">
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute inset-0 hero-cube-halo" aria-hidden="true" />
             </div>

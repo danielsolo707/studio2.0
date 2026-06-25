@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BarChart3, BookOpen, Code2, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
+import { ArrowLeft, BarChart3, BookOpen, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
@@ -31,7 +31,6 @@ interface ProjectDetailClientProps {
 
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const router = useRouter();
-  const [imageLoaded, setImageLoaded] = useState(true);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [loadedSet, setLoadedSet] = useState<Set<string>>(new Set());
@@ -299,68 +298,6 @@ const techStack = {
 
   return (
     <main className="min-h-screen bg-[#030305]">
-      <motion.div
-        className="relative w-full aspect-video md:h-[70vh] overflow-hidden bg-black/50"
-        initial={{ scale: 1.05, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-      >
-        {heroItem && heroItem.type === 'video' ? (
-          <VideoEmbed
-            url={heroItem.url}
-            className="absolute inset-0 w-full h-full object-cover"
-            autoPlay={!isIOS}
-            loop
-            muted
-            playsInline
-            controls={isIOS}
-            preload="metadata"
-            poster={heroItem.thumbUrl || project.imageUrl || undefined}
-          />
-        ) : imageLoaded && (heroItem?.thumbUrl || heroItem?.url || project.imageUrl) ? (
-          <>
-            {(() => {
-              const src = heroItem?.thumbUrl || heroItem?.url || project.imageUrl;
-              if (!src) return null;
-              return (
-                <img
-                  src={src}
-                  alt={project.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={() => setImageLoaded(false)}
-                />
-              );
-            })()}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#030305] via-transparent to-transparent" />
-          </>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#030305] via-black to-[#101205]">
-            <div className="text-center px-6">
-              <Code2 className="w-12 h-12 mx-auto text-[#DFFF00]/80 mb-5" strokeWidth={1.4} />
-              <div className="text-[#DFFF00] font-headline text-sm tracking-[0.4em] mb-3">
-                {DISCIPLINE_LABELS[discipline]}
-              </div>
-              <div className="text-white/45 font-body text-sm max-w-sm leading-relaxed">
-                {role}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex items-end md:items-center justify-between px-6 md:px-12 pb-8 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
-          <div>
-            <p className="text-[10px] tracking-[0.4em] text-[#DFFF00] font-headline">SELECTED WORK</p>
-            <h1 className="font-headline text-3xl md:text-6xl text-white tracking-tight mt-2">{project.name}</h1>
-            {project.subtitle && (
-              <p className="text-white/50 font-body text-sm md:text-base mt-2 max-w-xl">{project.subtitle}</p>
-            )}
-            <p className="text-white/60 font-body mt-2">
-              {DISCIPLINE_LABELS[discipline]} / {project.year}
-            </p>
-          </div>
-        </div>
-      </motion.div>
-
       <div className="relative z-10 p-6 md:p-24 bg-[#030305]">
         <button
           type="button"
@@ -379,15 +316,6 @@ const techStack = {
           >
             {project.name}
           </motion.h1>
-
-          <motion.p
-            className="font-body text-xl md:text-3xl text-white/60 max-w-3xl leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            {project.description}
-          </motion.p>
 
           {links.length > 0 ? (
             <motion.div
@@ -495,15 +423,15 @@ const techStack = {
                           loading="lazy"
                         />
                       ) : (
-                        <div className="relative w-full aspect-video">
+                        <div className="relative w-full aspect-video bg-black/50">
                           <VideoEmbed
                             url={m.url}
                             className="w-full h-full object-cover"
+                            autoPlay
                             muted
                             loop
                             playsInline
-                            autoPlay={!isIOS}
-                            controls={isIOS}
+                            controls
                             preload="metadata"
                             poster={m.thumbUrl || project.imageUrl || undefined}
                           />
@@ -524,6 +452,7 @@ const techStack = {
         items={orderedGallery}
         initialIndex={galleryIndex}
         isIOS={isIOS}
+        projectName={project.name}
       />
     </main>
   );

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -11,6 +11,18 @@ export function MobileMenu() {
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
+
+  const handleNavClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    closeMenu();
+    const element = document.getElementById(id);
+    if (!element) return;
+    const headerOffset = 68;
+    window.scrollTo({
+      top: Math.max(0, element.offsetTop - headerOffset),
+      behavior: 'smooth',
+    });
+  }, []);
 
   // Prevent scrolling when menu is open
   useEffect(() => {
@@ -76,21 +88,21 @@ export function MobileMenu() {
                 <div className="flex flex-col space-y-6 flex-1">
                   <a
                     href="#about"
-                    onClick={closeMenu}
+                    onClick={(e) => handleNavClick(e, 'about')}
                     className="font-headline text-xl tracking-[0.3em] text-white/80 hover:text-[#DFFF00] transition-colors py-3"
                   >
                     ABOUT
                   </a>
                   <a
                     href="#works"
-                    onClick={closeMenu}
+                    onClick={(e) => handleNavClick(e, 'works')}
                     className="font-headline text-xl tracking-[0.3em] text-white/80 hover:text-[#DFFF00] transition-colors py-3"
                   >
                     WORKS
                   </a>
                   <a
                     href="#contact"
-                    onClick={closeMenu}
+                    onClick={(e) => handleNavClick(e, 'contact')}
                     className="font-headline text-xl tracking-[0.3em] text-white/80 hover:text-[#DFFF00] transition-colors py-3"
                   >
                     CONTACT

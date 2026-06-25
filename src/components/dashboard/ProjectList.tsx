@@ -112,6 +112,7 @@ function ProjectCard({ project }: { project: Project }) {
               projectId={project.id}
               initialImageUrl={project.imageUrl}
               initialVideoUrl={project.videoUrl || ''}
+              initialMedia={project.media}
             />
             <div className="md:col-span-2">
               <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">DESCRIPTION</p>

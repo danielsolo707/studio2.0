@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { ContactForm } from '@/components/ContactForm';
 import { Footer } from '@/components/Footer';
 
@@ -32,7 +33,7 @@ export function ContactSection() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative z-20 min-h-[100svh] flex flex-col px-6 py-16 md:px-12 lg:px-20 md:py-20 scroll-mt-24 cv-auto"
+      className="relative z-20 min-h-[80svh] flex flex-col px-6 py-16 md:px-12 lg:px-20 md:py-20 scroll-mt-24 cv-auto"
     >
       <div className="absolute inset-0 contact-scrim pointer-events-none" aria-hidden="true" />
 
@@ -67,19 +68,24 @@ export function ContactSection() {
             GET IN TOUCH
           </motion.p>
 
+          <h2 id="contact-heading" className="sr-only">Contact</h2>
+
           <motion.button
-            id="contact-heading"
             type="button"
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '0px 0px -60px 0px' }}
             transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
             onClick={handleToggleForm}
-            className="font-headline whitespace-nowrap text-[clamp(2.2rem,4.2vw,4.6rem)] leading-none tracking-[-0.02em] italic text-white hover:text-[#DFFF00] transition-colors"
+            className="group/contact font-headline whitespace-nowrap text-[clamp(2.2rem,4.2vw,4.6rem)] leading-none tracking-[-0.02em] italic text-white hover:text-[#DFFF00] transition-colors inline-flex items-center gap-4"
             aria-expanded={showForm}
             aria-controls="contact-form"
           >
             LET&apos;S TALK
+            <ChevronDown
+              className={`w-6 h-6 md:w-8 md:h-8 transition-transform duration-300 ${showForm ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
           </motion.button>
 
           {showForm && (

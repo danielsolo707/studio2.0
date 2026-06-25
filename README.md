@@ -156,7 +156,6 @@ studio.2/
 │   └── uploads/                #   User-uploaded media (gitignored)
 │
 ├── e2e/                        # Playwright end-to-end tests
-├── .github/workflows/          # CI/CD pipelines
 ├── docs/                       # Design docs & brainstorming
 │
 ├── next.config.ts              # Next.js configuration (security headers, images)
@@ -285,10 +284,18 @@ Tests run across 3 viewports (desktop, tablet, mobile) and cover:
 
 ## Deployment
 
-The app can be deployed to any Node.js host. A `CNAME` file is included for
-GitHub Pages custom domain, and `ecosystem.config.js` for PM2.
+The app is designed to deploy on **Vercel** (recommended, zero config for Next.js)
+or any Node.js host that supports Next.js 15.
 
-### Build & Start
+### Vercel (Recommended)
+
+1. Push the repo to GitHub
+2. Import the project at [vercel.com/new](https://vercel.com/new)
+3. Vercel auto-detects Next.js — no config needed
+4. Add environment variables in the Vercel dashboard (see below)
+5. Deploy
+
+### Build & Start (Self-hosted)
 
 ```bash
 npm run build
@@ -301,12 +308,20 @@ npm start
 pm2 start ecosystem.config.js
 ```
 
-### Environment
+### Environment Variables
 
-Ensure these are set in production:
-- `ADMIN_SESSION_SECRET` (required)
-- `ADMIN_USERNAME` / `ADMIN_PASSWORD` (or use dashboard password change)
-- `RESEND_API_KEY` (optional, for email notifications)
+Add these in your Vercel project settings (or `.env.local` for self-hosted):
+
+| Variable                 | Required | Description                          |
+|--------------------------|----------|--------------------------------------|
+| `ADMIN_SESSION_SECRET`   | Yes      | Long random string for cookie HMAC   |
+| `ADMIN_USERNAME`         | No       | Defaults to `admin`                  |
+| `ADMIN_PASSWORD`         | No       | Set on first dashboard login         |
+| `RESEND_API_KEY`         | No       | For contact form email notifications |
+| `RESEND_FROM`            | No       | Sender address (e.g. `Portfolio <noreply@yourdomain.com>`) |
+| `RESEND_TO`              | No       | Recipient for contact submissions    |
+| `TURNSTILE_SECRET_KEY`   | No       | Cloudflare Turnstile server key      |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | No | Cloudflare Turnstile site key    |
 
 ---
 

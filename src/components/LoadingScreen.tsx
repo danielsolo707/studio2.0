@@ -1,14 +1,15 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const VISITED_KEY = 'studio2_intro_seen_v2';
 type LoadingMode = 'checking' | 'intro' | 'loading' | 'done';
 
 export function LoadingScreen() {
-  const [count, setCount] = useState(0);
   const [mode, setMode] = useState<LoadingMode>('checking');
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const progressRef = useRef(0);
 
   useEffect(() => {
     const visited = localStorage.getItem(VISITED_KEY);
@@ -31,7 +32,11 @@ export function LoadingScreen() {
 
     const tick = (now: number) => {
       const progress = Math.min(((now - startedAt) / duration) * 100, 100);
-      setCount(progress);
+      progressRef.current = progress;
+
+      if (counterRef.current) {
+        counterRef.current.textContent = String(Math.floor(progress));
+      }
 
       if (progress >= 100) {
         hideTimer = window.setTimeout(() => setMode('done'), 800);
@@ -62,7 +67,7 @@ export function LoadingScreen() {
           transition: { duration: 1.2, ease: 'easeInOut' },
         }}
         role="progressbar"
-        aria-valuenow={mode === 'intro' ? Math.floor(count) : 0}
+        aria-valuenow={mode === 'intro' ? Math.floor(progressRef.current) : 0}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label="Loading portfolio"
@@ -74,8 +79,11 @@ export function LoadingScreen() {
               animate={{ opacity: 1, y: 0 }}
               className="relative"
             >
-              <span className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none">
-                {Math.floor(count)}
+              <span
+                ref={counterRef}
+                className="font-headline text-[15vw] md:text-[10vw] font-bold text-accent tracking-tighter tabular-nums leading-none"
+              >
+                0
               </span>
               <motion.div
                 className="absolute inset-0 bg-accent/20 blur-3xl rounded-full"

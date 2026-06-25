@@ -50,11 +50,15 @@ export function VideoEmbed({
     if (isBackground) {
       params.set('background', '1');
     } else {
-      params.set('autoplay', autoPlay ? '1' : '0');
+      const effectiveAutoplay = autoPlay || muted;
+      params.set('autoplay', effectiveAutoplay ? '1' : '0');
       params.set('muted', muted ? '1' : '0');
       params.set('loop', loop ? '1' : '0');
       params.set('controls', controls ? '1' : '0');
       params.set('playsinline', playsInline ? '1' : '0');
+      params.set('title', '0');
+      params.set('byline', '0');
+      params.set('portrait', '0');
     }
     if (vimeoInfo.hash) {
       params.set('h', vimeoInfo.hash);
@@ -63,17 +67,15 @@ export function VideoEmbed({
     const embedUrl = `https://player.vimeo.com/video/${vimeoInfo.id}?${params.toString()}`;
 
     return (
-      <iframe
-        src={embedUrl}
-        className={className}
-        style={{
-          ...(grayscale ? { filter: 'grayscale(1)' } : {}),
-          ...style,
-        }}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
-        title="Video player"
-      />
+      <div className={`relative w-full h-full overflow-hidden ${className}`} style={style}>
+        <iframe
+          src={embedUrl}
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+          allowFullScreen
+          title="Video player"
+        />
+      </div>
     );
   }
 

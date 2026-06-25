@@ -15,7 +15,7 @@ interface Props {
   serviceStatus: { resend: boolean; db: boolean };
 }
 
-const truncate = (text: string, n = 50) => (text.length > n ? `${text.slice(0, n)}…` : text);
+const truncate = (text: string, n = 50) => (text.length > n ? `${text.slice(0, n)}â€¦` : text);
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat('en-US', {
     dateStyle: 'medium',

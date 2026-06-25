@@ -91,7 +91,7 @@ const projectSchema = z.object({
   color: z.string().optional().default('#DFFF00'),
   imageUrl: z.string(),
   videoUrl: z.string().optional().default(''),
-  description: z.string().min(1, 'Description is required'),
+  description: z.string().optional().default(''),
   tools: z.string().min(1, 'Tools are required'),
   category: z.string().min(1, 'Category is required'),
   discipline: z.enum(['motion', 'code', 'data', 'hybrid']).default('motion'),
@@ -466,7 +466,10 @@ export async function updateProjectAction(formData: FormData) {
   if (index === -1) redirect('/dashboard');
 
   const { data: next, error } = coerceProject(formData, content.projects[index]);
-  if (error || !next) redirect('/dashboard');
+  if (error || !next) {
+    console.error(`[updateProjectAction] Failed to update project "${id}":`, error || 'No data returned');
+    redirect('/dashboard');
+  }
 
   content.projects[index] = next;
   await writeContent(content);
