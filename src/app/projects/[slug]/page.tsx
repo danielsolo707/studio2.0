@@ -4,7 +4,12 @@ import { readContent } from '@/lib/content';
 import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/project-meta';
 import { ProjectDetailClient } from '@/components/project-detail/ProjectDetailClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const content = await readContent();
+  return content.projects.map((project) => ({ slug: project.id }));
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
