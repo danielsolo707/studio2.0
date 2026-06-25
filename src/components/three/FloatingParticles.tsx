@@ -4,12 +4,12 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const PARTICLE_COUNT = 300;
+const PARTICLE_COUNT = 120;
 
 /** GPU-optimized floating particles that react to mouse + scroll */
-function Particles() {
+function Particles({ paused = false }: { paused?: boolean }) {
   const pointsRef = useRef<THREE.Points>(null);
-  const { pointer, size } = useThree();
+  const { pointer } = useThree();
   const mouseTarget = useRef(new THREE.Vector2(0, 0));
 
   const { positions, velocities, sizes } = useMemo(() => {
@@ -41,7 +41,7 @@ function Particles() {
   }, [positions, sizes]);
 
   useFrame(() => {
-    if (!pointsRef.current) return;
+    if (paused || !pointsRef.current) return;
 
     // Smooth mouse follow
     mouseTarget.current.lerp(
@@ -124,15 +124,8 @@ function Particles() {
   );
 }
 
-/** Faint connecting lines between nearby particles */
-function ConnectionLines() {
-  const lineRef = useRef<THREE.LineSegments>(null);
-
-  return null; // Lines are optional — keeps it minimal
-}
-
 /** Full-page floating particles background */
-export function FloatingParticles() {
+export function FloatingParticles({ paused = false }: { paused?: boolean }) {
   return (
     <div
       className="fixed inset-0 z-0 pointer-events-none"
@@ -141,10 +134,11 @@ export function FloatingParticles() {
       <Canvas
         camera={{ position: [0, 0, 10], fov: 60 }}
         dpr={[1, 1.5]}
-        gl={{ antialias: false, alpha: true }}
+        gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
+        frameloop={paused ? 'never' : 'always'}
         style={{ background: 'transparent' }}
       >
-        <Particles />
+        <Particles paused={paused} />
       </Canvas>
     </div>
   );

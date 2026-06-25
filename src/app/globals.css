@@ -197,6 +197,12 @@
       linear-gradient(180deg, rgba(3, 3, 5, 0.9), rgba(3, 3, 5, 1));
     opacity: 0.85;
   }
+
+  /* Skip rendering work for off-screen sections */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
 }
 
 .font-headline {

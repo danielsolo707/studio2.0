@@ -109,6 +109,7 @@ export function MotionProjectGallery({ projects, onProjectClick }: MotionProject
                       muted
                       loop
                       playsInline
+                      isBackground
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#030305] via-black to-[#101205]" />

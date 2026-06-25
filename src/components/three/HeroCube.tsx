@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, Environment, RoundedBox } from '@react-three/drei';
+import { Environment, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 
 /* ─────────────────────────────────────────────────────────
@@ -225,8 +225,6 @@ function SubCube({
       radius={RADIUS}
       smoothness={4}
       position={position}
-      castShadow
-      receiveShadow
     >
       {material}
     </RoundedBox>
@@ -250,7 +248,7 @@ function buildLayers() {
 }
 
 /** The 3×3×3 Rubik's assembly with layer‑flip animation + drag rotation */
-function RubiksCube() {
+function RubiksCube({ paused = false }: { paused?: boolean }) {
   const textures = useMemo(() => ({
     dot: createDotTexture(),
     grid: createGridTexture(),
@@ -299,6 +297,7 @@ function RubiksCube() {
   }, []);
 
   useFrame((state, delta) => {
+    if (paused) return;
     const dt = Math.min(delta, 0.05);
 
     // Gentle auto‑rotation
@@ -358,7 +357,7 @@ function RubiksCube() {
 }
 
 /** Interactive 3D Rubik's cube canvas — hero section */
-export function HeroCube() {
+export function HeroCube({ paused = false }: { paused?: boolean }) {
   return (
     <div
       className="w-full h-full"
@@ -366,31 +365,27 @@ export function HeroCube() {
       style={{ pointerEvents: 'auto' }}
     >
       <Canvas
-        shadows
         camera={{ position: [5.5, 3.5, 5.0], fov: 28 }}
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
         gl={{
           antialias: true,
           alpha: true,
+          powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.25,
         }}
+        frameloop={paused ? 'never' : 'always'}
         style={{ background: 'transparent' }}
       >
         <fog attach="fog" args={['#050507', 7, 16]} />
         {/* Ambient — enough to see the dark faces */}
-        <ambientLight intensity={0.2} />
+        <ambientLight intensity={0.25} />
 
         {/* Key light — strong top-right, warm tone (dramatic like reference) */}
         <directionalLight
           position={[5, 8, 4]}
           intensity={2.2}
           color="#f0e8e0"
-          castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-          shadow-camera-near={1}
-          shadow-camera-far={20}
         />
 
         {/* Secondary key — front-left, softer */}
@@ -405,32 +400,6 @@ export function HeroCube() {
           position={[-5, 0, -2]}
           intensity={0.5}
           color="#8090b0"
-        />
-
-        {/* Rim / edge highlight from behind-right */}
-        <directionalLight
-          position={[3, -1, -6]}
-          intensity={0.65}
-          color="#c0c8e0"
-        />
-
-        {/* Bottom bounce — subtle ground reflection */}
-        <pointLight
-          position={[0, -4, 0]}
-          intensity={0.25}
-          color="#2a2a3e"
-          distance={10}
-        />
-
-        {/* Top accent spot */}
-        <spotLight
-          position={[2, 6, 2]}
-          intensity={1.0}
-          angle={0.5}
-          penumbra={0.8}
-          color="#e0dcd4"
-          distance={15}
-          castShadow
         />
 
         {/* Programmatic environment for reflections — no external HDR needed */}
@@ -449,21 +418,15 @@ export function HeroCube() {
             <sphereGeometry args={[1.0, 16, 16]} />
             <meshBasicMaterial color="#2a2c36" />
           </mesh>
-          <mesh position={[0, -5, 0]}>
-            <sphereGeometry args={[0.8, 16, 16]} />
-            <meshBasicMaterial color="#222" />
-          </mesh>
         </Environment>
 
-        <RubiksCube />
+        <RubiksCube paused={paused} />
 
-        <ContactShadows
-          position={[0, -2.2, 0]}
-          opacity={0.45}
-          blur={2.2}
-          scale={12}
-          far={6}
-        />
+        {/* Soft fake shadow — cheap radial gradient plane, no ReadPixels stall */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.2, 0]}>
+          <circleGeometry args={[2.4, 32]} />
+          <meshBasicMaterial color="#000000" transparent opacity={0.35} />
+        </mesh>
       </Canvas>
     </div>
   );

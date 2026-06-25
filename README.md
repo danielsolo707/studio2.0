@@ -1,163 +1,344 @@
-# The Fluid Logic Portfolio
+# The Fluid Logic — Creative Developer Portfolio
 
-A cinematic creative-developer portfolio built with Next.js, React, Three.js, Framer Motion, and Tailwind CSS. The site combines typographic layouts, interactive 3D visuals, motion/code project galleries, a contact workflow, and an authenticated admin dashboard for content management.
+> A cinematic portfolio for a creative developer specializing in motion design
+> and machine learning. Built with Next.js, Three.js, Framer Motion, and Tailwind CSS.
 
-## Features
+---
 
-- Interactive Three.js hero scene with responsive desktop/mobile framing
-- Animated project lists with hover previews and gradient transitions
-- Editable hero, about, and project content through the dashboard
-- Contact form with server-side validation and message management
-- Admin authentication with optional 2FA and CAPTCHA controls
-- Admin password change flow from inside the dashboard
-- First-visit intro counter with shorter loading screen on later visits
-- Responsive layouts for desktop and phone
-- SEO routes for sitemap and robots.txt
+## Table of Contents
+
+- [Overview](#overview)
+- [Live Pages](#live-pages)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Admin Dashboard](#admin-dashboard)
+- [Arcade Games](#arcade-games)
+- [Scripts](#scripts)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Security](#security)
+- [License](#license)
+
+---
+
+## Overview
+
+This is a **personal portfolio website** for a creative developer. It features:
+
+- A **typographic hero** with an interactive 3D Rubik's-cube scene (Three.js)
+- **Featured works** with hover previews and gradient animations
+- **Motion** and **code** project galleries with distinct visual identities
+- **Project detail pages** with a dual-view layout (motion vs code style)
+- An **admin dashboard** with authentication, 2FA, CAPTCHA, and content management
+- A **contact form** with message inbox in the dashboard
+- A hidden **arcade** with 8 nostalgic HTML5 games
+- Full **responsive design** (mobile, tablet, desktop)
+- **SEO** (sitemap, robots, OpenGraph, JSON-LD schema)
+
+---
+
+## Live Pages
+
+| Route                  | Page                                        |
+|------------------------|---------------------------------------------|
+| `/`                    | Landing page (hero + works + about + contact)|
+| `/gateway`             | Discipline selector (Motion vs Code)        |
+| `/works/motion`        | Motion design project gallery               |
+| `/works/code`          | Code project gallery (terminal style)       |
+| `/projects/[slug]`     | Individual project detail page              |
+| `/arcade`              | Arcade landing (8 games)                    |
+| `/arcade/[game]`       | Play a specific game                        |
+| `/dashboard`           | Admin dashboard (login required)           |
+| `/dashboard/messages`  | Contact message inbox (login required)     |
+
+---
+
+## Tech Stack
+
+| Layer            | Technology                                           |
+|------------------|------------------------------------------------------|
+| Framework        | Next.js 15 (App Router, Turbopack)                   |
+| UI               | React 19, TypeScript                                 |
+| Styling          | Tailwind CSS + shadcn/ui (Radix primitives)          |
+| Animation        | Framer Motion                                        |
+| 3D               | Three.js + @react-three/fiber + @react-three/drei    |
+| Forms            | Zod validation                                       |
+| Auth             | HMAC-signed cookies + scrypt password hashing        |
+| 2FA              | TOTP (speakeasy + QRCode)                            |
+| Testing          | Vitest (unit) + Playwright (e2e)                     |
+| Fonts            | Inter (body) + Syncopate (headlines)                 |
+
+---
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
-- npm
+- **Node.js** 20+
+- **npm**
 
-### Install And Run
+### Install & Run
 
 ```bash
+git clone <repo-url>
+cd studio.2
 npm install
 npm run dev
 ```
 
-The local app runs at:
+The app runs at **http://localhost:9002**
 
-```text
-http://localhost:9002
-```
-
-### Production
+### Production Build
 
 ```bash
 npm run build
 npm start
 ```
 
-## Environment
-
-Create `.env.local` for local secrets. Useful variables include:
-
-```env
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=change-me
-ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
-
-RESEND_API_KEY=
-RESEND_FROM=
-
-TURNSTILE_SECRET_KEY=
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=
-```
-
-In development, if `ADMIN_PASSWORD` is missing, the fallback password is `change-me`. In production, configure real credentials and a strong `ADMIN_SESSION_SECRET`.
-
-## Admin Dashboard
-
-Open:
-
-```text
-http://localhost:9002/dashboard
-```
-
-From the dashboard you can:
-
-- Edit hero and about content
-- Add, update, reorder, and delete projects/media
-- Read and manage contact messages
-- Enable or disable 2FA
-- Enable or disable CAPTCHA
-- Change the admin password
-
-### Password Changes
-
-The dashboard password form requires the current password, a new password, and confirmation. New passwords must be at least 8 characters.
-
-After the first password change, the app stores a hashed credential file at:
-
-```text
-src/data/admin-credentials.json
-```
-
-This file is intentionally ignored by git. The stored password is hashed with `scrypt`; the raw password is not written to disk.
-
-If the credential file does not exist, login falls back to `ADMIN_PASSWORD` from the environment.
+---
 
 ## Project Structure
 
-```text
-src/
-  app/
-    page.tsx                 Main portfolio page
-    dashboard/               Admin dashboard and server actions
-    projects/[slug]/         Project detail pages
-    works/                   Motion/code listing pages
-    api/                     Media/admin API routes
-  components/
-    TypographicHero.tsx
-    FeaturedProjects.tsx
-    AboutSection.tsx
-    ContactSection.tsx
-    ContactForm.tsx
-    three/                   Three.js scenes and helpers
-    ui/                      Reusable UI components
-  data/
-    content.json             Editable portfolio content
-    captcha.json             CAPTCHA config
-  lib/
-    auth.ts                  Session helpers
-    admin-credentials.ts     Admin password hashing/storage
-    content.ts               Content read/write helpers
-    contact-log.ts           Contact message storage
-    gridfs.ts                Media storage helpers
-  types/
-    project.ts
 ```
+studio.2/
+├── src/
+│   ├── app/                    # Next.js App Router — pages & API routes only
+│   │   ├── page.tsx            #   Landing page
+│   │   ├── layout.tsx          #   Root layout (fonts, SEO, providers)
+│   │   ├── globals.css         #   Global styles + Tailwind
+│   │   ├── gateway/            #   Discipline selector page
+│   │   ├── works/              #   Motion & Code gallery pages
+│   │   ├── projects/[slug]/    #   Project detail page
+│   │   ├── arcade/             #   Arcade landing + game routes
+│   │   ├── dashboard/          #   Admin dashboard (page + server actions)
+│   │   │   ├── page.tsx        #     Dashboard page
+│   │   │   ├── actions.ts      #     Server actions (CRUD, auth)
+│   │   │   └── messages/       #     Message inbox page
+│   │   ├── api/                #   API routes (upload, 2fa, captcha, media)
+│   │   ├── actions/            #   Shared server actions (contact form)
+│   │   ├── robots.ts           #   robots.txt generator
+│   │   └── sitemap.ts          #   sitemap.xml generator
+│   │
+│   ├── components/             # React components — NO page shells
+│   │   ├── ui/                 #   shadcn/Radix primitives (50+ components)
+│   │   ├── three/              #   Three.js 3D components (HeroCube, particles, TiltCard)
+│   │   ├── project/            #   Project detail sub-components
+│   │   ├── project-detail/     #   Project detail client wrapper
+│   │   ├── arcade/             #   Arcade game frame + thumbnails
+│   │   ├── dashboard/          #   Dashboard forms, lists, panels (24 files)
+│   │   ├── works/              #   Gallery header components
+│   │   └── *.tsx               #   Landing page components (Hero, Featured, About, etc.)
+│   │
+│   ├── lib/                    # Pure TypeScript utilities — NO React, NO JSX
+│   │   ├── content.ts          #   Read/write content.json
+│   │   ├── auth.ts             #   Session cookie management
+│   │   ├── admin-credentials.ts#   Password hashing (scrypt)
+│   │   ├── totp.ts             #   2FA (TOTP + QR)
+│   │   ├── captcha-config.ts   #   Captcha toggle
+│   │   ├── contact-log.ts      #   Contact message storage
+│   │   ├── gridfs.ts           #   File upload/delete
+│   │   ├── project-meta.ts     #   Project metadata resolvers
+│   │   ├── env.ts              #   Environment variable helpers
+│   │   ├── game2048.ts         #   2048 game logic
+│   │   └── utils.ts            #   cn() Tailwind merge
+│   │
+│   ├── hooks/                  # Custom React hooks (5 files)
+│   ├── types/                  # Shared TypeScript interfaces
+│   ├── data/                   # JSON data files (content, captcha, totp, contact-log)
+│   ├── middleware.ts           # Auth middleware (protects /api/admin/*)
+│   └── __tests__/              # Vitest component tests
+│
+├── public/                     # Static assets
+│   ├── arcade/                 #   HTML5 game files (8 games)
+│   ├── sounds/                 #   Game sound effects
+│   └── uploads/                #   User-uploaded media (gitignored)
+│
+├── e2e/                        # Playwright end-to-end tests
+├── .github/workflows/          # CI/CD pipelines
+├── docs/                       # Design docs & brainstorming
+│
+├── next.config.ts              # Next.js configuration (security headers, images)
+├── tailwind.config.ts          # Tailwind theme (acid green accent, fonts, animations)
+├── playwright.config.ts        # E2E test config (3 viewports)
+├── tsconfig.json               # TypeScript configuration
+├── components.json             # shadcn/ui configuration
+└── ecosystem.config.js         # PM2 process manager config
+```
+
+> Each folder has its own `README.md` explaining what's inside in detail.
+
+---
+
+## Environment Variables
+
+Create a `.env.local` file (see `.env.example` for reference):
+
+```env
+# Admin credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-me              # fallback if no credentials.json exists
+ADMIN_SESSION_SECRET=a-long-random-string
+
+# Email (optional — for contact form notifications)
+RESEND_API_KEY=
+RESEND_FROM=
+RESEND_TO=
+
+# CAPTCHA (Cloudflare Turnstile, optional)
+TURNSTILE_SECRET_KEY=
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+
+# 2FA (set on first setup via dashboard)
+TOTP_SECRET=
+```
+
+**In development**, if `ADMIN_PASSWORD` is missing, the fallback is `change-me`.
+**In production**, `ADMIN_SESSION_SECRET` is required.
+
+---
+
+## Admin Dashboard
+
+Navigate to **http://localhost:9002/dashboard**
+
+### Features
+
+- **Login** with username + password (with optional 2FA + CAPTCHA)
+- **Hero editor** — edit headline and description
+- **About editor** — edit bio, skills list
+- **Project manager** — add, edit, delete, reorder projects
+- **Media upload** — upload images/videos for each project
+- **Message inbox** — read, reply, archive, delete contact messages
+- **Settings** — toggle 2FA, toggle CAPTCHA, change password
+
+### Authentication
+
+- Session is an HMAC-signed cookie (7-day expiry)
+- Passwords hashed with **scrypt** + random salt
+- 2FA uses **TOTP** (compatible with Google Authenticator, Authy, etc.)
+- Stored at `src/data/admin-credentials.json` (gitignored)
+
+---
+
+## Arcade Games
+
+Accessible at **http://localhost:9002/arcade** (linked from the footer).
+
+| Game            | Year | Source                                         |
+|-----------------|------|------------------------------------------------|
+| 2048            | 2014 | Built in-app (React component)                 |
+| Snake           | 1976 | [Vintage-Games](https://github.com/Gbolahan-Aziz/Vintage-Games) |
+| Tetris          | 1984 | [Vintage-Games](https://github.com/Gbolahan-Aziz/Vintage-Games) |
+| Breakout        | 1976 | [Vintage-Games](https://github.com/Gbolahan-Aziz/Vintage-Games) |
+| Space Invaders  | 1978 | [Vintage-Games](https://github.com/Gbolahan-Aziz/Vintage-Games) |
+| Pong            | 1972 | [browser-games](https://github.com/juliensimon/browser-games)   |
+| Flappy Bird     | 2013 | [FlappyBird-JS](https://github.com/CodeExplainedRepo/FlappyBird-JavaScript) |
+| Minesweeper     | 1989 | [Mine-Sweeper](https://github.com/bocaletto-luca/Mine-Sweeper)  |
+
+Each game is a standalone HTML file loaded in an iframe. Keyboard + touch supported.
+
+---
 
 ## Scripts
 
+| Command              | Description                          |
+|----------------------|--------------------------------------|
+| `npm run dev`        | Start dev server (Turbopack, port 9002) |
+| `npm run build`      | Production build                     |
+| `npm start`          | Start production server (port 9002)  |
+| `npm run lint`       | ESLint                               |
+| `npm run typecheck`  | TypeScript check (`tsc --noEmit`)    |
+| `npm test`           | Vitest (watch mode)                  |
+| `npm run test:run`   | Vitest (single run)                  |
+| `npm run test:e2e`   | Playwright e2e tests (3 viewports)   |
+
+---
+
+## Testing
+
+### Unit Tests (Vitest)
+
 ```bash
-npm run dev        # Start Next.js dev server on port 9002
-npm run build      # Build for production
-npm start          # Start production server
-npm run typecheck  # TypeScript check
-npm test           # Vitest watch mode
-npm run test:run   # Vitest single run
+npm run test:run
 ```
 
-## Testing Notes
+Covers: 2048 game logic, component rendering.
 
-Some checks may currently fail because of existing project configuration issues unrelated to the latest UI/admin updates, including stale `.next/types` route references and mismatched generated UI component typings. The dashboard password helper was checked separately with TypeScript.
+### End-to-End Tests (Playwright)
 
-## Security Notes
+```bash
+npm run test:e2e
+```
 
-The following local data files are ignored by git:
+Tests run across 3 viewports (desktop, tablet, mobile) and cover:
+- Landing page loads without errors
+- Hero section visible
+- Scroll reveals works + about sections
+- Contact button toggles form
+- No horizontal overflow on any viewport
+- Arcade pages load without errors
+- All main pages load without errors
 
-```text
+---
+
+## Deployment
+
+The app can be deployed to any Node.js host. A `CNAME` file is included for
+GitHub Pages custom domain, and `ecosystem.config.js` for PM2.
+
+### Build & Start
+
+```bash
+npm run build
+npm start
+```
+
+### PM2
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+### Environment
+
+Ensure these are set in production:
+- `ADMIN_SESSION_SECRET` (required)
+- `ADMIN_USERNAME` / `ADMIN_PASSWORD` (or use dashboard password change)
+- `RESEND_API_KEY` (optional, for email notifications)
+
+---
+
+## Security
+
+### Gitignored Files (never committed)
+
+```
+.env.local
 src/data/totp.json
 src/data/contact-log.json
 src/data/admin-credentials.json
+public/uploads/
+*.tsbuildinfo
+server.log
 ```
 
-Do not commit `.env.local` or any generated credential/message files.
+### Security Headers
 
-## Tech Stack
+`next.config.ts` sets:
+- `Strict-Transport-Security` (HSTS)
+- `X-Frame-Options: SAMEORIGIN`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: origin-when-cross-origin`
+- `Permissions-Policy` (camera, microphone, geolocation disabled)
 
-- Next.js 15 App Router
-- React 19
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Three.js with `@react-three/fiber` and `@react-three/drei`
-- Radix UI / shadcn-style components
-- Vitest and React Testing Library
+### Auth Middleware
+
+`src/middleware.ts` protects all `/api/admin/*` routes — requests without a
+session cookie get a 401 response.
+
+---
 
 ## License
 

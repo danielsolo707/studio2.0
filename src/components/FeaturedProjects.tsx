@@ -28,8 +28,10 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [loadingPreviewId, setLoadingPreviewId] = useState<string | null>(null);
   const [errorPreviewId, setErrorPreviewId] = useState<string | null>(null);
+  const [isTouch, setIsTouch] = useState(false);
   const rafRef = useRef<number | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRectRef = useRef<DOMRect | null>(null);
 
   const featuredProjects = projects.slice(0, maxProjects);
 
@@ -41,7 +43,12 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
   );
 
   useEffect(() => {
-    const update = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    setIsTouch(isTouchDevice);
+    const update = () => {
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+      sectionRectRef.current = null; // invalidate cache on resize
+    };
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
@@ -60,8 +67,13 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
     const previewWidth = 320;
     const previewHeight = 192;
     const margin = 18;
-    const sectionRect = sectionRef.current?.getBoundingClientRect();
-    const maxTopByViewport = (viewport.h || window.innerHeight || 9999) - previewHeight - margin;
+    // Cache the section rect — only recompute when invalidated (resize)
+    if (!sectionRectRef.current && sectionRef.current) {
+      sectionRectRef.current = sectionRef.current.getBoundingClientRect();
+    }
+    const sectionRect = sectionRectRef.current;
+    const vh = viewport.h || window.innerHeight || 9999;
+    const maxTopByViewport = vh - previewHeight - margin;
     const maxTopBySection = sectionRect
       ? sectionRect.bottom - previewHeight - margin
       : maxTopByViewport;
@@ -101,6 +113,7 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
       className="relative z-20 py-16 md:py-20 px-6 md:px-16 overflow-hidden scroll-mt-24"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setActiveProject(null)}
+      style={{ contentVisibility: 'auto' } as React.CSSProperties}
     >
       <div className="absolute inset-0 section-sheen pointer-events-none" aria-hidden="true" />
       <div className="max-w-7xl mx-auto">
@@ -129,6 +142,7 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
           const status = getProjectStatus(project);
           const discipline = getProjectDiscipline(project);
           const role = getProjectRole(project);
+          const isActive = activeProject?.id === project.id;
 
           return (
             <motion.div
@@ -156,53 +170,48 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
                 setActiveProject(project);
                 startPreviewLoad(project);
               }}
-              className="group relative border-b border-white/5 cursor-pointer transition-all duration-300 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-4"
+              className="group relative border-b border-white/5 cursor-pointer transition-colors duration-300 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#DFFF00]/50 focus-visible:outline-offset-4 mb-4"
             >
-              <div className="absolute inset-x-0 -top-3 bottom-0 rounded-sm bg-[linear-gradient(100deg,rgba(223,255,0,0),rgba(223,255,0,0.1),rgba(80,120,255,0.055),rgba(223,255,0,0))] bg-[length:220%_100%] opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 group-hover:animate-gradient-shift" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm" />
-              <div className="absolute left-0 bottom-0 h-[1px] w-full bg-white/5" aria-hidden="true" />
-              <TiltCard maxTilt={6} glareOpacity={0.0}>
-                <motion.div
-                  whileHover={{ x: -10 }}
-                  transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-                  style={{ willChange: 'transform' }}
-                  className="py-5 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative"
-                >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-3 text-[9px] font-headline tracking-[0.32em] text-white/45">
-                      <span className="text-[#DFFF00]/70">{DISCIPLINE_LABELS[discipline]}</span>
-                      <span className="h-[1px] w-6 bg-white/15" aria-hidden="true" />
-                      <span>{role || project.category}</span>
+              {/* Single lightweight hover wash (removed expensive blur-xl gradient) */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#DFFF00]/0 via-[#DFFF00]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-sm pointer-events-none" />
+              <TiltCard maxTilt={6} glareOpacity={0} disabled={isTouch}>
+                <div className="py-5 md:py-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative">
+                  <div className="min-w-0 flex items-start gap-4 md:gap-6">
+                    <span className="font-headline text-[10px] md:text-xs tracking-[0.2em] text-white/20 group-hover:text-[#DFFF00]/50 transition-colors mt-2 md:mt-3 tabular-nums">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-3 text-[9px] font-headline tracking-[0.32em] text-white/45">
+                        <span className="text-[#DFFF00]/70">{DISCIPLINE_LABELS[discipline]}</span>
+                        <span className="h-[1px] w-6 bg-white/15" aria-hidden="true" />
+                        <span>{role || project.category}</span>
+                      </div>
+                      <h3 className="mt-2 font-headline text-2xl md:text-[clamp(2rem,3.25vw,3.5rem)] tracking-[-0.02em] text-white bg-transparent transition-colors duration-300 group-hover:text-[#DFFF00]">
+                        {project.name}
+                      </h3>
+                      <div
+                        className="mt-3 h-[1px] bg-white/15"
+                        style={{ width: isActive ? 96 : 48, opacity: isActive ? 0.9 : 0.4, transition: 'width 0.4s ease, opacity 0.4s ease' }}
+                      />
                     </div>
-                    <h3 className="mt-2 font-headline text-2xl md:text-[clamp(2rem,3.25vw,3.5rem)] tracking-[-0.02em] text-white bg-transparent transition-all duration-300 group-hover:text-[#DFFF00]">
-                      {project.name}
-                    </h3>
-                    <motion.div
-                      className="mt-3 h-[1px] w-12 bg-white/15"
-                      initial={false}
-                      animate={{ width: activeProject?.id === project.id ? 96 : 48, opacity: activeProject?.id === project.id ? 0.9 : 0.4 }}
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    />
                   </div>
 
                   <div className="flex items-center gap-6">
-                    <motion.span
-                      className="font-headline text-[12px] tracking-[0.2em] text-white/70 hidden md:block"
-                      animate={{ opacity: activeProject?.id === project.id ? 1 : 0.7, y: activeProject?.id === project.id ? 0 : 4 }}
-                      transition={{ duration: 0.35 }}
+                    <span
+                      className="font-headline text-[12px] tracking-[0.2em] text-white/70 hidden md:block transition-all duration-300"
+                      style={{ opacity: isActive ? 1 : 0.7, transform: isActive ? 'translateY(0)' : 'translateY(4px)' }}
                     >
                       {STATUS_LABELS[status]}
-                    </motion.span>
-                    <motion.span
+                    </span>
+                    <span
                       className="font-headline text-[12px] tracking-widest text-white/70 group-hover:text-[#DFFF00] transition-colors"
-                      animate={{ opacity: activeProject?.id === project.id ? 1 : 0.7, y: activeProject?.id === project.id ? 0 : 4 }}
-                      transition={{ duration: 0.35, delay: 0.05 }}
+                      style={{ opacity: isActive ? 1 : 0.7, transform: isActive ? 'translateY(0)' : 'translateY(4px)' }}
                     >
                       {project.year}
-                    </motion.span>
+                    </span>
                     <div className="w-2 h-2 rounded-full bg-white/40 group-hover:bg-[#DFFF00] transition-colors" />
                   </div>
-                </motion.div>
+                </div>
               </TiltCard>
             </motion.div>
           );

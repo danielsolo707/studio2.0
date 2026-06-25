@@ -4,21 +4,21 @@ import { is2FAEnabled } from '@/lib/totp';
 import { isCaptchaEnabled } from '@/lib/captcha-config';
 import { listMessages } from '@/lib/contact-log';
 import Link from 'next/link';
-import { LoginForm } from './LoginForm';
-import { MultiUploadField } from './MultiUploadField';
-import { TwoFactorSetup } from './TwoFactorSetup';
-import { CaptchaToggle } from './CaptchaToggle';
-import { ChangePasswordForm } from './ChangePasswordForm';
+import { LoginForm } from '@/components/dashboard/LoginForm';
+import { MultiUploadField } from '@/components/dashboard/MultiUploadField';
+import { TwoFactorSetup } from '@/components/dashboard/TwoFactorSetup';
+import { CaptchaToggle } from '@/components/dashboard/CaptchaToggle';
+import { ChangePasswordForm } from '@/components/dashboard/ChangePasswordForm';
 import {
   loginAction,
   logoutAction,
 } from './actions';
-import { StatusBadge } from './StatusBadge';
-import { AboutForm } from './AboutForm';
-import AddProjectSection from './AddProjectSection';
-import { ProjectOptions } from './ProjectOptions';
-import { HeroForm } from './HeroForm';
-import { ProjectList } from './ProjectList';
+import { StatusBadge } from '@/components/dashboard/StatusBadge';
+import { AboutForm } from '@/components/dashboard/AboutForm';
+import AddProjectSection from '@/components/dashboard/AddProjectSection';
+import { ProjectOptions } from '@/components/dashboard/ProjectOptions';
+import { HeroForm } from '@/components/dashboard/HeroForm';
+import { ProjectList } from '@/components/dashboard/ProjectList';
 import {
   getProjectRole,
 } from '@/lib/project-meta';

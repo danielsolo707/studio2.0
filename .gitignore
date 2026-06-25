@@ -54,3 +54,14 @@ next-env.d.ts
 
 .genkit/*
 .env*
+
+# logs
+server.log
+*.log
+
+# playwright mcp debug artifacts
+.playwright-mcp/
+
+# uploaded media (runtime-generated, not source)
+public/uploads/
+

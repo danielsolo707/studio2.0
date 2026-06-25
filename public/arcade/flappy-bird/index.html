@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Flappy Bird</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow: hidden;
+        font-family: 'Courier New', monospace;
+        color: #fff;
+        user-select: none;
+      }
+      .game-wrap {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        max-height: calc(100vh - 140px);
+        max-width: 100vw;
+        cursor: pointer;
+        border: 1px solid rgba(223,255,0,0.15);
+        border-radius: 4px;
+      }
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .btn {
+        background: transparent;
+        border: 1px solid rgba(223,255,0,0.4);
+        color: #DFFF00;
+        padding: 6px 16px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        letter-spacing: 2px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+      .btn:hover { background: rgba(223,255,0,0.15); }
+      .btn.stop { border-color: rgba(255,100,100,0.5); color: #ff6464; }
+      .btn.stop:hover { background: rgba(255,100,100,0.15); }
+      .hint {
+        font-size: 11px;
+        color: rgba(255,255,255,0.5);
+        letter-spacing: 1px;
+        text-align: center;
+        line-height: 1.6;
+      }
+      .hint b { color: #DFFF00; }
+    </style>
+  </head>
+  <body>
+    <div class="game-wrap">
+      <canvas id="canvas" width="288" height="512"></canvas>
+      <div class="bar">
+        <button class="btn" id="startBtn">START</button>
+        <button class="btn stop" id="stopBtn">STOP</button>
+      </div>
+      <p class="hint">
+        <b>Click</b> the game or press <b>Space</b> to flap &nbsp;·&nbsp; <b>STOP</b> to pause &nbsp;·&nbsp; <b>← ARCADE</b> above to leave
+      </p>
+    </div>
+    <script src="flappyBird.js"></script>
+  </body>
+</html>

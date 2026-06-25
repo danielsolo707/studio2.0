@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { readContent } from '@/lib/content';
 import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/project-meta';
-import { ProjectDetailClient } from './ProjectDetailClient';
+import { ProjectDetailClient } from '@/components/project-detail/ProjectDetailClient';
 
 export const dynamic = 'force-dynamic';
 

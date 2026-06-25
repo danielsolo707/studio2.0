@@ -22,7 +22,7 @@ export function AboutSection({
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="relative z-20 py-20 md:py-28 px-6 md:px-16 bg-[#050507] scroll-mt-24 md:scroll-mt-32"
+      className="relative z-20 py-20 md:py-28 px-6 md:px-16 bg-[#050507] scroll-mt-24 md:scroll-mt-32 cv-auto"
     >
       <div className="absolute inset-0 about-scrim pointer-events-none" aria-hidden="true" />
       <div className="relative max-w-6xl mx-auto grid gap-12 md:grid-cols-[minmax(0,0.6fr)_minmax(0,1fr)] items-start">

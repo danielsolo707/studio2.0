@@ -398,13 +398,37 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
     links.push(parsedLink.data);
   }
 
+  let media: Project['media'] = existing?.media || [];
+
+  const rawMedia = String(formData.get('media') || '').trim();
+  if (rawMedia) {
+    try {
+      const parsed = JSON.parse(rawMedia);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        media = parsed;
+      }
+    } catch {
+      // ignore invalid JSON
+    }
+  } else {
+    const urlEntries: { url: string; type: 'image' | 'video' }[] = [];
+    if (result.data.imageUrl) urlEntries.push({ url: result.data.imageUrl, type: 'image' });
+    if (result.data.videoUrl) urlEntries.push({ url: result.data.videoUrl, type: 'video' });
+
+    for (const { url, type } of urlEntries) {
+      if (!media.some((m) => m.url === url)) {
+        media.push({ type, url });
+      }
+    }
+  }
+
   return {
     data: {
       ...result.data,
       videoUrl: result.data.videoUrl ?? '',
       role: result.data.role || result.data.category,
       links,
-      media: existing?.media || [],
+      media,
     },
   };
 }
