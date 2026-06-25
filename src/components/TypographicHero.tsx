@@ -224,7 +224,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
                 href={item.href}
                 onClick={(event) => handleNavClick(event, item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`group relative font-headline text-[10px] tracking-[0.25em] md:tracking-[0.3em] transition-colors duration-200 ${colorClass}`}
+                className={`group relative font-headline text-[8px] tracking-[0.2em] md:tracking-[0.25em] transition-colors duration-200 ${colorClass}`}
               >
                 <span className="relative pb-2">
                   {item.label}
