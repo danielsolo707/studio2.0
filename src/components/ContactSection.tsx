@@ -33,7 +33,7 @@ export function ContactSection() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative z-20 min-h-[80svh] flex flex-col px-6 py-16 md:px-12 lg:px-20 md:py-20 scroll-mt-24 cv-auto"
+      className="relative z-20 min-h-[100svh] flex flex-col px-6 py-16 md:px-12 lg:px-20 md:py-20 scroll-mt-24 cv-auto"
     >
       <div className="absolute inset-0 contact-scrim pointer-events-none" aria-hidden="true" />
 
