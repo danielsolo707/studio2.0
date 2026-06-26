@@ -19,6 +19,7 @@ export type MessageReply = {
   subject: string;
   body: string;
   sentAt: string;
+  sent?: boolean;
 };
 
 const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'contact-log.json');

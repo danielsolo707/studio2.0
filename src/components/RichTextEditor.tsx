@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 
 interface RichTextEditorProps {
   name: string
@@ -16,7 +17,7 @@ export function RichTextEditor({ name, value, onChange, placeholder, rows = 5 }:
   return (
     <div className="border border-white/10 focus-within:border-[#DFFF00]/50 focus-within:outline-none focus-within:ring-1 focus-within:ring-[#DFFF00]/30 transition-colors">
       <div className="flex items-center justify-between px-2 py-1 border-b border-white/10 bg-white/[0.02]">
-        <span className="text-[10px] text-white/30">HTML supported</span>
+        <span className="text-[10px] text-white/30">Markdown supported</span>
         <button
           type="button"
           onClick={() => setShowPreview(!showPreview)}
@@ -26,10 +27,13 @@ export function RichTextEditor({ name, value, onChange, placeholder, rows = 5 }:
         </button>
       </div>
       {showPreview ? (
-        <div 
-          className="w-full min-h-[120px] px-3 py-2 bg-black/20 text-white/80 text-sm overflow-auto"
-          dangerouslySetInnerHTML={{ __html: value }}
-        />
+        <div className="w-full min-h-[120px] px-3 py-2 bg-black/20 text-white/80 text-sm overflow-auto prose-invert">
+          {value.trim() ? (
+            <MarkdownRenderer content={value} />
+          ) : (
+            <span className="text-white/30">Nothing to preview yet.</span>
+          )}
+        </div>
       ) : (
         <textarea
           name={name}

@@ -55,7 +55,7 @@ export function AboutForm({ initialData }: {
       {state?.error && (
         <p className="text-xs text-red-400">{state.error}</p>
       )}
-      {state?.error === null && (
+      {state?.success && (
         <p className="text-xs text-[#DFFF00]">Updated successfully!</p>
       )}
     </form>

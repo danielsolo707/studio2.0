@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useActionState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { Project } from '@/types/project'
 import {
@@ -24,9 +24,13 @@ import {
   STATUS_OPTIONS,
 } from '@/lib/project-meta'
 
+type UpdateState = { error?: string; success?: boolean }
+const initialUpdateState: UpdateState = {}
+
 function ProjectCard({ project }: { project: Project }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [description, setDescription] = useState(project.description || '')
+  const [state, formAction] = useActionState(updateProjectAction, initialUpdateState)
 
   return (
     <div className="border border-white/10 bg-black/30 rounded-lg overflow-hidden">
@@ -55,7 +59,8 @@ function ProjectCard({ project }: { project: Project }) {
 
       {isExpanded && (
         <div className="p-6 pt-0 border-t border-white/10">
-          <form action={updateProjectAction} className="grid gap-3 md:grid-cols-2">
+          <form action={formAction} className="grid gap-3 md:grid-cols-2">
+            <input type="hidden" name="originalId" value={project.id} />
             <div className="md:col-span-2">
               <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">BASIC INFO</p>
             </div>
@@ -100,7 +105,7 @@ function ProjectCard({ project }: { project: Project }) {
                 className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none"
               />
             </div>
-            <div className="md:col-span-2">
+            <div>
               <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">TOOLS</p>
               <input 
                 name="tools" 
@@ -130,18 +135,8 @@ function ProjectCard({ project }: { project: Project }) {
                   <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">CHALLENGE (CODE STYLE)</p>
                   <textarea 
                     name="challenge"
-                    defaultValue={project.challenge || `// The main challenge was building a real-time
-// collaboration system that could handle multiple
-// users editing tasks simultaneously without
-// conflicts or data loss.
-
-const challenges = [
-  "Real-time sync across devices",
-  "Optimistic UI updates",
-  "Conflict resolution",
-  "Performance at scale"
-];`}
-                    placeholder="// Describe the main challenge..."
+                    defaultValue={project.challenge || ''}
+                    placeholder="// Describe the main challenge...&#10;const challenge = 'building real-time sync';"
                     className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
                     rows={4}
                   />
@@ -150,19 +145,8 @@ const challenges = [
                   <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SOLUTION (CODE STYLE)</p>
                   <textarea 
                     name="solution"
-                    defaultValue={project.solution || `// Solution implemented using WebSocket connections
-// with operational transformation for conflict-free
-// collaborative editing.
-
-const techStack = {
-  realtime: "Socket.IO",
-  state: "Zustand + Immer",
-  db: "MongoDB Change Streams",
-  cache: "React Query"
-};
-
-// Result: <50ms sync latency worldwide`}
-                    placeholder="// Describe the solution..."
+                    defaultValue={project.solution || ''}
+                    placeholder="// Describe the solution...&#10;const solution = 'using WebSocket connections';"
                     className="w-full bg-transparent border border-white/10 px-3 py-2 focus:border-[#DFFF00]/50 focus:outline-none font-mono text-sm"
                     rows={4}
                   />
@@ -184,6 +168,12 @@ const techStack = {
             >
               UPDATE
             </button>
+            {state?.success && (
+              <p className="text-xs text-[#DFFF00] md:col-span-2">Project updated.</p>
+            )}
+            {state?.error && (
+              <p className="text-xs text-red-400 md:col-span-2">{state.error}</p>
+            )}
           </form>
 
           <div className="flex flex-wrap items-start gap-6 mt-4">
@@ -191,8 +181,13 @@ const techStack = {
 
             <form action={deleteProjectAction}>
               <input type="hidden" name="id" value={project.id} />
-              <button 
+              <button
                 type="submit"
+                onClick={(e) => {
+                  if (!confirm('Delete this project? This cannot be undone.')) {
+                    e.preventDefault();
+                  }
+                }}
                 className="px-3 py-2 border border-red-500/50 text-red-300 text-xs tracking-widest hover:bg-red-500/10 transition-colors"
               >
                 DELETE
@@ -259,8 +254,13 @@ const techStack = {
                         {'thumbFileId' in m && (m as any).thumbFileId ? (
                           <input type="hidden" name="thumbFileId" value={(m as any).thumbFileId} />
                         ) : null}
-                        <button 
+                        <button
                           type="submit"
+                          onClick={(e) => {
+                            if (!confirm('Remove this media item?')) {
+                              e.preventDefault();
+                            }
+                          }}
                           className="text-xs text-red-300 border border-red-500/40 px-2 py-1 hover:bg-red-500/10 transition-colors"
                         >
                           REMOVE

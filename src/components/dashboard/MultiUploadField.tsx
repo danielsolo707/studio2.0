@@ -182,7 +182,7 @@ export function MultiUploadField({ projectId }: { projectId: string }) {
       )}
 
       <div className="mt-4 pt-4 border-t border-white/5 text-[10px] text-white/40 space-y-1">
-        <p>• No file size limit - upload any size</p>
+        <p>• Max 50MB per file</p>
         <p>• Uploads directly to /public/uploads</p>
       </div>
     </div>

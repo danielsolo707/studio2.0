@@ -60,7 +60,14 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
   const [videoUrls, setVideoUrls] = useState<string[]>([''])
 
   useEffect(() => {
-    if (state && 'values' in state) {
+    if (state?.success) {
+      setFormValues({})
+      setStatus(opts.statuses[0] || 'Case Study')
+      setCategory(opts.categories[0] || '')
+      setTools('')
+      setImageUrls([''])
+      setVideoUrls([''])
+    } else if (state && 'values' in state) {
       const values = state.values as FormValues | undefined
       if (values) {
         setFormValues(values)
@@ -69,7 +76,7 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
         if (values.tools) setTools(values.tools)
       }
     }
-  }, [state])
+  }, [state, opts.statuses, opts.categories])
 
   const getValue = (key: keyof FormValues, defaultValue = ''): string => {
     const val = formValues[key]
@@ -116,7 +123,7 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
         <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">CODE PROJECT</p>
       </div>
       
-      <div>
+      <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
         <input 
           name="id" 
@@ -218,6 +225,9 @@ export function AddCodeProjectForm({ options }: { options?: DisciplineOptions })
       <ProjectLinks defaultType="github" />
       
       <SubmitButton>ADD CODE PROJECT</SubmitButton>
+      {state?.success && (
+        <p className="text-xs text-[#DFFF00] md:col-span-2">Project added successfully!</p>
+      )}
       {state?.error && (
         <p className="text-xs text-red-400 md:col-span-2">{state.error}</p>
       )}

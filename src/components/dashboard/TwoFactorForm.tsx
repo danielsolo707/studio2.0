@@ -5,7 +5,7 @@ import { verify2FAAction } from '@/app/dashboard/actions';
 
 const initialState: { error?: string } = {};
 
-export function TwoFactorForm({ onBack }: { onBack: () => void }) {
+export function TwoFactorForm({ onBack, halfAuthToken }: { onBack: () => void; halfAuthToken?: string }) {
   const [state, formAction, isPending] = useActionState(verify2FAAction, initialState);
 
   return (
@@ -26,6 +26,7 @@ export function TwoFactorForm({ onBack }: { onBack: () => void }) {
       </div>
 
       <form action={formAction} className="space-y-4">
+        <input type="hidden" name="halfAuthToken" value={halfAuthToken ?? ''} />
         <div className="space-y-2">
           <label
             className="text-[10px] tracking-[0.3em] text-white/60 font-headline"

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { getSession, setPendingTotpSecret, readPendingTotpSecret, clearPendingTotpSecret } from '@/lib/auth';
 import {
   generateTotpSecret,
   readTotpConfig,
@@ -28,11 +28,10 @@ export async function GET() {
     return NextResponse.json({ enabled: true });
   }
 
-  // Generate a new secret for setup
+  // Generate a new secret for setup. It is kept in a short-lived signed
+  // cookie (not on disk) until verification completes.
   const { secret, qrCodeDataUrl } = await generateTotpSecret();
-
-  // Store the secret temporarily (not yet enabled)
-  await writeTotpConfig({ enabled: false, secret });
+  await setPendingTotpSecret(secret);
 
   return NextResponse.json({
     enabled: false,
@@ -54,23 +53,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Enter a valid 6-digit code' }, { status: 400 });
   }
 
-  const config = await readTotpConfig();
-
-  if (!config.secret) {
+  const pendingSecret = await readPendingTotpSecret();
+  if (!pendingSecret) {
     return NextResponse.json(
-      { error: 'No secret generated. Start setup first (GET /api/admin/2fa).' },
+      { error: 'No pending setup found. Start setup again.' },
       { status: 400 },
     );
   }
 
-  const isValid = verifyTotpToken(config.secret, token);
+  const isValid = verifyTotpToken(pendingSecret, token);
 
   if (!isValid) {
     return NextResponse.json({ error: 'Invalid code. Try again.' }, { status: 400 });
   }
 
-  // Enable 2FA
-  await writeTotpConfig({ enabled: true, secret: config.secret });
+  // Enable 2FA and persist the now-verified secret
+  await writeTotpConfig({ enabled: true, secret: pendingSecret });
+  await clearPendingTotpSecret();
 
   return NextResponse.json({ ok: true, message: '2FA enabled successfully' });
 }
@@ -82,6 +81,7 @@ export async function DELETE() {
   }
 
   await writeTotpConfig({ enabled: false, secret: '' });
+  await clearPendingTotpSecret();
 
   return NextResponse.json({ ok: true, message: '2FA disabled' });
 }

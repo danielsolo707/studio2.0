@@ -8,13 +8,14 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
-import { clearSession, getSession, setSession } from '@/lib/auth';
-import { readContent, writeContent } from '@/lib/content';
+import { clearSession, getSession, setSession, createHalfAuthToken, verifyHalfAuthToken } from '@/lib/auth';
+import { readContent, writeContent, addProject, updateProject, deleteProject } from '@/lib/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
 import { isCaptchaEnabled } from '@/lib/captcha-config';
 import { getAdminUsername, updateAdminPassword, verifyAdminCredentials } from '@/lib/admin-credentials';
-import type { Project, ProjectLink } from '@/types/project';
+import type { Project, ProjectLink, ProjectStatus } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
+import { STATUS_OPTIONS } from '@/lib/project-meta';
 
 type ActionState = { error?: string; success?: boolean };
 
@@ -114,7 +115,7 @@ async function requireAuth() {
 }
 
 export async function loginAction(
-  _prev: { error?: string; needs2FA?: boolean },
+  _prev: { error?: string; needs2FA?: boolean; halfAuthToken?: string },
   formData: FormData,
 ) {
   const user = String(formData.get('username') || '').trim();
@@ -135,7 +136,9 @@ export async function loginAction(
 
   const twoFAEnabled = await is2FAEnabled();
   if (twoFAEnabled) {
-    return { needs2FA: true };
+    // Issue a short-lived half-auth token proving the password check passed.
+    // The TOTP action requires this token, so 2FA cannot be used alone.
+    return { needs2FA: true, halfAuthToken: createHalfAuthToken(user) };
   }
 
   await setSession(getAdminUsername());
@@ -144,12 +147,20 @@ export async function loginAction(
 
 /**
  * Verify TOTP code after successful password authentication.
+ * Requires a valid half-auth token issued by loginAction — 2FA cannot be
+ * used as the sole authentication factor.
  */
 export async function verify2FAAction(
   _prev: { error?: string },
   formData: FormData,
 ) {
   const token = String(formData.get('totp') || '').trim();
+  const halfAuthToken = String(formData.get('halfAuthToken') || '').trim();
+
+  const halfAuth = verifyHalfAuthToken(halfAuthToken);
+  if (!halfAuth) {
+    return { error: 'Your session has expired. Please start over and sign in again.' };
+  }
 
   if (!token || token.length !== 6) {
     return { error: 'Enter a valid 6-digit code' };
@@ -157,9 +168,7 @@ export async function verify2FAAction(
 
   const config = await readTotpConfig();
   if (!config.enabled || !config.secret) {
-    // 2FA not configured — shouldn't reach here, but handle gracefully
-    await setSession(getAdminUsername());
-    redirect('/dashboard');
+    return { error: 'Two-factor authentication is not enabled. Please contact an administrator.' };
   }
 
   const isValid = verifyTotpToken(config.secret, token);
@@ -167,7 +176,7 @@ export async function verify2FAAction(
     return { error: 'Invalid code. Please try again.' };
   }
 
-  await setSession(getAdminUsername());
+  await setSession(halfAuth.user);
   redirect('/dashboard');
 }
 
@@ -270,7 +279,7 @@ export async function replyMessageAction(_prev: { error?: string }, formData: Fo
   }
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -283,18 +292,26 @@ export async function replyMessageAction(_prev: { error?: string }, formData: Fo
         text: parsed.data.body,
       }),
     });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      console.error('Resend API error:', detail);
+      return { error: 'Failed to send reply. Please try again.' };
+    }
+
     const reply = {
       id: crypto.randomUUID(),
       to: parsed.data.to,
       subject: parsed.data.subject,
       body: parsed.data.body,
       sentAt: new Date().toISOString(),
+      sent: true,
     };
     await appendReply(parsed.data.id, reply);
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/messages');
-    return {};
-} catch (e) {
+    return { success: true };
+  } catch (e) {
     return { error: e instanceof Error ? e.message : 'Failed to send reply' };
   }
 }
@@ -323,7 +340,7 @@ export async function updateAboutAction(
   await writeContent(content);
 
   revalidatePath('/');
-  return { error: undefined };
+  return { success: true };
 }
 
 export async function updateHeroAction(
@@ -344,13 +361,15 @@ export async function updateHeroAction(
   await writeContent(content);
 
   revalidatePath('/');
-  return { error: undefined };
+  return { success: true };
 }
 
 function coerceProject(formData: FormData, existing?: Project): { data?: Project; error?: string } {
   const raw = {
     id: String(formData.get('id') || existing?.id || '').trim(),
     name: String(formData.get('name') || existing?.name || '').trim(),
+    subtitle: String(formData.get('subtitle') || existing?.subtitle || '').trim(),
+    details: String(formData.get('details') || existing?.details || '').trim(),
     year: String(formData.get('year') || existing?.year || '').trim(),
     color: String(formData.get('color') || existing?.color || '#DFFF00').trim(),
     imageUrl: String(formData.get('imageUrl') || existing?.imageUrl || '').trim(),
@@ -375,7 +394,9 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
   }
 
   const links: ProjectLink[] = [];
-  for (let i = 0; i < 3; i += 1) {
+  const linkCountRaw = String(formData.get('linkCount') || '0').trim();
+  const linkCount = Math.min(Math.max(Number(linkCountRaw) || 0, 0), 50);
+  for (let i = 0; i < linkCount; i += 1) {
     const label = String(formData.get(`linkLabel${i}`) || '').trim();
     const url = String(formData.get(`linkUrl${i}`) || '').trim();
     const type = String(formData.get(`linkType${i}`) || 'demo').trim();
@@ -425,8 +446,12 @@ function coerceProject(formData: FormData, existing?: Project): { data?: Project
   return {
     data: {
       ...result.data,
+      subtitle: result.data.subtitle ?? '',
       videoUrl: result.data.videoUrl ?? '',
-      role: result.data.role || result.data.category,
+      status: (STATUS_OPTIONS.includes(result.data.status as ProjectStatus)
+        ? (result.data.status as ProjectStatus)
+        : 'case-study'),
+      role: result.data.role || '',
       links,
       media,
     },
@@ -450,45 +475,55 @@ export async function addProjectAction(
     return { error: 'Project ID already exists' };
   }
 
-  content.projects.push(project);
-  await writeContent(content);
+  await addProject(project);
 
   revalidatePath('/');
   revalidatePath('/projects');
-  return { error: undefined };
+  revalidatePath('/dashboard');
+  return { success: true };
 }
 
-export async function updateProjectAction(formData: FormData) {
+export async function updateProjectAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
   await requireAuth();
   const content = await readContent();
-  const id = String(formData.get('id') || '').trim();
-  const index = content.projects.findIndex((p) => p.id === id);
-  if (index === -1) redirect('/dashboard');
+  // Lookup by the original id so the slug can be edited safely.
+  const originalId = String(formData.get('originalId') || formData.get('id') || '').trim();
+  const newId = String(formData.get('id') || '').trim();
+  const index = content.projects.findIndex((p) => p.id === originalId);
+  if (index === -1) {
+    return { error: 'Project not found. It may have been deleted.' };
+  }
+
+  // Reject slug changes that collide with another project.
+  if (newId && newId !== originalId && content.projects.some((p) => p.id === newId)) {
+    return { error: 'That slug is already used by another project.' };
+  }
 
   const { data: next, error } = coerceProject(formData, content.projects[index]);
   if (error || !next) {
-    console.error(`[updateProjectAction] Failed to update project "${id}":`, error || 'No data returned');
-    redirect('/dashboard');
+    return { error: error ?? 'Invalid project data' };
   }
 
-  content.projects[index] = next;
-  await writeContent(content);
+  await updateProject(originalId, next);
 
   revalidatePath('/');
-  revalidatePath(`/projects/${id}`);
-  redirect('/dashboard');
+  revalidatePath(`/projects/${originalId}`);
+  if (newId !== originalId) revalidatePath(`/projects/${newId}`);
+  revalidatePath('/dashboard');
+  return { success: true };
 }
 
 export async function deleteProjectAction(formData: FormData) {
   await requireAuth();
   const id = String(formData.get('id') || '').trim();
-  const content = await readContent();
-  content.projects = content.projects.filter((p) => p.id !== id);
-  await writeContent(content);
+  await deleteProject(id);
 
   revalidatePath('/');
   revalidatePath('/projects');
-  redirect('/dashboard');
+  revalidatePath('/dashboard');
 }
 
 export async function deleteMediaAction(formData: FormData) {
@@ -496,27 +531,27 @@ export async function deleteMediaAction(formData: FormData) {
   const id = String(formData.get('id') || '').trim();
   const url = String(formData.get('url') || '').trim();
   const fileId = String(formData.get('fileId') || '').trim();
-  const storage = String(formData.get('storage') || '').trim();
   const thumbFileId = String(formData.get('thumbFileId') || '').trim();
 
   const content = await readContent();
   const index = content.projects.findIndex((p) => p.id === id);
-  if (index === -1) redirect('/dashboard');
+  if (index === -1) return;
 
   const project = content.projects[index];
-  project.media = (project.media || []).filter((m) => m.url !== url);
+  const media = (project.media || []).filter((m) => m.url !== url);
 
-  if (project.imageUrl === url) project.imageUrl = '';
-  if (project.videoUrl === url) project.videoUrl = '';
+  const updates: Partial<Project> = { media };
+  if (project.imageUrl === url) updates.imageUrl = '';
+  if (project.videoUrl === url) updates.videoUrl = '';
 
-  await writeContent(content);
+  await updateProject(id, updates);
 
   if (fileId) await deleteGridFsFile(fileId);
   if (thumbFileId) await deleteGridFsFile(thumbFileId);
 
   revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath(`/projects/${id}`);
-  redirect('/dashboard');
 }
 
 export async function reorderMediaAction(formData: FormData) {
@@ -525,29 +560,27 @@ export async function reorderMediaAction(formData: FormData) {
   const url = String(formData.get('url') || '').trim();
   const direction = String(formData.get('direction') || '').trim();
 
-  if (!id || !url || !direction) redirect('/dashboard');
+  if (!id || !url || !direction) return;
 
   const content = await readContent();
   const index = content.projects.findIndex((p) => p.id === id);
-  if (index === -1) redirect('/dashboard');
+  if (index === -1) return;
 
   const media = content.projects[index].media || [];
   const currentIndex = media.findIndex((m) => m.url === url);
-  if (currentIndex === -1) redirect('/dashboard');
+  if (currentIndex === -1) return;
 
   const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-  if (targetIndex < 0 || targetIndex >= media.length) redirect('/dashboard');
+  if (targetIndex < 0 || targetIndex >= media.length) return;
 
   const next = [...media];
   const [moved] = next.splice(currentIndex, 1);
   next.splice(targetIndex, 0, moved);
-  content.projects[index].media = next;
-  await writeContent(content);
+  await updateProject(id, { media: next });
 
   revalidatePath('/');
   revalidatePath('/dashboard');
   revalidatePath(`/projects/${id}`);
-  redirect('/dashboard');
 }
 
 export async function updateOptionsAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {

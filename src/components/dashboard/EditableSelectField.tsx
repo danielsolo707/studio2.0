@@ -21,14 +21,25 @@ export function EditableSelectField({ label, name, options, value, onChange, mul
   const selectedValues = value ? (multiple ? value.split(',').map(s => s.trim()).filter(Boolean) : [value]) : []
 
   const addOption = () => {
-    if (!newOption.trim()) return
-    
-    const updatedOptions = [...localOptions, newOption.trim()]
+    const trimmed = newOption.trim()
+    if (!trimmed) return
+    if (localOptions.includes(trimmed)) {
+      setNewOption('')
+      setShowInput(false)
+      return
+    }
+
+    const updatedOptions = [...localOptions, trimmed]
     setLocalOptions(updatedOptions)
     setNewOption('')
     setShowInput(false)
-    onChange(newOption.trim())
-    
+
+    if (multiple) {
+      onChange([...selectedValues, trimmed].join(','))
+    } else {
+      onChange(trimmed)
+    }
+
     const formData = new FormData()
     formData.append(name, JSON.stringify(updatedOptions))
     startTransition(() => formAction(formData))
@@ -37,7 +48,14 @@ export function EditableSelectField({ label, name, options, value, onChange, mul
   const removeOption = (optionToRemove: string) => {
     const updatedOptions = localOptions.filter(o => o !== optionToRemove)
     setLocalOptions(updatedOptions)
-    
+
+    if (multiple) {
+      const updated = selectedValues.filter(v => v !== optionToRemove)
+      onChange(updated.join(','))
+    } else if (value === optionToRemove) {
+      onChange('')
+    }
+
     const formData = new FormData()
     formData.append(name, JSON.stringify(updatedOptions))
     startTransition(() => formAction(formData))
@@ -133,6 +151,10 @@ export function EditableSelectField({ label, name, options, value, onChange, mul
             CANCEL
           </button>
         </div>
+      )}
+
+      {state?.error && (
+        <p className="text-[10px] text-red-400 mt-1">{state.error}</p>
       )}
     </div>
   )

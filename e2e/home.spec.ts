@@ -49,7 +49,7 @@ test.describe('Homepage', () => {
     const contactSection = page.locator('#contact');
     await contactSection.scrollIntoViewIfNeeded();
 
-    const btn = page.locator('#contact-heading');
+    const btn = page.locator('#contact-toggle');
     await expect(btn).toBeVisible();
     await btn.click();
 

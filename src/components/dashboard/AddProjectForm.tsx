@@ -55,7 +55,15 @@ export function AddProjectForm() {
   const [videoUrls, setVideoUrls] = useState<string[]>([''])
 
   useEffect(() => {
-    if (state && 'values' in state) {
+    if (state?.success) {
+      setFormValues({})
+      setStatus(defaultOptions.statuses[0] || 'Case Study')
+      setCategory(defaultOptions.categories[0] || '')
+      setTools(defaultOptions.tools[0] || '')
+      setDiscipline('motion')
+      setImageUrls([''])
+      setVideoUrls([''])
+    } else if (state && 'values' in state) {
       const values = state.values as FormValues | undefined
       if (values) {
         setFormValues(values)
@@ -111,7 +119,7 @@ export function AddProjectForm() {
         <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">PROJECT</p>
       </div>
       
-      <div>
+      <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
         <input 
           name="id" 
@@ -232,6 +240,9 @@ export function AddProjectForm() {
       <ProjectLinks defaultType="demo" />
       
       <SubmitButton>ADD PROJECT</SubmitButton>
+      {state?.success && (
+        <p className="text-xs text-[#DFFF00] md:col-span-2">Project added successfully!</p>
+      )}
       {state?.error && (
         <p className="text-xs text-red-400 md:col-span-2">{state.error}</p>
       )}

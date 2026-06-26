@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, useActionState } from 'react';
+import { useEffect, useMemo, useState, useTransition, useActionState } from 'react';
 import {
   markReadAction,
   toggleArchiveAction,
@@ -28,16 +28,20 @@ export function MessagesPanel({ messages, serviceStatus }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [replyTarget, setReplyTarget] = useState<StoredMessage | null>(null);
-  const [replyState, replyDispatch] = useActionState(replyMessageAction, {} as { error?: string });
+  const [showArchived, setShowArchived] = useState(false);
+  const [replyState, replyDispatch] = useActionState(replyMessageAction, {} as { error?: string; success?: boolean });
   const [isPending, startTransition] = useTransition();
+
+  const archivedCount = useMemo(() => messages.filter((m) => m.archived).length, [messages]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return messages.filter((m) => !m.archived);
-    return messages.filter(
-      (m) => !m.archived && (m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q))
-    );
-  }, [messages, query]);
+    return messages.filter((m) => {
+      if (m.archived !== showArchived) return false;
+      if (!q) return true;
+      return m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q);
+    });
+  }, [messages, query, showArchived]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -46,6 +50,12 @@ export function MessagesPanel({ messages, serviceStatus }: Props) {
       return next;
     });
   };
+
+  useEffect(() => {
+    if (replyState?.success) {
+      setReplyTarget(null);
+    }
+  }, [replyState?.success]);
 
   const bulkDelete = () => {
     if (selected.size === 0) return;
@@ -77,6 +87,16 @@ export function MessagesPanel({ messages, serviceStatus }: Props) {
           placeholder="Search by name or email"
           className="flex-1 min-w-[240px] bg-transparent border border-white/15 px-3 py-2 text-sm text-white focus:border-[#DFFF00]/60 focus:outline-none"
         />
+        <button
+          onClick={() => { setShowArchived((v) => !v); setSelected(new Set()); }}
+          className={`px-4 py-2 text-xs font-headline tracking-[0.3em] border ${
+            showArchived
+              ? 'border-[#DFFF00]/60 text-[#DFFF00]'
+              : 'border-white/20 text-white/60 hover:text-white'
+          }`}
+        >
+          {showArchived ? 'INBOX' : `ARCHIVED (${archivedCount})`}
+        </button>
         <button
           onClick={bulkDelete}
           disabled={selected.size === 0 || isPending}
@@ -174,7 +194,9 @@ export function MessagesPanel({ messages, serviceStatus }: Props) {
         })}
 
         {filtered.length === 0 && (
-          <p className="text-white/50 text-sm">No messages found.</p>
+          <p className="text-white/50 text-sm">
+            {showArchived ? 'No archived messages.' : 'No messages found.'}
+          </p>
         )}
       </div>
 
@@ -186,6 +208,7 @@ export function MessagesPanel({ messages, serviceStatus }: Props) {
           pending={isPending}
           startTransition={startTransition}
           error={replyState?.error}
+          success={replyState?.success}
         />
       )}
     </section>
@@ -211,6 +234,7 @@ function ReplyModal({
   pending,
   startTransition,
   error,
+  success,
 }: {
   message: StoredMessage;
   onClose: () => void;
@@ -218,6 +242,7 @@ function ReplyModal({
   pending: boolean;
   startTransition: React.TransitionStartFunction;
   error?: string;
+  success?: boolean;
 }) {
   const [subject, setSubject] = useState(`Re: Your message`);
   const [body, setBody] = useState(`Hi ${message.name},\n\n`);
@@ -226,7 +251,6 @@ function ReplyModal({
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     startTransition(() => action(form));
-    onClose();
   };
 
   return (
@@ -237,7 +261,7 @@ function ReplyModal({
             <p className="font-headline text-xs tracking-[0.3em] text-[#DFFF00]">REPLY</p>
             <p className="text-sm text-white/70">to {message.email}</p>
           </div>
-          <button onClick={onClose} className="text-white/60 hover:text-white">?</button>
+          <button onClick={onClose} className="text-white/60 hover:text-white text-lg leading-none">×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Plus, X, Image, Video } from 'lucide-react'
+import { Plus, X, Image as ImageIcon, Video } from 'lucide-react'
 
 interface MediaFieldsProps {
   images: string[]
@@ -49,7 +49,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
       {/* Image URLs */}
       {images.map((url, index) => (
         <div key={`img-${index}`} className="flex items-center gap-2">
-          <Image size={14} className="text-white/40 flex-shrink-0" />
+          <ImageIcon size={14} className="text-white/40 flex-shrink-0" />
           <input
             type="text"
             value={url}
@@ -106,7 +106,7 @@ export function MediaFields({ images, videos, onImagesChange, onVideosChange }: 
               onClick={() => { addImage(); setShowAddMenu(false); }}
               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5 rounded whitespace-nowrap"
             >
-              <Image size={14} />
+              <ImageIcon size={14} />
               Add Image URL
             </button>
             <button

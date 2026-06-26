@@ -7,7 +7,7 @@ test('Add Vimeo video to Animation Bootcamp', async ({ page }) => {
   await page.fill('#admin-user', 'admin');
   await page.fill('#admin-pass', 'Abc138282');
   await page.click('button:has-text("SIGN IN")');
-  await page.waitForURL('/dashboard', { timeout: 15000 });
+  await expect(page.locator('h1:has-text("DASHBOARD")')).toBeVisible({ timeout: 15000 });
 
   // Add Vimeo video via API (uses browser's session cookie for auth)
   const ok = await page.evaluate(async () => {

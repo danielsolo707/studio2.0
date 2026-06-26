@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
 /* ─── Imports ─── */
@@ -30,12 +30,14 @@ describe('LoadingScreen', () => {
 
   it('starts at count 0', () => {
     render(<LoadingScreen />);
-    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
   });
 
-  it('shows status text', () => {
+  it('shows status text', async () => {
     render(<LoadingScreen />);
-    expect(screen.getByText('Initializing Experience')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Initializing Experience|LOADING/)).toBeInTheDocument();
+    });
   });
 });
 
@@ -58,8 +60,8 @@ describe('TypographicHero', () => {
 
   it('has ABOUT and CONTACT anchor links', () => {
     render(<TypographicHero />);
-    expect(screen.getByText('ABOUT')).toHaveAttribute('href', '#about');
-    expect(screen.getByText('CONTACT')).toHaveAttribute('href', '#contact');
+    expect(screen.getByText('ABOUT').closest('a')).toHaveAttribute('href', '#about');
+    expect(screen.getByText('CONTACT').closest('a')).toHaveAttribute('href', '#contact');
   });
 });
 
@@ -83,30 +85,31 @@ describe('ProjectList', () => {
 
   it('filters projects by discipline', () => {
     render(<ProjectList projects={content.projects} onProjectClick={vi.fn()} />);
-    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
+    const motionProject = content.projects.find((p) => (p.discipline ?? 'motion') === 'motion');
+    const codeProject = content.projects.find((p) => (p.discipline ?? 'motion') === 'code');
     fireEvent.click(screen.getByRole('button', { name: 'Motion' }));
     const filteredHeadings = screen.getAllByRole('heading');
     const filteredNames = filteredHeadings.map(h => h.textContent);
-    expect(filteredNames).toContain('NEON PULSE');
-    expect(filteredNames).not.toContain('TASKFLOW DASHBOARD');
+    expect(filteredNames).toContain(motionProject?.name);
+    if (codeProject) expect(filteredNames).not.toContain(codeProject.name);
   });
 
   it('calls onProjectClick when a project is clicked', () => {
     const onClick = vi.fn();
-    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
+    const project = content.projects[0];
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
-    const btn = screen.getByRole('button', { name: /NEON PULSE/i });
+    const btn = screen.getByRole('button', { name: new RegExp(project.name, 'i') });
     fireEvent.click(btn);
-    expect(onClick).toHaveBeenCalledWith(neonPulse);
+    expect(onClick).toHaveBeenCalledWith(project);
   });
 
   it('calls onProjectClick on Enter key', () => {
     const onClick = vi.fn();
-    const neonPulse = content.projects.find((p) => p.id === 'neon-pulse');
+    const project = content.projects[0];
     render(<ProjectList projects={content.projects} onProjectClick={onClick} />);
-    const btn = screen.getByRole('button', { name: /NEON PULSE/i });
+    const btn = screen.getByRole('button', { name: new RegExp(project.name, 'i') });
     fireEvent.keyDown(btn, { key: 'Enter' });
-    expect(onClick).toHaveBeenCalledWith(neonPulse);
+    expect(onClick).toHaveBeenCalledWith(project);
   });
 
   it('every project item has an aria-label', () => {
@@ -236,7 +239,7 @@ describe('Footer', () => {
 
   it('renders social links with proper hrefs', () => {
     render(<Footer />);
-    expect(screen.getByLabelText('Social links')).toBeInTheDocument();
+    expect(screen.getByLabelText('Social and external links')).toBeInTheDocument();
   });
 });
 

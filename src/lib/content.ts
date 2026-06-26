@@ -11,7 +11,6 @@ import {
   supabaseUpdateHero,
   supabaseUpdateAbout,
   supabaseUpdateOptions,
-  mapProjectToDB,
 } from './supabase-db';
 
 const LOCAL_STORAGE_KEY = 'portfolio_content';
@@ -155,6 +154,9 @@ export async function readContent(): Promise<SiteContent> {
 
 export async function writeContent(content: SiteContent): Promise<void> {
   if (isSupabaseConfigured) {
+    // Only persist hero/about/options here. Projects are written through the
+    // targeted helpers (addProject / updateProject / deleteProject) so a stale
+    // or partial read can never trigger a destructive full-list reconcile.
     await supabaseServer()
       .from(TABLES.SITE_CONTENT)
       .upsert({
@@ -163,24 +165,6 @@ export async function writeContent(content: SiteContent): Promise<void> {
         about: content.about,
         options: content.options ?? {},
       }, { onConflict: 'id', ignoreDuplicates: false });
-
-    const existingIds = (await supabaseServer()
-      .from(TABLES.PROJECTS)
-      .select('id'))
-      .data?.map(r => r.id) ?? [];
-
-    const newIds = content.projects.map(p => p.id);
-    const toDelete = existingIds.filter(id => !newIds.includes(id));
-
-    if (toDelete.length > 0) {
-      await supabaseServer().from(TABLES.PROJECTS).delete().in('id', toDelete);
-    }
-
-    for (const project of content.projects) {
-      await supabaseServer()
-        .from(TABLES.PROJECTS)
-        .upsert(mapProjectToDB(project), { onConflict: 'id', ignoreDuplicates: false });
-    }
 
     return;
   }
@@ -211,7 +195,7 @@ export async function updateAbout(aboutData: Partial<SiteContent['about']>): Pro
   await writeContent(content);
 }
 
-export async function updateHero(heroData: Partial<SiteContent['hero']>): Promise<void> {
+export async function updateHero(heroData: { headline?: string; description?: string }): Promise<void> {
   if (isSupabaseConfigured) {
     await supabaseUpdateHero(heroData);
     return;

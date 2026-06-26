@@ -119,7 +119,7 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
         <p className="text-[10px] tracking-[0.3em] text-white/40 mb-2">MOTION PROJECT</p>
       </div>
       
-      <div>
+      <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">SLUG (URL)</p>
         <input 
           name="id" 
@@ -209,6 +209,9 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
       <ProjectLinks defaultType="video" />
       
       <SubmitButton>ADD MOTION PROJECT</SubmitButton>
+      {state?.success && (
+        <p className="text-xs text-[#DFFF00] md:col-span-2">Project added successfully!</p>
+      )}
       {state?.error && (
         <p className="text-xs text-red-400 md:col-span-2">{state.error}</p>
       )}

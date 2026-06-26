@@ -1,12 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
-import { readContent, writeContent } from '@/lib/content';
+import { readContent, updateProject } from '@/lib/content';
 import { uploadFile } from '@/lib/gridfs';
+import type { Project } from '@/types/project';
 
 export const runtime = 'nodejs';
 
 const THUMB_MAX_DIMENSION = 1600;
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
 
 function detectKind(file: File): 'image' | 'video' | 'unknown' {
   if (file.type.startsWith('image/')) return 'image';
@@ -45,6 +47,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Unsupported file type: ${mimeType}` }, { status: 400 });
     }
 
+    const declaredLength = Number(request.headers.get('content-length') || 0);
+    if (declaredLength > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 50MB)' }, { status: 413 });
+    }
+
     const content = await readContent();
     const projIndex = content.projects.findIndex((p) => p.id === projectId);
     if (projIndex === -1) {
@@ -52,6 +59,9 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await request.arrayBuffer());
+    if (buffer.byteLength > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 50MB)' }, { status: 413 });
+    }
 
     const fileId = await uploadFile(buffer, filename, mimeType);
     const ext = filename.includes('.') ? filename.substring(filename.lastIndexOf('.')) : '';
@@ -62,31 +72,38 @@ export async function POST(request: NextRequest) {
       const thumb = await maybeMakeThumbnail(buffer, mimeType || 'image/jpeg');
       if (thumb) {
         const thumbId = await uploadFile(thumb.buffer, `thumb-${filename}`, thumb.mime);
-        thumbUrl = `/uploads/${thumbId}${ext}`;
+        // Use the actual output format's extension so the file is served with the
+        // correct content-type (avoid saving a JPEG body under a .webp/.gif name).
+        const thumbExt = thumb.mime === 'image/png' ? '.png' : '.jpg';
+        thumbUrl = `/uploads/${thumbId}${thumbExt}`;
       }
     }
 
     const saved = [{ fileId, url, kind, thumbUrl }];
 
     const project = content.projects[projIndex];
-    project.media = project.media || [];
+    const media = [...(project.media || [])];
+    const updates: Partial<Project> = {};
+
     for (const item of saved) {
-      project.media.push({
+      media.push({
         type: item.kind,
         url: item.url,
         storage: 'local',
         fileId: item.fileId,
         thumbUrl: item.thumbUrl,
       });
-      if (item.kind === 'image' && !project.imageUrl) {
-        project.imageUrl = item.url;
-      }
-      if (item.kind === 'video' && !project.videoUrl) {
-        project.videoUrl = item.url;
-      }
+    }
+    updates.media = media;
+
+    if (saved.some((s) => s.kind === 'image') && !project.imageUrl) {
+      updates.imageUrl = saved.find((s) => s.kind === 'image')!.url;
+    }
+    if (saved.some((s) => s.kind === 'video') && !project.videoUrl) {
+      updates.videoUrl = saved.find((s) => s.kind === 'video')!.url;
     }
 
-    await writeContent(content);
+    await updateProject(project.id, updates);
 
     revalidatePath('/');
     revalidatePath('/dashboard');

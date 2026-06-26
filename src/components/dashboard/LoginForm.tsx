@@ -5,15 +5,34 @@ import Script from 'next/script';
 import { loginAction } from '@/app/dashboard/actions';
 import { TwoFactorForm } from './TwoFactorForm';
 
-const initialState: { error?: string; needs2FA?: boolean } = {};
+const initialState: { error?: string; needs2FA?: boolean; halfAuthToken?: string } = {};
 
 export function LoginForm({ captchaEnabled }: { captchaEnabled: boolean }) {
+  // Bumping this key remounts the inner form, resetting useActionState so the
+  // user can return to the password step after the 2FA screen.
+  const [loginKey, setLoginKey] = useState(0);
+
+  return (
+    <LoginFormInner
+      key={loginKey}
+      captchaEnabled={captchaEnabled}
+      onBackToPassword={() => setLoginKey((k) => k + 1)}
+    />
+  );
+}
+
+function LoginFormInner({
+  captchaEnabled,
+  onBackToPassword,
+}: {
+  captchaEnabled: boolean;
+  onBackToPassword: () => void;
+}) {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
-  const [show2FA, setShow2FA] = useState(false);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-  if (state.needs2FA || show2FA) {
-    return <TwoFactorForm onBack={() => setShow2FA(false)} />;
+  if (state.needs2FA) {
+    return <TwoFactorForm halfAuthToken={state.halfAuthToken} onBack={onBackToPassword} />;
   }
 
   return (
