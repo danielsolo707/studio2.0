@@ -59,7 +59,7 @@ export function LoadingScreen() {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden"
+        className="fixed inset-0 z-[250] bg-black flex items-center justify-center overflow-hidden"
         exit={{
           opacity: 0,
           filter: 'blur(100px)',
