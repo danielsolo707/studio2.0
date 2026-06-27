@@ -206,9 +206,13 @@ export function AddMotionProjectForm({ options }: { options: DisciplineOptions }
           rows={5}
         />
       </div>
-      <ProjectLinks defaultType="video" />
+      <div className="md:col-span-2">
+        <ProjectLinks defaultType="video" />
+      </div>
       
-      <SubmitButton>ADD MOTION PROJECT</SubmitButton>
+      <SubmitButton className="md:col-span-2 justify-self-start w-auto min-w-[220px] rounded-md px-5 py-3 tracking-[0.22em] shadow-[0_0_24px_rgba(223,255,0,0.14)] hover:shadow-[0_0_34px_rgba(223,255,0,0.22)]">
+        ADD MOTION PROJECT
+      </SubmitButton>
       {state?.success && (
         <p className="text-xs text-[#DFFF00] md:col-span-2">Project added successfully!</p>
       )}

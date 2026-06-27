@@ -237,9 +237,13 @@ export function AddProjectForm() {
           rows={4}
         />
       </div>
-      <ProjectLinks defaultType="demo" />
+      <div className="md:col-span-2">
+        <ProjectLinks defaultType="demo" />
+      </div>
       
-      <SubmitButton>ADD PROJECT</SubmitButton>
+      <SubmitButton className="md:col-span-2 justify-self-start w-auto min-w-[180px] rounded-md px-5 py-3 tracking-[0.22em] shadow-[0_0_24px_rgba(223,255,0,0.14)] hover:shadow-[0_0_34px_rgba(223,255,0,0.22)]">
+        ADD PROJECT
+      </SubmitButton>
       {state?.success && (
         <p className="text-xs text-[#DFFF00] md:col-span-2">Project added successfully!</p>
       )}

@@ -1,118 +1,109 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Plus, X, Image as ImageIcon, Video } from 'lucide-react'
+import type { Project } from '@/types/project'
+
+type MediaItem = Project['media'][number]
 
 interface MediaFieldsEditableProps {
-  images: string[]
-  videos: string[]
-  onImagesChange: (images: string[]) => void
-  onVideosChange: (videos: string[]) => void
+  mediaItems: MediaItem[]
+  onMediaChange: (mediaItems: MediaItem[]) => void
 }
 
-export function MediaFieldsEditable({ images, videos, onImagesChange, onVideosChange }: MediaFieldsEditableProps) {
+function getInitialMedia(
+  initialImageUrl: string,
+  initialVideoUrl: string,
+  initialMedia?: MediaItem[],
+): MediaItem[] {
+  if (initialMedia && initialMedia.length > 0) return initialMedia
+
+  const items: MediaItem[] = []
+  if (initialImageUrl) items.push({ type: 'image', url: initialImageUrl })
+  if (initialVideoUrl) items.push({ type: 'video', url: initialVideoUrl })
+  return items
+}
+
+export function MediaFieldsEditable({ mediaItems, onMediaChange }: MediaFieldsEditableProps) {
   const [showAddMenu, setShowAddMenu] = useState(false)
 
-  const addImage = () => {
-    onImagesChange([...images, ''])
+  const addMedia = (type: MediaItem['type']) => {
+    onMediaChange([...mediaItems, { type, url: '' }])
   }
 
-  const addVideo = () => {
-    onVideosChange([...videos, ''])
+  const removeMedia = (index: number) => {
+    onMediaChange(mediaItems.filter((_, i) => i !== index))
   }
 
-  const removeImage = (index: number) => {
-    onImagesChange(images.filter((_, i) => i !== index))
-  }
-
-  const removeVideo = (index: number) => {
-    onVideosChange(videos.filter((_, i) => i !== index))
-  }
-
-  const updateImage = (index: number, value: string) => {
-    const newImages = [...images]
-    newImages[index] = value
-    onImagesChange(newImages)
-  }
-
-  const updateVideo = (index: number, value: string) => {
-    const newVideos = [...videos]
-    newVideos[index] = value
-    onVideosChange(newVideos)
+  const updateMediaUrl = (index: number, value: string) => {
+    onMediaChange(mediaItems.map((item, i) => (
+      i === index ? { ...item, url: value } : item
+    )))
   }
 
   return (
-    <div className="space-y-3">
-      {images.map((url, index) => (
-        <div key={`img-${index}`} className="flex items-center gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <ImageIcon className="w-4 h-4 text-[#DFFF00] flex-shrink-0" />
+    <div className="space-y-3 rounded-md border border-white/10 bg-white/[0.02] p-3">
+      {mediaItems.map((item, index) => {
+        const Icon = item.type === 'image' ? ImageIcon : Video
+        const label = item.type === 'image' ? 'IMAGE' : 'VIDEO'
+        const placeholder = item.type === 'image'
+          ? 'https://example.com/image.jpg'
+          : 'https://vimeo.com/... or .mp4'
+
+        return (
+        <div key={`${item.type}-${index}`} className="grid gap-2 sm:grid-cols-[96px_minmax(0,1fr)_32px] sm:items-center">
+          <span className="inline-flex h-8 items-center justify-center gap-2 rounded border border-[#DFFF00]/30 bg-[#DFFF00]/10 px-2 text-[10px] font-medium tracking-widest text-[#DFFF00]">
+            <Icon className="h-3 w-3" aria-hidden="true" />
+            {label}
+          </span>
+          <div className="min-w-0">
             <input
               type="text"
-              value={url}
-              onChange={(e) => updateImage(index, e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="flex-1 min-w-0 bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
+              value={item.url}
+              onChange={(e) => updateMediaUrl(index, e.target.value)}
+              placeholder={placeholder}
+              className="w-full min-w-0 rounded border border-white/10 bg-black/20 px-3 py-2 text-xs outline-none transition-colors focus:border-[#DFFF00]/60"
             />
           </div>
           <button
             type="button"
-            onClick={() => removeImage(index)}
-            className="text-white/40 hover:text-red-400 p-1 flex-shrink-0"
+            onClick={() => removeMedia(index)}
+            className="flex h-8 w-8 items-center justify-center rounded border border-white/10 text-white/40 transition-colors hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
+            aria-label={`Remove ${item.type} URL`}
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-      ))}
+        )
+      })}
 
-      {videos.map((url, index) => (
-        <div key={`vid-${index}`} className="flex items-center gap-2">
-          <div className="flex items-center gap-2 flex-1">
-            <Video className="w-4 h-4 text-[#DFFF00] flex-shrink-0" />
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => updateVideo(index, e.target.value)}
-              placeholder="https://vimeo.com/... or .mp4"
-              className="flex-1 min-w-0 bg-transparent border border-white/10 px-3 py-2 text-xs focus:border-[#DFFF00]/50 focus:outline-none"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => removeVideo(index)}
-            className="text-white/40 hover:text-red-400 p-1 flex-shrink-0"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ))}
-
-      <div className="relative inline-block">
+      <div className="space-y-2 pt-1">
         <button
           type="button"
           onClick={() => setShowAddMenu(!showAddMenu)}
-          className="flex items-center gap-2 px-3 py-1.5 border border-white/20 text-[10px] text-white/50 hover:border-[#DFFF00]/50 hover:text-[#DFFF00] transition-colors"
+          className="flex h-9 items-center gap-2 rounded border border-white/15 bg-white/[0.03] px-3 text-[10px] tracking-widest text-white/55 transition-colors hover:border-[#DFFF00]/50 hover:bg-[#DFFF00]/10 hover:text-[#DFFF00]"
+          aria-expanded={showAddMenu}
         >
-          <Plus className="w-3 h-3" />
+          <Plus className="h-3 w-3" aria-hidden="true" />
           ADD MEDIA
         </button>
         
         {showAddMenu && (
-          <div className="absolute bottom-full left-0 mb-1 flex gap-2 z-50">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => { addImage(); setShowAddMenu(false) }}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#0a0a0a] border border-[#DFFF00]/30 text-[#DFFF00] text-xs hover:bg-[#DFFF00]/20 whitespace-nowrap"
+              onClick={() => { addMedia('image'); setShowAddMenu(false) }}
+              className="flex h-8 items-center gap-2 rounded border border-[#DFFF00]/30 bg-[#0a0a0a] px-3 text-xs text-[#DFFF00] transition-colors hover:bg-[#DFFF00]/20"
             >
-              <ImageIcon className="w-3 h-3" />
+              <ImageIcon className="h-3 w-3" aria-hidden="true" />
               IMAGE
             </button>
             <button
               type="button"
-              onClick={() => { addVideo(); setShowAddMenu(false) }}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#0a0a0a] border border-[#DFFF00]/30 text-[#DFFF00] text-xs hover:bg-[#DFFF00]/20 whitespace-nowrap"
+              onClick={() => { addMedia('video'); setShowAddMenu(false) }}
+              className="flex h-8 items-center gap-2 rounded border border-[#DFFF00]/30 bg-[#0a0a0a] px-3 text-xs text-[#DFFF00] transition-colors hover:bg-[#DFFF00]/20"
             >
-              <Video className="w-3 h-3" />
+              <Video className="h-3 w-3" aria-hidden="true" />
               VIDEO
             </button>
           </div>
@@ -126,39 +117,24 @@ interface ProjectMediaFieldsProps {
   projectId: string
   initialImageUrl: string
   initialVideoUrl: string
-  initialMedia?: Array<{ type: 'image' | 'video'; url: string }>
+  initialMedia?: MediaItem[]
 }
 
 export function ProjectMediaFields({ projectId, initialImageUrl, initialVideoUrl, initialMedia }: ProjectMediaFieldsProps) {
-  const [mediaItems, setMediaItems] = useState<Array<{ type: 'image' | 'video'; url: string }>>(() => {
-    if (initialMedia && initialMedia.length > 0) return initialMedia
-    const items: Array<{ type: 'image' | 'video'; url: string }> = []
-    if (initialImageUrl) items.push({ type: 'image', url: initialImageUrl })
-    if (initialVideoUrl) items.push({ type: 'video', url: initialVideoUrl })
-    return items
-  })
+  const initialMediaKey = useMemo(
+    () => JSON.stringify(getInitialMedia(initialImageUrl, initialVideoUrl, initialMedia)),
+    [initialImageUrl, initialMedia, initialVideoUrl],
+  )
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => (
+    getInitialMedia(initialImageUrl, initialVideoUrl, initialMedia)
+  ))
 
-  const images = mediaItems.filter(m => m.type === 'image').map(m => m.url)
-  const videos = mediaItems.filter(m => m.type === 'video').map(m => m.url)
+  useEffect(() => {
+    setMediaItems(JSON.parse(initialMediaKey) as MediaItem[])
+  }, [initialMediaKey])
 
-  const handleImagesChange = (newImages: string[]) => {
-    const videoItems = mediaItems.filter(m => m.type === 'video')
-    setMediaItems([
-      ...newImages.map(url => ({ type: 'image' as const, url })),
-      ...videoItems,
-    ])
-  }
-
-  const handleVideosChange = (newVideos: string[]) => {
-    const imageItems = mediaItems.filter(m => m.type === 'image')
-    setMediaItems([
-      ...imageItems,
-      ...newVideos.map(url => ({ type: 'video' as const, url })),
-    ])
-  }
-
-  const primaryImage = images[0] || ''
-  const primaryVideo = videos[0] || ''
+  const primaryImage = mediaItems.find((m) => m.type === 'image')?.url || ''
+  const primaryVideo = mediaItems.find((m) => m.type === 'video')?.url || ''
 
   return (
     <>
@@ -168,10 +144,8 @@ export function ProjectMediaFields({ projectId, initialImageUrl, initialVideoUrl
       <div className="md:col-span-2">
         <p className="text-[10px] tracking-[0.3em] text-[#DFFF00] mb-2">MEDIA URLs</p>
         <MediaFieldsEditable
-          images={images}
-          videos={videos}
-          onImagesChange={handleImagesChange}
-          onVideosChange={handleVideosChange}
+          mediaItems={mediaItems}
+          onMediaChange={setMediaItems}
         />
       </div>
     </>

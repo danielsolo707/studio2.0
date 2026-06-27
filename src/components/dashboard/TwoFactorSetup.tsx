@@ -84,13 +84,13 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
   }, []);
 
   return (
-    <section className="border border-white/10 p-6 bg-black/30 rounded-lg">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-headline text-sm tracking-[0.4em] text-[#DFFF00]">
+    <section className="overflow-hidden border border-white/10 p-6 bg-black/30 rounded-lg">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2 className="min-w-0 font-headline text-sm tracking-[0.4em] text-[#DFFF00]">
           TWO-FACTOR AUTH
         </h2>
         <span
-          className={`text-[10px] font-headline tracking-widest px-3 py-1 rounded-full border ${
+          className={`shrink-0 text-[10px] font-headline tracking-widest px-3 py-1 rounded-full border ${
             enabled
               ? 'border-green-500/50 text-green-400'
               : 'border-white/20 text-white/40'
@@ -145,13 +145,14 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
           </div>
 
           {setupData.qrCodeDataUrl && (
-            <div className="flex justify-center">
-              <div className="p-4 bg-white rounded-lg">
+            <div className="flex justify-center px-2">
+              <div className="max-w-full p-4 bg-white rounded-lg">
                 <img
                   src={setupData.qrCodeDataUrl}
                   alt="2FA QR Code — scan with authenticator app"
                   width={200}
                   height={200}
+                  className="h-auto max-w-full"
                 />
               </div>
             </div>
@@ -172,7 +173,7 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
             <p className="text-xs text-white/60 font-body">
               3. Enter the 6-digit code from your app to confirm:
             </p>
-            <div className="flex gap-3 flex-col sm:flex-row items-stretch">
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
               <input
                 type="text"
                 inputMode="numeric"
@@ -181,12 +182,12 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
                 value={token}
                 onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                className="flex-1 bg-transparent border border-white/10 px-4 py-3 text-white font-headline text-lg tracking-[0.4em] text-center focus:border-[#DFFF00]/50 focus:outline-none"
+                className="min-w-0 w-full bg-transparent border border-white/10 px-4 py-3 text-white font-headline text-lg tracking-[0.4em] text-center focus:border-[#DFFF00]/50 focus:outline-none"
               />
               <button
                 onClick={verifyAndEnable}
                 disabled={loading || token.length !== 6}
-                className="sm:w-auto w-full px-6 py-3 bg-[#DFFF00] text-black text-xs tracking-widest font-headline disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-3 bg-[#DFFF00] text-black text-xs tracking-widest font-headline disabled:opacity-50"
               >
                 {loading ? 'VERIFYING...' : 'CONFIRM'}
               </button>
