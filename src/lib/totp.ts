@@ -2,6 +2,7 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import fs from 'fs/promises';
 import path from 'path';
+import { readAppSettings, writeAppSettings } from './app-settings';
 
 const TOTP_CONFIG_PATH = path.join(process.cwd(), 'src', 'data', 'totp.json');
 
@@ -12,9 +13,21 @@ export type TotpConfig = {
 
 const DEFAULT_CONFIG: TotpConfig = { enabled: false, secret: '' };
 
-/* ─── Read / Write ─── */
+/* ─── Read / Write ───
+ * Primary store: Supabase `app_settings` singleton (totp_secret / totp_enabled).
+ * Fallback: local JSON file — used in dev, or when the `app_settings` table
+ * hasn't been created in the database yet (silent, no errors).
+ */
 
 export async function readTotpConfig(): Promise<TotpConfig> {
+  const row = await readAppSettings('totp_secret, totp_enabled');
+  if (row) {
+    return {
+      enabled: Boolean(row.totp_enabled),
+      secret: (row.totp_secret as string) ?? '',
+    };
+  }
+
   try {
     const raw = await fs.readFile(TOTP_CONFIG_PATH, 'utf-8');
     return JSON.parse(raw) as TotpConfig;
@@ -24,6 +37,13 @@ export async function readTotpConfig(): Promise<TotpConfig> {
 }
 
 export async function writeTotpConfig(config: TotpConfig): Promise<void> {
+  const ok = await writeAppSettings({
+    totp_secret: config.secret || null,
+    totp_enabled: config.enabled,
+  });
+  if (ok) return;
+
+  // Table not provisioned yet → keep working via local file.
   await fs.writeFile(TOTP_CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
 }
 

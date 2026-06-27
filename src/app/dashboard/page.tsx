@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { is2FAEnabled } from '@/lib/totp';
 import { isCaptchaEnabled } from '@/lib/captcha-config';
 import { listMessages } from '@/lib/contact-log';
+import { runMigrations } from '@/lib/migrate';
 import Link from 'next/link';
 import { LoginForm } from '@/components/dashboard/LoginForm';
 import { MultiUploadField } from '@/components/dashboard/MultiUploadField';
@@ -37,6 +38,10 @@ export default async function DashboardPage() {
     session = await getSession();
     
     if (session) {
+      // One-time, idempotent migration of any locally-stored data into Supabase.
+      // No-op once everything is in the database.
+      await runMigrations();
+
       // Fetch content and messages only if authenticated
       content = await readContent();
       twoFAEnabled = await is2FAEnabled();

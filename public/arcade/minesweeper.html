@@ -86,16 +86,18 @@
     }
     /* Celle */
     .cell {
-      width: 32px;
-      height: 32px;
-      line-height: 32px;
+      width: var(--cell-size, 32px);
+      height: var(--cell-size, 32px);
+      line-height: var(--cell-size, 32px);
       text-align: center;
       vertical-align: middle;
       background-color: #555;
       cursor: pointer;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
       transition: background-color 0.3s ease, opacity 0.3s ease;
-      font-size: 0.9rem;
+      font-size: calc(var(--cell-size, 32px) * 0.5);
       font-weight: bold;
     }
     .cell.revealed {
@@ -180,10 +182,7 @@
     /* Responsive Adjustments */
     @media (max-width: 600px) {
       .cell {
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        font-size: 0.8rem;
+        font-size: calc(var(--cell-size, 24px) * 0.5);
       }
     }
   </style>
@@ -371,9 +370,19 @@
     }
     
     /******** BOARD RENDERING ********/
+    function computeCellSize() {
+      // Fit the board to the viewport so even Hard (30 cols) is usable on phones.
+      const avail = Math.min(window.innerWidth, window.innerHeight) - 40;
+      return Math.max(16, Math.min(38, Math.floor(avail / boardWidth)));
+    }
+    function applyCellSize() {
+      const size = computeCellSize();
+      boardContainer.style.setProperty('--cell-size', size + 'px');
+      boardContainer.style.gridTemplateColumns = `repeat(${boardWidth}, var(--cell-size))`;
+    }
     function renderBoard() {
       boardContainer.innerHTML = "";
-      boardContainer.style.gridTemplateColumns = `repeat(${boardWidth}, 32px)`;
+      applyCellSize();
       for (let y = 0; y < boardHeight; y++) {
         for (let x = 0; x < boardWidth; x++) {
           const cell = board[y][x];
@@ -421,6 +430,7 @@
       }
     }
     function handleCellClick(x, y) {
+      if (suppressClick) { suppressClick = false; return; }
       if (gameOverFlag) return;
       const cell = board[y][x];
       if (!cell.isRevealed && !cell.isFlagged) {
@@ -499,7 +509,36 @@
     
     /******** EVENT LISTENERS ********/
     newGameBtn.addEventListener("click", newGame);
-    
+
+    // Long-press to flag on touch devices (right-click is unavailable on mobile).
+    let suppressClick = false;
+    let longPressTimer = null;
+    let longPressCell = null;
+    boardContainer.addEventListener("touchstart", (e) => {
+      const cellDiv = e.target.closest(".cell");
+      if (!cellDiv) return;
+      longPressCell = cellDiv;
+      suppressClick = false;
+      longPressTimer = setTimeout(() => {
+        suppressClick = true;
+        const parts = longPressCell.id.split("-"); // cell-x-y
+        const x = parseInt(parts[1], 10);
+        const y = parseInt(parts[2], 10);
+        handleRightClick(x, y);
+        if (navigator.vibrate) navigator.vibrate(30);
+        longPressCell = null;
+      }, 450);
+    }, { passive: true });
+    boardContainer.addEventListener("touchmove", () => {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }, { passive: true });
+    boardContainer.addEventListener("touchend", () => {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }, { passive: true });
+
+    // Recompute cell sizing when the viewport changes (rotation / resize).
+    window.addEventListener("resize", applyCellSize);
+
     resetBestBtn.addEventListener("click", () => {
       let selectedDifficulty = "easy";
       difficultyInputs.forEach(input => {

@@ -32,12 +32,33 @@
     .score-box label { font-size: 10px; color: #cc66ff88; letter-spacing: 2px; display: block; }
     .score-box span { font-size: 22px; color: #cc66ff; }
     #status { font-size: 13px; color: #ffcc00; min-height: 20px; margin-bottom: 10px; letter-spacing: 1px; text-align: center; }
-    canvas { border: 2px solid #cc66ff44; box-shadow: 0 0 30px #cc66ff22; border-radius: 4px; }
+    canvas { border: 2px solid #cc66ff44; box-shadow: 0 0 30px #cc66ff22; border-radius: 4px; max-width: 100%; height: auto; aspect-ratio: 480 / 520; touch-action: none; }
     .controls-row { display: flex; gap: 10px; margin-top: 14px; }
     button { background: transparent; border: 1px solid #cc66ff66; color: #cc66ff; padding: 10px 24px; cursor: pointer; font-family: inherit; font-size: 13px; letter-spacing: 1px; border-radius: 4px; transition: all 0.2s; }
     button:hover { background: #cc66ff22; box-shadow: 0 0 10px #cc66ff44; }
     .hint { font-size: 11px; color: #555; margin-top: 12px; text-align: center; }
     .hint span { color: #cc66ff66; }
+    /* Touch control pad (mobile) */
+    .touchpad {
+      display: none;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 380px;
+      margin: 16px auto 0;
+    }
+    .touchpad button {
+      padding: 22px 0;
+      font-size: 20px;
+      line-height: 1;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .touchpad button.fire { font-size: 14px; letter-spacing: 2px; }
+    @media (hover: none), (max-width: 640px) {
+      .touchpad { display: grid; }
+    }
   </style>
 </head>
 <body>
@@ -58,6 +79,13 @@
     <button id="startBtn">START</button>
   </div>
   <p class="hint"><span>← →</span> Move · <span>Space</span> Shoot</p>
+
+  <!-- Touch controls (mobile only) -->
+  <div class="touchpad" id="touchpad">
+    <button data-key="ArrowLeft" aria-label="Move left">◀</button>
+    <button data-key=" " class="fire" aria-label="Fire">FIRE</button>
+    <button data-key="ArrowRight" aria-label="Move right">▶</button>
+  </div>
 
   <script src="../sounds/sfx.js"></script>
   <script>
@@ -337,6 +365,19 @@
     });
     document.addEventListener('keyup', e => { keys[e.key] = false; });
     document.getElementById('startBtn').addEventListener('click', startGame);
+
+    // Touch controls — press-and-hold sets the same `keys` flags the loop reads.
+    const touchpad = document.getElementById('touchpad');
+    function setKey(btn, val) { if (btn) keys[btn.dataset.key] = val; }
+    touchpad.addEventListener('pointerdown', e => {
+      const btn = e.target.closest('button[data-key]');
+      if (!btn) return;
+      e.preventDefault();
+      setKey(btn, true);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev =>
+      touchpad.addEventListener(ev, e => setKey(e.target.closest('button[data-key]'), false))
+    );
 
     draw(0);
   </script>

@@ -68,4 +68,5 @@ export const TABLES = {
   PROJECTS: 'projects',
   SITE_CONTENT: 'site_content',
   CONTACT_MESSAGES: 'contact_messages',
+  APP_SETTINGS: 'app_settings',
 } as const;

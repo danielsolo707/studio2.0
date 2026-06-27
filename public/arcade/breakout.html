@@ -32,7 +32,7 @@
     .score-box label { font-size: 10px; color: #4d96ff88; letter-spacing: 2px; display: block; }
     .score-box span { font-size: 22px; color: #4d96ff; }
     #status { font-size: 13px; color: #ffcc00; min-height: 20px; margin-bottom: 10px; letter-spacing: 1px; text-align: center; }
-    canvas { border: 2px solid #4d96ff44; box-shadow: 0 0 30px #4d96ff22; border-radius: 4px; cursor: none; }
+    canvas { border: 2px solid #4d96ff44; box-shadow: 0 0 30px #4d96ff22; border-radius: 4px; cursor: none; max-width: 100%; height: auto; aspect-ratio: 480 / 520; touch-action: none; }
     .controls-row { display: flex; gap: 10px; margin-top: 14px; }
     button { background: transparent; border: 1px solid #4d96ff66; color: #4d96ff; padding: 10px 24px; cursor: pointer; font-family: inherit; font-size: 13px; letter-spacing: 1px; border-radius: 4px; transition: all 0.2s; }
     button:hover { background: #4d96ff22; box-shadow: 0 0 10px #4d96ff44; }
@@ -130,12 +130,31 @@
     const keys = {};
     document.addEventListener('keydown', e => { keys[e.key] = true; if (e.key === ' ') { e.preventDefault(); launch(); } });
     document.addEventListener('keyup', e => { keys[e.key] = false; });
-    canvas.addEventListener('mousemove', e => {
+
+    // Map a client X to canvas-logical X (canvas is CSS-scaled on mobile).
+    function canvasX(clientX) {
       const rect = canvas.getBoundingClientRect();
-      paddle.x = Math.max(0, Math.min(W - paddle.w, e.clientX - rect.left - paddle.w/2));
-      if (!launched) ball.x = paddle.x + paddle.w/2;
-    });
+      const scale = rect.width ? (W / rect.width) : 1;
+      return (clientX - rect.left) * scale;
+    }
+    function movePaddleTo(clientX) {
+      const x = canvasX(clientX);
+      paddle.x = Math.max(0, Math.min(W - paddle.w, x - paddle.w / 2));
+      if (!launched) ball.x = paddle.x + paddle.w / 2;
+    }
+
+    canvas.addEventListener('mousemove', e => movePaddleTo(e.clientX));
     canvas.addEventListener('click', launch);
+    // Touch: drag to move the paddle, tap to launch.
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (e.touches[0]) movePaddleTo(e.touches[0].clientX);
+      launch();
+    }, { passive: false });
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches[0]) movePaddleTo(e.touches[0].clientX);
+    }, { passive: false });
     document.getElementById('startBtn').addEventListener('click', startGame);
 
     function loop() {

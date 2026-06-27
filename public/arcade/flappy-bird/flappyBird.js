@@ -52,6 +52,11 @@ function moveUp() {
   if (state === "idle") {
     state = "running";
     startBtn.textContent = "RESTART";
+    // Start the render loop — without this the bird flaps once but the
+    // world never animates (pipes never move forward), which is the
+    // "Space does nothing" bug.
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(draw);
   }
   if (state !== "running") return;
   bY -= 25;

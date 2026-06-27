@@ -32,7 +32,7 @@
     .score-box label { font-size: 10px; color: #6bcb7788; letter-spacing: 2px; display: block; }
     .score-box span { font-size: 22px; color: #6bcb77; }
     #status { font-size: 13px; color: #ffcc00; min-height: 20px; margin-bottom: 10px; letter-spacing: 1px; }
-    canvas { border: 2px solid #6bcb7744; box-shadow: 0 0 30px #6bcb7722; border-radius: 4px; }
+    canvas { border: 2px solid #6bcb7744; box-shadow: 0 0 30px #6bcb7722; border-radius: 4px; max-width: 100%; height: auto; aspect-ratio: 1 / 1; touch-action: none; }
     .controls-row { display: flex; gap: 10px; margin-top: 14px; }
     button { background: transparent; border: 1px solid #6bcb7766; color: #6bcb77; padding: 10px 24px; cursor: pointer; font-family: inherit; font-size: 13px; letter-spacing: 1px; border-radius: 4px; transition: all 0.2s; }
     button:hover { background: #6bcb7722; box-shadow: 0 0 10px #6bcb7744; }
@@ -202,6 +202,8 @@
     canvas.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; e.preventDefault(); }, {passive:false});
     canvas.addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 12) { e.preventDefault(); return; }
+      if (!running) { startGame(); e.preventDefault(); return; }
       if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0 && dir.x !== -1) nextDir = {x:1,y:0};
         else if (dx < 0 && dir.x !== 1) nextDir = {x:-1,y:0};
@@ -209,6 +211,7 @@
         if (dy > 0 && dir.y !== -1) nextDir = {x:0,y:1};
         else if (dy < 0 && dir.y !== 1) nextDir = {x:0,y:-1};
       }
+      e.preventDefault();
     }, {passive:false});
 
     // Initial draw

@@ -31,22 +31,17 @@ function computePreviewPosition(
   vw: number,
   vh: number,
 ) {
-  let left = mx + PREVIEW_OFFSET;
-  let top = my + PREVIEW_OFFSET;
-
-  if (left + PREVIEW_WIDTH > vw - PREVIEW_MARGIN) {
-    left = mx - PREVIEW_WIDTH - PREVIEW_OFFSET;
-  }
-  if (left < PREVIEW_MARGIN) {
-    left = PREVIEW_MARGIN;
-  }
-
-  if (top + PREVIEW_HEIGHT > vh - PREVIEW_MARGIN) {
-    top = my - PREVIEW_HEIGHT - PREVIEW_OFFSET;
-  }
-  if (top < PREVIEW_MARGIN) {
-    top = PREVIEW_MARGIN;
-  }
+  // Track the cursor directly: offset to the right, centered vertically.
+  // Clamp (never flip) so the target never teleports across the cursor —
+  // the spring stays continuous and the preview glues to the pointer.
+  const left = Math.max(
+    PREVIEW_MARGIN,
+    Math.min(mx + PREVIEW_OFFSET, vw - PREVIEW_WIDTH - PREVIEW_MARGIN),
+  );
+  const top = Math.max(
+    PREVIEW_MARGIN,
+    Math.min(my - PREVIEW_HEIGHT / 2, vh - PREVIEW_HEIGHT - PREVIEW_MARGIN),
+  );
 
   return { left, top };
 }
@@ -63,8 +58,8 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
   /* ── Mouse-follow motion values (updated directly, no React re-render) ── */
   const targetX = useMotionValue(0);
   const targetY = useMotionValue(0);
-  const springX = useSpring(targetX, { stiffness: 500, damping: 28, mass: 0.5 });
-  const springY = useSpring(targetY, { stiffness: 500, damping: 28, mass: 0.5 });
+  const springX = useSpring(targetX, { stiffness: 700, damping: 35, mass: 0.3 });
+  const springY = useSpring(targetY, { stiffness: 700, damping: 35, mass: 0.3 });
 
   const featuredProjects = projects.slice(0, maxProjects);
 
@@ -149,7 +144,6 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
       aria-labelledby="works-heading"
       className="relative z-20 py-16 md:py-20 px-6 md:px-16 overflow-hidden scroll-mt-24"
       onMouseLeave={() => setActiveProject(null)}
-      style={{ contentVisibility: 'auto' } as React.CSSProperties}
     >
       <div className="absolute inset-0 section-sheen pointer-events-none" aria-hidden="true" />
       <div className="max-w-7xl mx-auto">
@@ -302,6 +296,7 @@ export function FeaturedProjects({ projects, maxProjects = 3 }: FeaturedProjects
               y: springY,
               pointerEvents: 'none',
               zIndex: 100,
+              willChange: 'transform',
             }}
             data-project-preview="true"
             className="relative w-80 h-48 overflow-hidden border border-[#DFFF00]/20 bg-black shadow-[0_0_60px_rgba(223,255,0,0.16)] hidden md:block"

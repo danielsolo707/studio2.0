@@ -1164,6 +1164,30 @@ canvas.height = CONFIG.HEIGHT;
 
 const game = new Game(canvas);
 
+// ── Touch controls (mobile) ──────────────────────────────────────────────────
+// Drag anywhere vertically to move the player paddle (paddle1, left side).
+// A tap also acts as "Start" (equivalent to pressing Enter) on the attract
+// and game-over screens.
+function touchLogicalY(e) {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0] || e.changedTouches[0];
+    return ((t.clientY - rect.top) / rect.height) * CONFIG.LOGICAL_HEIGHT;
+}
+function movePaddle1To(logicalY) {
+    const p = game.paddle1;
+    p.y = clamp(logicalY - p.height / 2, 0, CONFIG.LOGICAL_HEIGHT - p.height);
+}
+canvas.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+    game.sound.init();
+    game.input.justPressed['Enter'] = true;   // tap = start / restart
+    if (e.touches[0]) movePaddle1To(touchLogicalY(e));
+}, { passive: false });
+canvas.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+    if (e.touches[0]) movePaddle1To(touchLogicalY(e));
+}, { passive: false });
+
 let lastTime = performance.now();
 let accumulator = 0;
 

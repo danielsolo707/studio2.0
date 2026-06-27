@@ -82,6 +82,21 @@ CREATE TABLE IF NOT EXISTS admin_users (
   last_login TIMESTAMPTZ
 );
 
+-- App-wide security settings (singleton — one row, id = 'default').
+-- Holds the admin password hash, TOTP (2FA) secret, and captcha toggle.
+-- RLS is enabled with NO public policies, so only the service_role key
+-- (server-side) can read or write this table.
+CREATE TABLE IF NOT EXISTS app_settings (
+  id TEXT PRIMARY KEY DEFAULT 'default',
+  password_hash TEXT,
+  password_salt TEXT,
+  password_updated_at TIMESTAMPTZ,
+  totp_secret TEXT,
+  totp_enabled BOOLEAN DEFAULT FALSE,
+  captcha_enabled BOOLEAN DEFAULT FALSE,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- RLS Policies
 
 -- Enable RLS on all tables
@@ -90,6 +105,10 @@ ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_files ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
+
+-- app_settings: NO public policies — service_role (server) only.
+-- The anon key cannot read or write security config.
 
 -- Projects: public read, admin write
 CREATE POLICY "Public read access to projects" ON projects
@@ -156,6 +175,9 @@ CREATE TRIGGER update_projects_updated_at BEFORE UPDATE ON projects
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_site_content_updated_at BEFORE UPDATE ON site_content
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_app_settings_updated_at BEFORE UPDATE ON app_settings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Indexes for performance

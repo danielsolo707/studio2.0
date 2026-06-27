@@ -42,13 +42,19 @@
     }
     .game-area {
       display: flex;
+      flex-wrap: wrap;
       gap: 30px;
       align-items: flex-start;
+      justify-content: center;
     }
     canvas {
       border: 2px solid #00ffcc44;
       box-shadow: 0 0 30px #00ffcc22;
       background: #111;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 2;
+      touch-action: none;
     }
     .side-panel {
       display: flex;
@@ -94,6 +100,28 @@
       width: 100%;
     }
     button:hover { background: #00ffcc22; box-shadow: 0 0 10px #00ffcc44; }
+    /* Touch control pad (mobile) */
+    .touchpad {
+      display: none;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 360px;
+      margin: 16px auto 0;
+    }
+    .touchpad button {
+      padding: 18px 0;
+      font-size: 20px;
+      line-height: 1;
+      width: 100%;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    @media (hover: none), (max-width: 640px) {
+      .touchpad { display: grid; }
+      .controls { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -134,6 +162,15 @@
         <span>P</span> Pause
       </div>
     </div>
+  </div>
+
+  <!-- Touch controls (mobile only) -->
+  <div class="touchpad" id="touchpad">
+    <button data-act="left" aria-label="Move left">◀</button>
+    <button data-act="rotate" aria-label="Rotate">⟳</button>
+    <button data-act="down" aria-label="Soft drop">▼</button>
+    <button data-act="drop" aria-label="Hard drop">⤓</button>
+    <button data-act="pause" aria-label="Pause">⏸</button>
   </div>
 
   <script src="../sounds/sfx.js"></script>
@@ -325,32 +362,53 @@
 
     document.getElementById('startBtn').addEventListener('click', startGame);
 
+    // Reusable actions shared by keyboard + touchpad
+    function actLeft()  { if (running && !paused && valid(board, piece, -1, 0)) { piece.x--; SFX.tetris.move(); } }
+    function actRight() { if (running && !paused && valid(board, piece, 1, 0))  { piece.x++; SFX.tetris.move(); } }
+    function actDown()  { if (running && !paused && valid(board, piece, 0, 1)) piece.y++; }
+    function actRotate(){
+      if (!running || paused) return;
+      const r = rotate(piece.shape);
+      if (valid(board, piece, 0, 0, r)) { piece.shape = r; SFX.tetris.rotate(); }
+    }
+    function actDrop(){
+      if (!running || paused) return;
+      while (valid(board, piece, 0, 1)) piece.y++;
+      SFX.tetris.lock();
+    }
+    function actPauseToggle(){
+      if (!running) return;
+      if (paused) { paused = false; lastDrop = null; raf = requestAnimationFrame(loop); document.getElementById('status').textContent = ''; }
+      else { paused = true; document.getElementById('status').textContent = 'PAUSED'; cancelAnimationFrame(raf); }
+    }
+
     document.addEventListener('keydown', e => {
       if (!running || paused) {
         if (e.code === 'KeyP' && running) { paused = false; lastDrop = null; raf = requestAnimationFrame(loop); document.getElementById('status').textContent = ''; }
         return;
       }
       switch (e.code) {
-        case 'ArrowLeft': if (valid(board, piece, -1, 0)) { piece.x--; SFX.tetris.move(); } break;
-        case 'ArrowRight': if (valid(board, piece, 1, 0)) { piece.x++; SFX.tetris.move(); } break;
-        case 'ArrowDown': if (valid(board, piece, 0, 1)) piece.y++; break;
-        case 'ArrowUp': {
-          const r = rotate(piece.shape);
-          if (valid(board, piece, 0, 0, r)) { piece.shape = r; SFX.tetris.rotate(); }
-          break;
-        }
-        case 'Space': {
-          e.preventDefault();
-          while (valid(board, piece, 0, 1)) piece.y++;
-          SFX.tetris.lock();
-          break;
-        }
-        case 'KeyP':
-          paused = true;
-          document.getElementById('status').textContent = 'PAUSED';
-          cancelAnimationFrame(raf);
-          break;
+        case 'ArrowLeft': actLeft(); break;
+        case 'ArrowRight': actRight(); break;
+        case 'ArrowDown': actDown(); break;
+        case 'ArrowUp': actRotate(); break;
+        case 'Space': { e.preventDefault(); actDrop(); break; }
+        case 'KeyP': actPauseToggle(); break;
       }
+      draw();
+    });
+
+    // Touch controls
+    document.getElementById('touchpad').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      const act = btn.dataset.act;
+      if (act === 'left') actLeft();
+      else if (act === 'right') actRight();
+      else if (act === 'down') actDown();
+      else if (act === 'rotate') actRotate();
+      else if (act === 'drop') actDrop();
+      else if (act === 'pause') actPauseToggle();
       draw();
     });
 
