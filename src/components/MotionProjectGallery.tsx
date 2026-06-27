@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Maximize2, Play, X } from 'lucide-react';
 import type { Project } from '@/types/project';
-import { getProjectStatus, STATUS_LABELS } from '@/lib/project-meta';
-import { VideoEmbed } from '@/components/VideoEmbed';
+import { getProjectStatus, STATUS_LABELS } from '@/lib/cms/project-meta';
+import { VideoEmbed } from '@/components/content/VideoEmbed';
 
 interface MotionProjectGalleryProps {
   projects: Project[];

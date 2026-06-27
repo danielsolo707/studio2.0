@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { readContent } from '@/lib/content'
-import { ProjectCardLink } from '@/components/ProjectCardLink'
+import { readContent } from '@/lib/cms/content'
+import { ProjectCardLink } from '@/components/project/ProjectCardLink'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {

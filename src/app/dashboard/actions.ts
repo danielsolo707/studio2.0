@@ -3,19 +3,19 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { deleteGridFsFile } from '@/lib/gridfs';
+import { deleteGridFsFile } from '@/lib/database/gridfs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { cookies } from 'next/headers';
-import { clearSession, getSession, setSession, createHalfAuthToken, verifyHalfAuthToken } from '@/lib/auth';
-import { readContent, writeContent, addProject, updateProject, deleteProject } from '@/lib/content';
-import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/totp';
-import { isCaptchaEnabled } from '@/lib/captcha-config';
-import { getAdminUsername, updateAdminPassword, verifyAdminCredentials } from '@/lib/admin-credentials';
+import { clearSession, getSession, setSession, createHalfAuthToken, verifyHalfAuthToken } from '@/lib/auth/session';
+import { readContent, writeContent, addProject, updateProject, deleteProject } from '@/lib/cms/content';
+import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/auth/totp';
+import { isCaptchaEnabled } from '@/lib/security/captcha-config';
+import { getAdminUsername, updateAdminPassword, verifyAdminCredentials } from '@/lib/auth/credentials';
 import type { Project, ProjectLink, ProjectStatus } from '@/types/project';
-import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact-log';
-import { STATUS_OPTIONS } from '@/lib/project-meta';
+import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact/contact-log';
+import { STATUS_OPTIONS } from '@/lib/cms/project-meta';
 
 type ActionState = { error?: string; success?: boolean };
 
@@ -606,7 +606,7 @@ export async function updateOptionsAction(_prevState: ActionState, formData: For
       return { error: 'No valid options provided' };
     }
 
-    const { updateOptions } = await import('@/lib/content')
+    const { updateOptions } = await import('@/lib/cms/content')
     await updateOptions(updates)
 
     revalidatePath('/dashboard')

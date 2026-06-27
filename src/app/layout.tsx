@@ -1,6 +1,6 @@
 import type {Metadata, Viewport} from 'next';
 import { Inter, Syncopate } from 'next/font/google';
-import { ScrollRestoration } from '@/components/ScrollRestoration';
+import { ScrollRestoration } from '@/components/layout/ScrollRestoration';
 import './globals.css';
 
 const inter = Inter({

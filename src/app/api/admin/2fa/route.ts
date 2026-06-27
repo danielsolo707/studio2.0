@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getSession, setPendingTotpSecret, readPendingTotpSecret, clearPendingTotpSecret } from '@/lib/auth';
+import { getSession, setPendingTotpSecret, readPendingTotpSecret, clearPendingTotpSecret } from '@/lib/auth/session';
 import {
   generateTotpSecret,
   readTotpConfig,
   writeTotpConfig,
   verifyTotpToken,
-} from '@/lib/totp';
+} from '@/lib/auth/totp';
 
 export const runtime = 'nodejs';
 

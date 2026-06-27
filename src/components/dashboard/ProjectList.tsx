@@ -12,8 +12,8 @@ import {
 import { MediaPreview } from './MediaPreview'
 import { MultiUploadField } from './MultiUploadField'
 import { ProjectLinks } from './ProjectLinks'
-import { ProjectMediaFields } from '@/components/MediaFieldsEditable'
-import { RichTextEditor } from '@/components/RichTextEditor'
+import { ProjectMediaFields } from '@/components/project/MediaFieldsEditable'
+import { RichTextEditor } from '@/components/content/RichTextEditor'
 import {
   getProjectDiscipline,
   getProjectLinks,
@@ -22,7 +22,7 @@ import {
   LINK_TYPE_OPTIONS,
   STATUS_LABELS,
   STATUS_OPTIONS,
-} from '@/lib/project-meta'
+} from '@/lib/cms/project-meta'
 
 type UpdateState = { error?: string; success?: boolean }
 const initialUpdateState: UpdateState = {}

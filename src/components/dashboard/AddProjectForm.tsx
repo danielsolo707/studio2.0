@@ -3,16 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useActionState } from 'react'
 import { addProjectAction } from '@/app/dashboard/actions'
-import { SubmitButton } from '@/components/SubmitButton'
+import { SubmitButton } from '@/components/forms/SubmitButton'
 import { ProjectLinks } from './ProjectLinks'
 import { EditableSelectField } from './EditableSelectField'
-import { MediaFields } from '@/components/MediaFields'
+import { MediaFields } from '@/components/project/MediaFields'
 import {
   DISCIPLINE_LABELS,
   DISCIPLINE_OPTIONS,
   LINK_TYPE_LABELS,
   LINK_TYPE_OPTIONS,
-} from '@/lib/project-meta'
+} from '@/lib/cms/project-meta'
 
 type FormValues = {
   id?: string

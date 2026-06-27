@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { updateHeroAction } from '@/app/dashboard/actions';
-import { SubmitButton } from '@/components/SubmitButton';
+import { SubmitButton } from '@/components/forms/SubmitButton';
 
 const initialState = { error: undefined as string | undefined };
 

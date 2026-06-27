@@ -8,7 +8,7 @@ import {
   bulkDeleteAction,
   replyMessageAction,
 } from '@/app/dashboard/actions';
-import type { StoredMessage } from '@/lib/contact-log';
+import type { StoredMessage } from '@/lib/contact/contact-log';
 
 interface Props {
   messages: StoredMessage[];

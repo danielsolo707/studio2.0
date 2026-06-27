@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { readContent } from '@/lib/content';
+import { readContent } from '@/lib/cms/content';
 
 const GAMES: Record<string, string> = {
   snake: 'Snake',

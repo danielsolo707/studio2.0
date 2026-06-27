@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { LINK_TYPE_LABELS, LINK_TYPE_OPTIONS } from '@/lib/project-meta'
+import { LINK_TYPE_LABELS, LINK_TYPE_OPTIONS } from '@/lib/cms/project-meta'
 import type { ProjectLink } from '@/types/project'
 
 interface EditableProjectLinksProps {

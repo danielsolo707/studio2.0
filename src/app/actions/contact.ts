@@ -1,7 +1,8 @@
 "use server"
 
 import { z } from 'zod';
-import { addMessage } from '@/lib/contact-log';
+import { addMessage } from '@/lib/contact/contact-log';
+import { notifyNewContactMessage } from '@/lib/integrations/telegram';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -55,6 +56,10 @@ export async function submitContact(
         name: data.name,
         email: data.email,
         message: data.message,
+      }).then((saved) => {
+        notifyNewContactMessage(saved.name, saved.email, saved.message).catch((error) => {
+          console.error('Telegram notify error:', error);
+        });
       }),
       (async () => {
         const apiKey = process.env.RESEND_API_KEY;

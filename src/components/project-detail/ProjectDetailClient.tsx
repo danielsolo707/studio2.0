@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, BarChart3, BookOpen, ExternalLink, Github, PlayCircle, Terminal, Folder } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { Project } from '@/types/project';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { FilmGrain } from '@/components/film-grain';
-import { GalleryModal } from '@/components/GalleryModal';
-import { VideoEmbed } from '@/components/VideoEmbed';
+import { MarkdownRenderer } from '@/components/content/MarkdownRenderer';
+import { FilmGrain } from '@/components/effects/film-grain';
+import { GalleryModal } from '@/components/content/GalleryModal';
+import { VideoEmbed } from '@/components/content/VideoEmbed';
 import { IDEHeader } from '@/components/project/ide-header';
 import { JSDocOverview } from '@/components/project/jsdoc-overview';
 import { CodeAccordion } from '@/components/project/code-accordion';
@@ -23,7 +23,7 @@ import {
   getProjectStatus,
   LINK_TYPE_LABELS,
   STATUS_LABELS,
-} from '@/lib/project-meta';
+} from '@/lib/cms/project-meta';
 
 interface ProjectDetailClientProps {
   project: Project;

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import { readCaptchaConfig, writeCaptchaConfig } from '@/lib/captcha-config';
+import { getSession } from '@/lib/auth/session';
+import { readCaptchaConfig, writeCaptchaConfig } from '@/lib/security/captcha-config';
 
 export const dynamic = 'force-dynamic';
 

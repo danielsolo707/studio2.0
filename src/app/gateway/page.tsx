@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { FilmGrain } from "@/components/film-grain"
-import { ScrambleText } from "@/components/scramble-text"
+import { FilmGrain } from "@/components/effects/film-grain"
+import { ScrambleText } from "@/components/effects/scramble-text"
 import { MotionBackground } from "@/components/motion-background"
-import { CodeBackground } from "@/components/code-background"
+import { CodeBackground } from "@/components/project/code-background"
 
 type HoveredSide = "motion" | "code" | null
 

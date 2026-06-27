@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
-import { readContent, updateProject } from '@/lib/content';
+import { getSession } from '@/lib/auth/session';
+import { readContent, updateProject } from '@/lib/cms/content';
 
 export async function POST(req: NextRequest) {
   const session = await getSession();

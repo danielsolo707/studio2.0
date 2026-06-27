@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { readContent } from '@/lib/content';
-import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/project-meta';
+import { readContent } from '@/lib/cms/content';
+import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/cms/project-meta';
 import { ProjectDetailClient } from '@/components/project-detail/ProjectDetailClient';
 
 export const revalidate = 3600;

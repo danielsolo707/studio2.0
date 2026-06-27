@@ -1,4 +1,4 @@
-import { readContent } from '@/lib/content';
+import { readContent } from '@/lib/cms/content';
 import { MotionProjectGallery } from '@/components/MotionProjectGallery';
 import { MotionHeader } from '@/components/works/MotionHeader';
 import type { Metadata } from 'next';

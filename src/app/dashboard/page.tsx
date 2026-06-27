@@ -1,9 +1,9 @@
-import { readContent } from '@/lib/content';
-import { getSession } from '@/lib/auth';
-import { is2FAEnabled } from '@/lib/totp';
-import { isCaptchaEnabled } from '@/lib/captcha-config';
-import { listMessages } from '@/lib/contact-log';
-import { runMigrations } from '@/lib/migrate';
+import { readContent } from '@/lib/cms/content';
+import { getSession } from '@/lib/auth/session';
+import { is2FAEnabled } from '@/lib/auth/totp';
+import { isCaptchaEnabled } from '@/lib/security/captcha-config';
+import { listMessages } from '@/lib/contact/contact-log';
+import { runMigrations } from '@/lib/database/migrate';
 import Link from 'next/link';
 import { LoginForm } from '@/components/dashboard/LoginForm';
 import { MultiUploadField } from '@/components/dashboard/MultiUploadField';
@@ -20,9 +20,10 @@ import AddProjectSection from '@/components/dashboard/AddProjectSection';
 import { ProjectOptions } from '@/components/dashboard/ProjectOptions';
 import { HeroForm } from '@/components/dashboard/HeroForm';
 import { ProjectList } from '@/components/dashboard/ProjectList';
+import { AdminHermesFloatingButton } from '@/components/hermes/AdminHermesFloatingButton';
 import {
   getProjectRole,
-} from '@/lib/project-meta';
+} from '@/lib/cms/project-meta';
 
 export const dynamic = 'force-dynamic';
 
@@ -167,6 +168,12 @@ export default async function DashboardPage() {
               >
                 VIEW ALL MESSAGES
               </Link>
+              <Link
+                href="/dashboard/hermes"
+                className="px-4 py-2 border border-[#DFFF00]/40 text-[#DFFF00] font-headline text-xs tracking-[0.3em] hover:bg-[#DFFF00]/10 transition-colors"
+              >
+                OPEN HERMES
+              </Link>
             </div>
           </section>
         </div>
@@ -184,6 +191,7 @@ export default async function DashboardPage() {
           </div>
         </section>
       </div>
+      <AdminHermesFloatingButton />
     </main>
   );
 }

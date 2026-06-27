@@ -1,4 +1,4 @@
-import { getOptions } from '@/lib/content'
+import { getOptions } from '@/lib/cms/content'
 import { AddProjectFormWrapper } from './AddProjectFormWrapper'
 
 const defaultMotion = {

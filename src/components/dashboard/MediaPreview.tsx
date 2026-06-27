@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { VideoEmbed } from '@/components/VideoEmbed';
+import { VideoEmbed } from '@/components/content/VideoEmbed';
 
 type Props = {
   url: string;

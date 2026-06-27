@@ -1,5 +1,5 @@
-import { listMessages } from '@/lib/contact-log';
-import { getSession } from '@/lib/auth';
+import { listMessages } from '@/lib/contact/contact-log';
+import { getSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { MessagesPanel } from '@/components/dashboard/MessagesPanel';

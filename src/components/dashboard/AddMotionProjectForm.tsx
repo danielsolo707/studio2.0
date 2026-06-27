@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useActionState } from 'react'
 import { addProjectAction } from '@/app/dashboard/actions'
-import { SubmitButton } from '@/components/SubmitButton'
+import { SubmitButton } from '@/components/forms/SubmitButton'
 import { ProjectLinks } from './ProjectLinks'
 import { EditableSelectField } from './EditableSelectField'
-import { RichTextEditor } from '@/components/RichTextEditor'
-import { MediaFields } from '@/components/MediaFields'
+import { RichTextEditor } from '@/components/content/RichTextEditor'
+import { MediaFields } from '@/components/project/MediaFields'
 
 type DisciplineOptions = {
   statuses: string[]

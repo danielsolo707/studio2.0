@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Arcade2048 } from '@/components/Arcade2048';
+import { Arcade2048 } from '@/components/arcade/Arcade2048';
 
 export const metadata = {
   title: '2048 Arcade',

@@ -1,11 +1,12 @@
-import { TypographicHero } from '@/components/TypographicHero';
-import { FeaturedProjects } from '@/components/FeaturedProjects';
-import { AboutSection } from '@/components/AboutSection';
-import { ContactSection } from '@/components/ContactSection';
-import { LoadingScreen } from '@/components/LoadingScreen';
-import { ParticlesBackground } from '@/components/ParticlesBackground';
-import { BackToTop } from '@/components/BackToTop';
-import { readContent } from '@/lib/content';
+import { TypographicHero } from '@/components/sections/home/TypographicHero';
+import { FeaturedProjects } from '@/components/sections/home/FeaturedProjects';
+import { AboutSection } from '@/components/sections/about/AboutSection';
+import { ContactSection } from '@/components/sections/contact/ContactSection';
+import { LoadingScreen } from '@/components/sections/shared/LoadingScreen';
+import { ParticlesBackground } from '@/components/effects/ParticlesBackground';
+import { BackToTop } from '@/components/layout/BackToTop';
+import { PublicAssistantFloatingButton } from '@/components/hermes/PublicAssistantFloatingButton';
+import { readContent } from '@/lib/cms/content';
 
 /**
  * Home page — **Server Component**.
@@ -51,6 +52,7 @@ export default async function Home() {
       </div>
 
       <BackToTop />
+      <PublicAssistantFloatingButton />
     </main>
   );
 }

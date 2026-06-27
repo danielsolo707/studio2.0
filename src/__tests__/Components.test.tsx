@@ -5,13 +5,13 @@ import React from 'react';
 /* ─── Imports ─── */
 import type { SiteContent } from '@/types/project';
 import rawContent from '@/data/content.json';
-import { LoadingScreen } from '@/components/LoadingScreen';
-import { TypographicHero } from '@/components/TypographicHero';
-import { ProjectList } from '@/components/ProjectList';
-import { ProjectOverlay } from '@/components/ProjectOverlay';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { AboutSection } from '@/components/AboutSection';
-import { Footer } from '@/components/Footer';
+import { LoadingScreen } from '@/components/sections/shared/LoadingScreen';
+import { TypographicHero } from '@/components/sections/home/TypographicHero';
+import { ProjectList } from '@/components/project/ProjectList';
+import { ProjectOverlay } from '@/components/project/ProjectOverlay';
+import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
+import { AboutSection } from '@/components/sections/about/AboutSection';
+import { Footer } from '@/components/layout/Footer';
 
 const content = rawContent as SiteContent;
 
