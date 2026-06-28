@@ -79,6 +79,28 @@ export const hermesToolRegistry: Record<string, HermesToolDefinition> = {
       { name: 'updates', type: 'string', required: true, description: 'JSON object with the fields to update.' },
     ],
   },
+  system_health: {
+    name: 'system_health',
+    description: 'Check the status of all backend integrations: API keys, CMS file, database, contact log. Applied immediately.',
+    permission: 'apply',
+    parameters: [],
+  },
+  get_report: {
+    name: 'get_report',
+    description: 'Get counts and summaries: total projects, unread messages, recent messages, project breakdown by discipline. Applied immediately.',
+    permission: 'apply',
+    parameters: [
+      { name: 'detail', type: 'string', required: false, description: 'Optional: "brief" for summary only, "full" for all details.' },
+    ],
+  },
+  delete_message: {
+    name: 'delete_message',
+    description: 'Delete a contact message and all its replies. Asks for confirmation before deleting.',
+    permission: 'draft',
+    parameters: [
+      { name: 'messageId', type: 'string', required: true, description: 'ID of the contact message to delete.' },
+    ],
+  },
 }
 
 export function getToolDefinition(name: string): HermesToolDefinition | undefined {

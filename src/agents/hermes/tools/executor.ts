@@ -275,6 +275,91 @@ async function executeUpdateSiteCopyDraft(params: Record<string, unknown>): Prom
   }
 }
 
+async function executeSystemHealth(): Promise<{ result: HermesToolResult; action: HermesAction }> {
+  const checks: string[] = []
+
+  // OpenRouter
+  checks.push(`OpenRouter key: ${process.env.OPENROUTER_API_KEY ? 'SET' : 'MISSING'}`)
+  checks.push(`Model: ${process.env.OPENROUTER_MODEL || process.env.HERMES_MODEL || 'openrouter/owl-alpha'}`)
+
+  // Resend
+  checks.push(`Resend key: ${process.env.RESEND_API_KEY ? 'SET' : 'MISSING'}`)
+  checks.push(`Resend from: ${process.env.RESEND_FROM || 'MISSING'}`)
+
+  // Telegram
+  checks.push(`Telegram: ${process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID ? 'CONFIGURED' : 'NOT SET'}`)
+
+  // CMS file
+  try {
+    const content = await readContent()
+    checks.push(`CMS: OK (${content.projects.length} projects)`)
+  } catch {
+    checks.push('CMS: ERROR — cannot read content')
+  }
+
+  // Contact log
+  try {
+    const messages = await listMessages(1)
+    checks.push(`Contact log: OK (${messages.length === 1 ? 'accessible' : 'accessible'})`)
+  } catch {
+    checks.push('Contact log: ERROR')
+  }
+
+  const message = `System health:\n${checks.map((c) => `  • ${c}`).join('\n')}`
+  return {
+    result: { type: 'applied', message },
+    action: { kind: 'mark_message_read', id: createActionId(), messageId: '' },
+  }
+}
+
+async function executeGetReport(params: Record<string, unknown>): Promise<{ result: HermesToolResult; action: HermesAction }> {
+  const content = await readContent()
+  const messages = await listMessages(200)
+  const unread = messages.filter((m) => !m.isRead).length
+  const totalMessages = messages.length
+
+  const motionCount = content.projects.filter((p) => p.discipline === 'motion').length
+  const codeCount = content.projects.filter((p) => p.discipline === 'code').length
+
+  const report = [
+    `Total projects: ${content.projects.length}`,
+    `  Motion: ${motionCount}`,
+    `  Code: ${codeCount}`,
+    `Messages: ${totalMessages} total, ${unread} unread`,
+  ]
+
+  return {
+    result: {
+      type: 'applied',
+      message: report.join('\n'),
+    },
+    action: { kind: 'mark_message_read', id: createActionId(), messageId: '' },
+  }
+}
+
+async function executeDeleteMessage(params: Record<string, unknown>): Promise<{ result: HermesToolResult; action: HermesAction }> {
+  const messageId = assertString(params.messageId, 'messageId')
+  const messages = await listMessages(200)
+  const message = messages.find((m) => m.id === messageId)
+  if (!message) {
+    const action: HermesAction = { kind: 'delete_message', id: createActionId(), messageId }
+    return {
+      result: { type: 'error', message: `Message ${messageId} not found.` },
+      action,
+    }
+  }
+
+  const action: HermesAction = { kind: 'delete_message', id: createActionId(), messageId }
+  return {
+    result: {
+      type: 'draft',
+      message: `Delete message from ${message.name} <${message.email}>? This cannot be undone.`,
+      payload: action,
+    },
+    action,
+  }
+}
+
 export async function executeHermesTool(call: HermesToolCall): Promise<{ result: HermesToolResult; action: HermesAction }> {
   const definition = getToolDefinition(call.tool)
   if (!definition) {
@@ -300,6 +385,12 @@ export async function executeHermesTool(call: HermesToolCall): Promise<{ result:
       return executeMarkMessageRead(call.params)
     case 'update_site_copy_draft':
       return executeUpdateSiteCopyDraft(call.params)
+    case 'system_health':
+      return executeSystemHealth()
+    case 'get_report':
+      return executeGetReport(call.params)
+    case 'delete_message':
+      return executeDeleteMessage(call.params)
     default:
       return {
         result: { type: 'error', message: `Tool "${call.tool}" is registered but not implemented.` },

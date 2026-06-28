@@ -35,6 +35,9 @@ export type HermesAction =
   | { kind: 'add_project_link_draft'; id: string; projectId: string; link: ProjectLink }
   | { kind: 'mark_message_read'; id: string; messageId: string }
   | { kind: 'update_site_copy_draft'; id: string; section: 'hero' | 'about'; updates: Partial<Record<string, unknown>> }
+  | { kind: 'delete_message'; id: string; messageId: string }
+  | { kind: 'system_health'; id: string }
+  | { kind: 'get_report'; id: string }
 
 export type HermesActionStatus = 'pending' | 'applied' | 'rejected' | 'failed'
 

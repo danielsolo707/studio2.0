@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { getSession } from '@/lib/auth/session'
 import { addProject, readContent, updateHero, updateAbout, updateProject } from '@/lib/cms/content'
-import { appendReply, updateMessage } from '@/lib/contact/contact-log'
+import { appendReply, updateMessage, deleteMessage } from '@/lib/contact/contact-log'
 import type { HermesAction, HermesActionStatus } from '@/agents/hermes/tools/types'
 
 export type ApplyActionState = {
@@ -134,6 +134,17 @@ export async function applyHermesAction(action: HermesAction): Promise<ApplyActi
         revalidatePath('/dashboard')
         return { status: 'applied' }
       }
+
+      case 'delete_message': {
+        await deleteMessage(action.messageId)
+        revalidatePath('/dashboard/messages')
+        revalidatePath('/dashboard')
+        return { status: 'applied' }
+      }
+
+      case 'system_health':
+      case 'get_report':
+        return { status: 'applied' }
 
       default: {
         const _exhaustive: never = action

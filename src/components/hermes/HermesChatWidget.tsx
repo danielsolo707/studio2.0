@@ -43,6 +43,12 @@ function getActionTitle(action: HermesAction): string {
       return 'Mark message read'
     case 'update_site_copy_draft':
       return `Update ${action.section} copy`
+    case 'delete_message':
+      return `Delete message ${action.messageId}`
+    case 'system_health':
+      return 'System health check'
+    case 'get_report':
+      return 'Project & message report'
     default:
       return 'Action'
   }
