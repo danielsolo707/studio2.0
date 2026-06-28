@@ -12,6 +12,7 @@ export default {
       fontFamily: {
         body: ['var(--font-inter)', 'Inter', 'sans-serif'],
         headline: ['var(--font-syncopate)', 'Syncopate', 'sans-serif'],
+        persian: ['var(--font-vazirmatn)', 'Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

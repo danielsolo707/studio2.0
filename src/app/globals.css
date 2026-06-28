@@ -223,6 +223,11 @@
   text-shadow: 0 0 15px rgba(223, 255, 0, 0.6), 0 0 30px rgba(223, 255, 0, 0.3);
 }
 
+/* Bidi-safe mixed RTL/LTR text (Persian + English) */
+.bidi-plaintext {
+  unicode-bidi: plaintext;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

@@ -1,5 +1,5 @@
 import type {Metadata, Viewport} from 'next';
-import { Inter, Syncopate } from 'next/font/google';
+import { Inter, Syncopate, Vazirmatn } from 'next/font/google';
 import { ScrollRestoration } from '@/components/layout/ScrollRestoration';
 import './globals.css';
 
@@ -14,6 +14,13 @@ const syncopate = Syncopate({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-syncopate',
+  display: 'swap',
+});
+
+const vazirmatn = Vazirmatn({
+  subsets: ['arabic'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-vazirmatn',
   display: 'swap',
 });
 
@@ -114,7 +121,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${inter.variable} ${syncopate.variable}`}
+      className={`dark ${inter.variable} ${syncopate.variable} ${vazirmatn.variable}`}
       suppressHydrationWarning
     >
       <head>
