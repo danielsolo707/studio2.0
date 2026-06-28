@@ -37,14 +37,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Hermes request failed'
+    const message = error instanceof Error ? error.message : 'Assistant request failed'
     return NextResponse.json(
       {
         configured: true,
         error: message,
         message: {
           role: 'assistant',
-          content: `Hermes could not respond: ${message}`,
+          content: `Assistant could not respond: ${message}`,
         },
       } satisfies HermesChatApiResponse,
       { status: 500 },

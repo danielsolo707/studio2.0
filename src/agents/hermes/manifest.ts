@@ -1,10 +1,9 @@
 export const hermesManifest = {
-  internalName: 'Hermes',
+  internalName: 'Studio Assistant',
   publicName: 'Studio Assistant',
-  defaultModel: 'NousResearch/Hermes-3-Llama-3.1-8B',
-  provider: 'openai-compatible',
+  defaultModel: 'openai/gpt-4o-mini',
+  provider: 'openrouter',
   promptFormat: 'chatml',
   supportsTools: true,
   supportsJsonMode: true,
 } as const
-

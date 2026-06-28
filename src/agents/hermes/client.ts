@@ -1,99 +1,24 @@
 import { getHermesConfig, isHermesConfigured } from './config'
 import type { HermesChatMessage } from './schemas/chat'
 
+const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+
 export type HermesCallOptions = {
   temperature?: number
   maxTokens?: number
 }
 
-type HermesCompletionChoice = {
+type CompletionChoice = {
   message?: {
     role?: string
     content?: string
   }
 }
 
-type HermesCompletionResponse = {
-  choices?: HermesCompletionChoice[]
+type CompletionResponse = {
+  choices?: CompletionChoice[]
   error?: {
     message?: string
-  }
-}
-
-async function callVpsHermes(messages: HermesChatMessage[]): Promise<{
-  configured: boolean
-  message: string
-  model?: string
-}> {
-  const config = getHermesConfig()
-
-  const lastUserMessage = messages.filter((m) => m.role === 'user').pop()
-  const text = lastUserMessage?.content || ''
-
-  const response = await fetch(`${config.vpsChatUrl}/api/chat`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${config.vpsApiKey}`,
-    },
-    body: JSON.stringify({ message: text }),
-    cache: 'no-store',
-  })
-
-  if (!response.ok) {
-    const body = await response.text().catch(() => '')
-    throw new Error(`VPS Hermes returned ${response.status}: ${body}`)
-  }
-
-  const data = await response.json()
-
-  return {
-    configured: true,
-    message: data.reply || 'VPS Hermes returned an empty response.',
-    model: 'hermes-agent-vps',
-  }
-}
-
-async function callOpenAiCompatible(
-  messages: HermesChatMessage[],
-  options: HermesCallOptions = {},
-): Promise<{
-  configured: boolean
-  message: string
-  model?: string
-}> {
-  const config = getHermesConfig()
-
-  const headers: Record<string, string> = {
-    'content-type': 'application/json',
-  }
-
-  if (config.apiKey) {
-    headers.authorization = `Bearer ${config.apiKey}`
-  }
-
-  const response = await fetch(`${config.apiBaseUrl}/chat/completions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model: config.model,
-      messages,
-      temperature: options.temperature ?? 0.4,
-      max_tokens: options.maxTokens ?? 900,
-    }),
-    cache: 'no-store',
-  })
-
-  const data = (await response.json().catch(() => ({}))) as HermesCompletionResponse
-
-  if (!response.ok) {
-    throw new Error(data.error?.message || `Hermes request failed with status ${response.status}`)
-  }
-
-  return {
-    configured: true,
-    message: data.choices?.[0]?.message?.content || 'Hermes returned an empty response.',
-    model: config.model,
   }
 }
 
@@ -103,20 +28,40 @@ export async function callHermes(messages: HermesChatMessage[], options: HermesC
   if (!isHermesConfigured(config)) {
     return {
       configured: false,
-      message: 'Hermes is not configured yet. Add HERMES_VPS_CHAT_URL or HERMES_API_BASE_URL + HERMES_MODEL.',
+      message: 'Assistant is not configured yet. Set OPENROUTER_API_KEY and OPENROUTER_MODEL in .env.local.',
       model: config.model,
     }
   }
 
-  // Prefer the OpenAI-compatible path when it is configured so the local
-  // system prompt (with privacy guardrails and admin tools) is used.
-  if (config.apiBaseUrl && config.model) {
-    return callOpenAiCompatible(messages, options)
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
   }
 
-  if (config.vpsChatUrl) {
-    return callVpsHermes(messages)
+  if (config.apiKey) {
+    headers.authorization = `Bearer ${config.apiKey}`
   }
 
-  return callOpenAiCompatible(messages, options)
+  const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model: config.model,
+      messages,
+      temperature: options.temperature ?? 0.3,
+      max_tokens: options.maxTokens ?? 600,
+    }),
+    cache: 'no-store',
+  })
+
+  const data = (await response.json().catch(() => ({}))) as CompletionResponse
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || `Request failed with status ${response.status}`)
+  }
+
+  return {
+    configured: true,
+    message: data.choices?.[0]?.message?.content || 'Assistant returned an empty response.',
+    model: config.model,
+  }
 }
