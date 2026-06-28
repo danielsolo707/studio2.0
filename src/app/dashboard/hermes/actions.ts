@@ -34,13 +34,38 @@ export async function applyHermesAction(action: HermesAction): Promise<ApplyActi
 
     switch (action.kind) {
       case 'draft_email_reply': {
+        // Try sending via Resend, fall back to draft-only if not configured
+        let sent = false
+        const apiKey = process.env.RESEND_API_KEY
+        const from = process.env.RESEND_FROM
+        if (apiKey && from) {
+          try {
+            const res = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+              },
+              body: JSON.stringify({
+                from,
+                to: action.to,
+                subject: action.subject,
+                text: action.body,
+              }),
+            })
+            sent = res.ok
+          } catch {
+            sent = false
+          }
+        }
+
         await appendReply(action.messageId, {
           id: createReplyId(),
           to: action.to,
           subject: action.subject,
           body: action.body,
           sentAt: new Date().toISOString(),
-          sent: false,
+          sent,
         })
         await updateMessage(action.messageId, { isRead: true })
         revalidatePath('/dashboard/messages')
