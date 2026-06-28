@@ -15,16 +15,46 @@ type HermesCompletionResponse = {
   }
 }
 
-export async function callHermes(messages: HermesChatMessage[]) {
+async function callVpsHermes(messages: HermesChatMessage[]): Promise<{
+  configured: boolean
+  message: string
+  model?: string
+}> {
   const config = getHermesConfig()
 
-  if (!isHermesConfigured(config)) {
-    return {
-      configured: false,
-      message: 'Hermes is not configured yet. Add HERMES_API_BASE_URL, HERMES_MODEL, and optionally HERMES_API_KEY.',
-      model: config.model,
-    }
+  const lastUserMessage = messages.filter((m) => m.role === 'user').pop()
+  const text = lastUserMessage?.content || ''
+
+  const response = await fetch(`${config.vpsChatUrl}/api/chat`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${config.vpsApiKey}`,
+    },
+    body: JSON.stringify({ message: text }),
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '')
+    throw new Error(`VPS Hermes returned ${response.status}: ${body}`)
   }
+
+  const data = await response.json()
+
+  return {
+    configured: true,
+    message: data.reply || 'VPS Hermes returned an empty response.',
+    model: 'hermes-agent-vps',
+  }
+}
+
+async function callOpenAiCompatible(messages: HermesChatMessage[]): Promise<{
+  configured: boolean
+  message: string
+  model?: string
+}> {
+  const config = getHermesConfig()
 
   const headers: Record<string, string> = {
     'content-type': 'application/json',
@@ -59,3 +89,20 @@ export async function callHermes(messages: HermesChatMessage[]) {
   }
 }
 
+export async function callHermes(messages: HermesChatMessage[]) {
+  const config = getHermesConfig()
+
+  if (!isHermesConfigured(config)) {
+    return {
+      configured: false,
+      message: 'Hermes is not configured yet. Add HERMES_VPS_CHAT_URL or HERMES_API_BASE_URL + HERMES_MODEL.',
+      model: config.model,
+    }
+  }
+
+  if (config.vpsChatUrl) {
+    return callVpsHermes(messages)
+  }
+
+  return callOpenAiCompatible(messages)
+}
