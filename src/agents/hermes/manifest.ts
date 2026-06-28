@@ -1,7 +1,7 @@
 export const hermesManifest = {
   internalName: 'Studio Assistant',
   publicName: 'Studio Assistant',
-  defaultModel: 'openai/gpt-4o-mini',
+  defaultModel: 'openrouter/owl-alpha',
   provider: 'openrouter',
   promptFormat: 'chatml',
   supportsTools: true,
