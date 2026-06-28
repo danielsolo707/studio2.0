@@ -1,6 +1,11 @@
 import { getHermesConfig, isHermesConfigured } from './config'
 import type { HermesChatMessage } from './schemas/chat'
 
+export type HermesCallOptions = {
+  temperature?: number
+  maxTokens?: number
+}
+
 type HermesCompletionChoice = {
   message?: {
     role?: string
@@ -49,7 +54,10 @@ async function callVpsHermes(messages: HermesChatMessage[]): Promise<{
   }
 }
 
-async function callOpenAiCompatible(messages: HermesChatMessage[]): Promise<{
+async function callOpenAiCompatible(
+  messages: HermesChatMessage[],
+  options: HermesCallOptions = {},
+): Promise<{
   configured: boolean
   message: string
   model?: string
@@ -70,8 +78,8 @@ async function callOpenAiCompatible(messages: HermesChatMessage[]): Promise<{
     body: JSON.stringify({
       model: config.model,
       messages,
-      temperature: 0.4,
-      max_tokens: 900,
+      temperature: options.temperature ?? 0.4,
+      max_tokens: options.maxTokens ?? 900,
     }),
     cache: 'no-store',
   })
@@ -89,7 +97,7 @@ async function callOpenAiCompatible(messages: HermesChatMessage[]): Promise<{
   }
 }
 
-export async function callHermes(messages: HermesChatMessage[]) {
+export async function callHermes(messages: HermesChatMessage[], options: HermesCallOptions = {}) {
   const config = getHermesConfig()
 
   if (!isHermesConfigured(config)) {
@@ -100,9 +108,15 @@ export async function callHermes(messages: HermesChatMessage[]) {
     }
   }
 
+  // Prefer the OpenAI-compatible path when it is configured so the local
+  // system prompt (with privacy guardrails and admin tools) is used.
+  if (config.apiBaseUrl && config.model) {
+    return callOpenAiCompatible(messages, options)
+  }
+
   if (config.vpsChatUrl) {
     return callVpsHermes(messages)
   }
 
-  return callOpenAiCompatible(messages)
+  return callOpenAiCompatible(messages, options)
 }
