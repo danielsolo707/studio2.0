@@ -1,4 +1,9 @@
+import { config } from 'dotenv'
 import { hermesManifest } from './manifest'
+
+// Ensure .env.local takes precedence over inherited system/user env vars
+// so the configured assistant provider key matches the project file.
+config({ path: '.env.local', override: true })
 
 export type HermesConfig = {
   apiKey?: string
