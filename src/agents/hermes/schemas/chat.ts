@@ -10,6 +10,7 @@ export type HermesMode = 'public' | 'admin'
 export type HermesChatRequest = {
   mode: HermesMode
   messages: HermesChatMessage[]
+  sessionId?: string
 }
 
 export type HermesChatResponse = {

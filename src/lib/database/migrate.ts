@@ -21,6 +21,7 @@ export async function runMigrations(): Promise<void> {
     migrateLocalMessagesToSupabase(),
     migrateAdminCredentialsToSupabase(),
     migrateAppSettings(),
+    ensureAiSettingsColumns(),
   ]);
 }
 
@@ -79,4 +80,32 @@ async function migrateAppSettings(): Promise<void> {
   if (!ok) return; // table not provisioned — skip silently
 
   console.log('[migrate] App security settings (2FA / captcha) copied to database.');
+}
+
+/* ─── Ensure AI config columns exist on app_settings ─── */
+async function ensureAiSettingsColumns(): Promise<void> {
+  // Supabase doesn't support ALTER TABLE via PostgREST, so we use the RPC
+  // workaround: try reading the columns; if they don't exist, the SQL
+  // migration must be run manually. This function just checks and logs.
+  try {
+    const { isSupabaseConfigured, supabaseServer, TABLES } = await import('./supabase');
+    if (!isSupabaseConfigured) return;
+
+    const { data, error } = await supabaseServer()
+      .from(TABLES.APP_SETTINGS)
+      .select('ai_public_model, ai_admin_model, ai_api_key_encrypted, ai_api_key_iv')
+      .eq('id', 'default')
+      .maybeSingle();
+
+    if (error && !error.message.includes('does not exist')) {
+      // Columns exist — either has data or null, both are fine.
+      return;
+    }
+
+    if (error && error.message.includes('does not exist')) {
+      console.log('[migrate] AI settings columns not found in app_settings. Please run the migration SQL in Supabase SQL Editor.');
+    }
+  } catch {
+    // Silently skip — non-critical; config will fall back to env vars.
+  }
 }

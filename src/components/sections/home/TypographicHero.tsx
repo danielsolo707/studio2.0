@@ -188,7 +188,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
   const yMove = useTransform(scrollYProgress, [0, 0.4], [0, -80]);
   const opacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 1.02]);
-  const resolvedHeadline = headline || 'CREATIVE\nDEVELOPER';
+  const resolvedHeadline = headline || 'MACHINE\nINTELLIGENCE';
   const headlineLines = resolvedHeadline.split('\n');
 
   return (
@@ -283,7 +283,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
               className="mt-6 font-body text-[clamp(0.95rem,1.2vw,1.15rem)] text-white/70 max-w-xl leading-relaxed"
             >
               {description ||
-                'Designing visual systems in motion. Blending cinematic craft with intelligent interaction to shape immersive digital experiences.'}
+                'Exploring the frontier of Machine Learning, Deep Learning, and AI-driven motion design. Research, experiments, and architectural projects.'}
             </motion.p>
 
             <motion.div

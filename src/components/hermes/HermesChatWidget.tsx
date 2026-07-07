@@ -151,7 +151,7 @@ function MessageBubble({ message, isUser }: { message: HermesChatMessage; isUser
     >
       <div
         dir="auto"
-        className={`bidi-plaintext max-w-[85%] whitespace-pre-wrap px-4 py-2.5 text-[15px] leading-relaxed transition-all ${
+        className={`bidi-plaintext max-w-[85%] whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-relaxed transition-all ${
           isUser
             ? 'rounded-2xl rounded-tr-sm border border-[#DFFF00]/25 bg-[#DFFF00]/15 text-white shadow-[0_2px_12px_rgba(223,255,0,0.08)]'
             : 'rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] text-white/85 shadow-sm'
@@ -176,6 +176,7 @@ export function HermesChatWidget({
   const [error, setError] = useState<string | null>(null)
   const [messages, setMessages] = useState<HermesChatMessage[]>([])
   const [actions, setActions] = useState<HermesActionWithStatus[]>([])
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -231,12 +232,17 @@ export function HermesChatWidget({
       const res = await fetch('/api/hermes/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mode, messages: nextMessages }),
+        body: JSON.stringify({ mode, messages: nextMessages, sessionId }),
       })
       const data = await res.json()
 
       if (!res.ok) {
         throw new Error(data.error || 'Hermes request failed')
+      }
+
+      // Track session id returned by the API for message persistence
+      if (data.sessionId) {
+        setSessionId(data.sessionId)
       }
 
       setMessages([...nextMessages, data.message])
@@ -326,7 +332,7 @@ export function HermesChatWidget({
         {isPending && <TypingIndicator />}
 
         {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs text-red-200">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-xs text-red-200 break-words whitespace-pre-wrap">
             {error}
           </div>
         )}

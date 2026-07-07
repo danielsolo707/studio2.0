@@ -278,9 +278,9 @@ async function executeUpdateSiteCopyDraft(params: Record<string, unknown>): Prom
 async function executeSystemHealth(): Promise<{ result: HermesToolResult; action: HermesAction }> {
   const checks: string[] = []
 
-  // OpenRouter
-  checks.push(`OpenRouter key: ${process.env.OPENROUTER_API_KEY ? 'SET' : 'MISSING'}`)
-  checks.push(`Model: ${process.env.OPENROUTER_MODEL || process.env.HERMES_MODEL || 'openrouter/owl-alpha'}`)
+  // Gemini AI
+  checks.push(`Gemini key: ${process.env.GEMINI_API_KEY ? 'SET' : 'MISSING'}`)
+  checks.push(`Model: ${process.env.GEMINI_MODEL || process.env.HERMES_MODEL || 'gemini-flash-latest'}`)
 
   // Resend
   checks.push(`Resend key: ${process.env.RESEND_API_KEY ? 'SET' : 'MISSING'}`)

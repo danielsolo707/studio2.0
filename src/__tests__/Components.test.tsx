@@ -4,7 +4,48 @@ import React from 'react';
 
 /* ─── Imports ─── */
 import type { SiteContent } from '@/types/project';
-import rawContent from '@/data/content.json';
+// content.json was deleted (migrated to Supabase). Mock data inline instead.
+const content: SiteContent = {
+  about: {
+    label: 'ABOUT',
+    headline: 'CREATIVE DEVELOPER',
+    body: 'Building small visual systems across motion, creative code, and early ML/data experiments.',
+    skills: ['AFTER EFFECTS', 'CINEMA 4D', 'PYTHON', 'REACT', 'NEXT.JS'],
+  },
+  hero: {
+    headline: 'CREATIVE\nDEVELOPER',
+    description: 'Creative developer specializing in motion design.',
+  },
+  projects: [
+    {
+      id: 'motion-1',
+      name: 'Demo Reel 2026',
+      year: '2026',
+      color: '#DFFF00',
+      imageUrl: '/images/demo.jpg',
+      discipline: 'motion',
+      description: 'A demo reel.',
+      tools: 'After Effects',
+      category: 'Animation',
+      links: [],
+      media: [],
+    },
+    {
+      id: 'code-1',
+      name: 'Portfolio Studio 2.0',
+      year: '2026',
+      color: '#FF00FF',
+      imageUrl: '/images/studio.jpg',
+      discipline: 'code',
+      description: 'A portfolio website.',
+      tools: 'React, Next.js',
+      category: 'Web App',
+      links: [],
+      media: [],
+    },
+  ],
+};
+
 import { LoadingScreen } from '@/components/sections/shared/LoadingScreen';
 import { TypographicHero } from '@/components/sections/home/TypographicHero';
 import { ProjectList } from '@/components/project/ProjectList';
@@ -12,8 +53,6 @@ import { ProjectOverlay } from '@/components/project/ProjectOverlay';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
 import { AboutSection } from '@/components/sections/about/AboutSection';
 import { Footer } from '@/components/layout/Footer';
-
-const content = rawContent as SiteContent;
 
 /* ═════════════════════════════════════════════════════════
    LoadingScreen

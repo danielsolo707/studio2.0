@@ -20,7 +20,7 @@ export function MotionHeader() {
           <ArrowLeft size={14} />
           BACK
         </Link>
-        <div className="flex items-center gap-8">
+        <nav aria-label="Works navigation" className="flex items-center gap-8">
           <Link
             href="/works/motion"
             className="font-headline text-[10px] tracking-[0.3em] text-[#DFFF00] border-b border-[#DFFF00] pb-1"
@@ -33,7 +33,7 @@ export function MotionHeader() {
           >
             CODE
           </Link>
-        </div>
+        </nav>
       </div>
     </motion.div>
   );

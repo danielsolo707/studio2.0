@@ -69,4 +69,6 @@ export const TABLES = {
   SITE_CONTENT: 'site_content',
   CONTACT_MESSAGES: 'contact_messages',
   APP_SETTINGS: 'app_settings',
+  AI_CHAT_SESSIONS: 'ai_chat_sessions',
+  AI_CHAT_MESSAGES: 'ai_chat_messages',
 } as const;

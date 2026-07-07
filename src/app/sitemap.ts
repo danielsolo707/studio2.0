@@ -1,16 +1,6 @@
 import { MetadataRoute } from 'next';
 import { readContent } from '@/lib/cms/content';
 
-const GAMES: Record<string, string> = {
-  snake: 'Snake',
-  tetris: 'Tetris',
-  pong: 'Pong',
-  breakout: 'Breakout',
-  'space-invaders': 'Space Invaders',
-  'flappy-bird': 'Flappy Bird',
-  minesweeper: 'Minesweeper',
-};
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.danielsoleimani.ir';
   const content = await readContent();
@@ -23,13 +13,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const arcadePages = Object.keys(GAMES).map((slug) => ({
-    url: `${baseUrl}/arcade/${slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.3,
-  }));
-
   return [
     {
       url: baseUrl,
@@ -38,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/gateway`,
+      url: `${baseUrl}/works/motion`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.9,
@@ -46,22 +29,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${baseUrl}/works/code`,
       lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/works/motion`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/arcade`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
     },
-    ...arcadePages,
     ...projectPages,
   ];
 }

@@ -20,7 +20,7 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['node_modules/', '.next/', 'out/', 'src/data/content.json'],
+    ignores: ['node_modules/', '.next/', 'out/'],
   },
 ];
 

@@ -48,6 +48,9 @@ export function sanitizePublicHermesResponse(text: string): string {
 
   let sanitized = text
 
+  // Strip reasoning/thinking tags that some models output (e.g. poolside/laguna)
+  sanitized = sanitized.replace(/<think>[\s\S]*?<\/think>/g, '')
+
   for (const { regex, replacement } of SENSITIVE_REPLACEMENTS) {
     sanitized = sanitized.replace(regex, replacement)
   }

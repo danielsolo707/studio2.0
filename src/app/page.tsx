@@ -1,12 +1,23 @@
+import type { Metadata } from 'next';
 import { TypographicHero } from '@/components/sections/home/TypographicHero';
 import { FeaturedProjects } from '@/components/sections/home/FeaturedProjects';
 import { AboutSection } from '@/components/sections/about/AboutSection';
 import { ContactSection } from '@/components/sections/contact/ContactSection';
 import { LoadingScreen } from '@/components/sections/shared/LoadingScreen';
 import { ParticlesBackground } from '@/components/effects/ParticlesBackground';
-import { BackToTop } from '@/components/layout/BackToTop';
 import { PublicAssistantFloatingButton } from '@/components/hermes/PublicAssistantFloatingButton';
 import { readContent } from '@/lib/cms/content';
+
+export const metadata: Metadata = {
+  title: 'Daniel Soleimani | AI & Machine Learning Specialist',
+  description:
+    'Official portfolio of Daniel Soleimani. Discover advanced architectural projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
+  openGraph: {
+    title: 'Daniel Soleimani | AI & Machine Learning Specialist',
+    description:
+      'Official portfolio of Daniel Soleimani. Discover advanced architectural projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
+  },
+};
 
 /**
  * Home page — **Server Component**.
@@ -51,7 +62,6 @@ export default async function Home() {
         <ContactSection />
       </div>
 
-      <BackToTop />
       <PublicAssistantFloatingButton />
     </main>
   );

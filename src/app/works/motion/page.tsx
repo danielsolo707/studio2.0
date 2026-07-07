@@ -4,8 +4,9 @@ import { MotionHeader } from '@/components/works/MotionHeader';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Motion Design | The Fluid Logic',
-  description: 'Motion design portfolio - case studies, experiments, and visual explorations.',
+  title: 'Motion Design | Daniel Soleimani',
+  description:
+    'High-end motion design and After Effects projects by Daniel Soleimani. Case studies, cinematic experiments, and visual explorations in motion graphics.',
 };
 
 export default async function MotionWorksPage() {

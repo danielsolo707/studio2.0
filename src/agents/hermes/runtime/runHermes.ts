@@ -1,4 +1,5 @@
 import { callHermes } from '../client'
+import { getHermesConfig } from '../config'
 import { sanitizePublicHermesResponse } from '../sanitize'
 import type { HermesChatMessage, HermesMode } from '../schemas/chat'
 import { parseHermesToolCalls } from '../schemas/tool-call'
@@ -6,11 +7,18 @@ import { executeHermesTool } from '../tools/executor'
 import type { HermesAction, HermesToolResult } from '../tools/types'
 import { buildAdminHermesSystemPrompt, buildPublicHermesSystemPrompt } from './context-builders'
 
-const MAX_HISTORY = 12
+const MAX_HISTORY = 6
 
 const PUBLIC_CALL_OPTIONS = {
   temperature: 0.3,
-  maxTokens: 350,
+  maxTokens: 600,
+  timeoutMs: 20000,
+} as const
+
+const ADMIN_CALL_OPTIONS = {
+  temperature: 0.3,
+  maxTokens: 800,
+  timeoutMs: 30000,
 } as const
 
 function cleanMessages(messages: HermesChatMessage[]) {
@@ -33,6 +41,8 @@ export type HermesRunResult = {
 }
 
 export async function runHermesChat(mode: HermesMode, messages: HermesChatMessage[]): Promise<HermesRunResult> {
+  const hermesConfig = await getHermesConfig(mode)
+
   const system = mode === 'admin'
     ? await buildAdminHermesSystemPrompt()
     : await buildPublicHermesSystemPrompt()
@@ -42,7 +52,13 @@ export async function runHermesChat(mode: HermesMode, messages: HermesChatMessag
     ...cleanMessages(messages),
   ]
 
-  const result = await callHermes(payload, mode === 'public' ? PUBLIC_CALL_OPTIONS : {})
+  const callOptions = {
+    ...(mode === 'public' ? PUBLIC_CALL_OPTIONS : ADMIN_CALL_OPTIONS),
+    apiKey: hermesConfig.apiKey || '',
+    model: hermesConfig.model,
+  }
+
+  const result = await callHermes(payload, callOptions)
 
   if (!result.configured) {
     return {

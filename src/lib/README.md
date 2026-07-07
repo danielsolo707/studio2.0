@@ -3,21 +3,29 @@
 Every file here is a **DAG leaf** — no circular imports between modules.
 No `"use client"`, no JSX, no `import React`. Just functions and types.
 
-## Files
+## Modules
 
-| File                    | Description                                              |
-|-------------------------|----------------------------------------------------------|
-| `content.ts`            | Read/write `content.json` (the single source of truth)   |
-| `auth.ts`               | HMAC-signed session cookies (create/verify/clear)        |
-| `admin-credentials.ts`  | Admin password hashing (scrypt) + storage                |
-| `totp.ts`               | TOTP 2FA (generate secret, verify token, QR code)        |
-| `captcha-config.ts`     | Read/write captcha enabled flag                          |
-| `contact-log.ts`        | Contact message storage (JSON file)                      |
-| `gridfs.ts`             | File upload/delete abstraction (local disk)               |
-| `project-meta.ts`       | Discipline/status/role/links label resolvers             |
-| `env.ts`                | Environment variable access + validation                 |
-| `game2048.ts`           | 2048 game logic (board, move, merge)                     |
-| `utils.ts`              | `cn()` — Tailwind class merge helper                     |
+| Directory            | Description                                              |
+|----------------------|----------------------------------------------------------|
+| `ai/`                | AI chat DB persistence + settings (Gemini config)         |
+| `auth/`              | HMAC session, credentials (scrypt), TOTP 2FA              |
+| `cms/`               | Content management (Supabase + fallback)                  |
+| `contact/`           | Contact message storage (Supabase + fallback)             |
+| `core/`              | Utility functions                                         |
+| `database/`          | Supabase client, CRUD, migration runner                   |
+| `game/`              | 2048 game logic (board, move, merge)                      |
+| `integrations/`      | External integrations                                     |
+| `platform/`          | Environment variable access + settings helpers            |
+| `security/`          | Captcha config (Cloudflare Turnstile)                     |
+
+## Data flow
+
+Portfolio content, contact messages, admin credentials, and AI settings
+are primarily stored in **Supabase** (`site_content`, `contact_messages`,
+`app_settings`, `ai_chat_sessions` / `ai_chat_messages` tables).
+
+Local JSON files in `src/data/` are **deprecated** and only used as a
+fallback when Supabase environment variables are not configured.
 
 ## Tests
 

@@ -5,11 +5,17 @@ import { revalidatePath } from 'next/cache'
 import { getSession } from '@/lib/auth/session'
 import { addProject, readContent, updateHero, updateAbout, updateProject } from '@/lib/cms/content'
 import { appendReply, updateMessage, deleteMessage } from '@/lib/contact/contact-log'
+import { writeAiSettings } from '@/lib/ai/ai-settings'
 import type { HermesAction, HermesActionStatus } from '@/agents/hermes/tools/types'
 
 export type ApplyActionState = {
   status: HermesActionStatus
   error?: string
+}
+
+export type AiConfigState = {
+  error?: string
+  success?: boolean
 }
 
 function createReplyId(): string {
@@ -20,6 +26,38 @@ async function requireAuth() {
   const session = await getSession()
   if (!session) {
     throw new Error('Unauthorized')
+  }
+}
+
+/**
+ * Update the AI configuration (models + API key) from the dashboard.
+ * If the API key field is left blank, the existing key is preserved.
+ */
+export async function updateAiConfigAction(
+  _prev: AiConfigState,
+  formData: FormData,
+): Promise<AiConfigState> {
+  try {
+    await requireAuth()
+
+    const publicModel = String(formData.get('publicModel') || '').trim()
+    const adminModel = String(formData.get('adminModel') || '').trim()
+    const apiKey = String(formData.get('apiKey') || '').trim()
+
+    if (!publicModel || !adminModel) {
+      return { error: 'Both public and admin model are required.' }
+    }
+
+    const ok = await writeAiSettings({ publicModel, adminModel, apiKey })
+    if (!ok) {
+      return { error: 'Database not configured. Settings saved to env fallback only.' }
+    }
+
+    revalidatePath('/dashboard/hermes')
+    return { success: true }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return { error: message }
   }
 }
 

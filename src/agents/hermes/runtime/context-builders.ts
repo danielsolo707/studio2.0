@@ -15,20 +15,24 @@ export async function buildPublicHermesSystemPrompt() {
     readContent(),
   ])
 
-  const projects = content.projects.slice(0, 12).map((project) => (
+  const projects = content.projects.slice(0, 6).map((project) => (
     `- ${project.name} (${project.year}): ${project.category}; tools: ${project.tools}; summary: ${project.subtitle || project.description}`
   )).join('\n')
 
-  return `${systemPrompt}
+  const portfolioContext = [
+    '## Live Portfolio Context',
+    'Hero: ' + (content.hero?.headline || 'Creative Developer'),
+    'Hero description: ' + (content.hero?.description || ''),
+    'About: ' + content.about.body,
+    'Skills: ' + content.about.skills.join(', '),
+    '',
+    'Selected projects (read live from website):',
+    projects,
+    '',
+    'Note: Always refer to the live project list above when answering questions about Daniel\'s work. Do not fabricate projects not listed here.',
+  ].join('\n')
 
-Portfolio context:
-Hero: ${content.hero?.headline || 'Creative Developer'}
-Hero description: ${content.hero?.description || ''}
-About: ${content.about.body}
-Skills: ${content.about.skills.join(', ')}
-
-Selected projects:
-${projects}`
+  return systemPrompt + '\n\n' + portfolioContext
 }
 
 export async function buildAdminHermesSystemPrompt() {

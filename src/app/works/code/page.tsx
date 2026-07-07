@@ -4,8 +4,9 @@ import { ProjectCardLink } from '@/components/project/ProjectCardLink'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Creative Code | The Fluid Logic',
-  description: 'Creative code portfolio - web applications, tools, and development projects.',
+  title: 'Creative Code | Daniel Soleimani',
+  description:
+    'Machine Learning, Deep Learning, and AI-adjacent code projects by Daniel Soleimani. Research experiments, data pipelines, and intelligent system prototypes.',
 }
 
 export default async function CodeWorksPage() {

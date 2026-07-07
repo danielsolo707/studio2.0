@@ -5,7 +5,7 @@ export type ParsedHermesContent = {
   toolCalls: HermesToolCall[]
 }
 
-const toolCallRegex = /<toolcall>\s*<name>([^<]+)<\/name>\s*<params>([\s\S]*?)<\/params>\s*<\/toolcall>/g
+const toolCallRegex = /<toolcall>\s*<name>([^<]+)<\/name>\s*<params\/?>[\s\S]*?<\/toolcall>/g
 const paramRegex = /<param name="([^"]+)">([\s\S]*?)<\/param>/g
 
 function decodeXmlEntities(text: string): string {
@@ -21,8 +21,9 @@ function parseToolCallXml(matchText: string): HermesToolCall | null {
   const tool = nameMatch[1].trim()
 
   const params: Record<string, unknown> = {}
-  const paramBlockMatch = /<params>([\s\S]*?)<\/params>/.exec(matchText)
-  if (paramBlockMatch) {
+  // Match both <params>content</params> and self-closing <params/>
+  const paramBlockMatch = /<params(?:\s*\/>|>([\s\S]*?)<\/params>)/.exec(matchText)
+  if (paramBlockMatch && paramBlockMatch[1]) {
     const block = paramBlockMatch[1]
     let paramMatch: RegExpExecArray | null
     const localRegex = new RegExp(paramRegex.source, paramRegex.flags)

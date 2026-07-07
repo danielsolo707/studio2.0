@@ -43,10 +43,9 @@ yarn-error.log*
 # vercel
 .vercel
 
-# security
-src/data/totp.json
-src/data/contact-log.json
-src/data/admin-credentials.json
+# security (fallback files — Supabase is the primary store)
+# src/data/contact-log.json, totp.json, admin-credentials.json no longer exist
+# They were migrated to Supabase (contact_messages, app_settings tables).
 
 # typescript
 *.tsbuildinfo

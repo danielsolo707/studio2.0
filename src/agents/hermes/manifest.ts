@@ -1,8 +1,8 @@
 export const hermesManifest = {
   internalName: 'Studio Assistant',
   publicName: 'Studio Assistant',
-  defaultModel: 'cohere/north-mini-code:free',
-  provider: 'openrouter',
+  defaultModel: 'google/diffusiongemma-26b-a4b-it',
+  provider: 'nvidia',
   promptFormat: 'chatml',
   supportsTools: true,
   supportsJsonMode: true,

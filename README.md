@@ -90,6 +90,22 @@ npm run dev
 
 The app runs at **http://localhost:9002**
 
+### Supabase Setup (required for persistence)
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. Go to **SQL Editor** → open [`supabase-schema.sql`](./supabase-schema.sql) → **Run**
+3. Copy your project URL and keys into `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+> The app **works without Supabase** (falls back to env vars / in-memory defaults),
+> but you'll lose data on restart. For full features (persistent content, contact
+> messages, chat history, AI config), Supabase is required.
+
 ### Production Build
 
 ```bash
@@ -132,21 +148,20 @@ studio.2/
 │   │   └── *.tsx               #   Landing page components (Hero, Featured, About, etc.)
 │   │
 │   ├── lib/                    # Pure TypeScript utilities — NO React, NO JSX
-│   │   ├── content.ts          #   Read/write content.json
-│   │   ├── auth.ts             #   Session cookie management
-│   │   ├── admin-credentials.ts#   Password hashing (scrypt)
-│   │   ├── totp.ts             #   2FA (TOTP + QR)
-│   │   ├── captcha-config.ts   #   Captcha toggle
-│   │   ├── contact-log.ts      #   Contact message storage
-│   │   ├── gridfs.ts           #   File upload/delete
-│   │   ├── project-meta.ts     #   Project metadata resolvers
-│   │   ├── env.ts              #   Environment variable helpers
-│   │   ├── game2048.ts         #   2048 game logic
-│   │   └── utils.ts            #   cn() Tailwind merge
+│   │   ├── content.ts          #   Read/write portfolio content
+│   │   ├── auth/               #   Auth session, credentials, 2FA/TOTP
+│   │   ├── ai/                 #   AI chat DB + settings
+│   │   ├── cms/                #   Content management helpers
+│   │   ├── contact/            #   Contact message storage
+│   │   ├── database/           #   Supabase + migration
+│   │   ├── platform/           #   Env vars + settings helpers
+│   │   ├── security/           #   Captcha config
+│   │   ├── core/               #   Utility functions
+│   │   └── game2048.ts         #   2048 game logic
 │   │
 │   ├── hooks/                  # Custom React hooks (5 files)
 │   ├── types/                  # Shared TypeScript interfaces
-│   ├── data/                   # JSON data files (content, captcha, totp, contact-log)
+│   ├── data/                   # JSON fallback files (see README.md inside)
 │   ├── middleware.ts           # Auth middleware (protects /api/admin/*)
 │   └── __tests__/              # Vitest component tests
 │
@@ -172,13 +187,22 @@ studio.2/
 
 ## Environment Variables
 
-Create a `.env.local` file (see `.env.example` for reference):
+Create a `.env.local` file:
 
 ```env
 # Admin credentials
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=change-me              # fallback if no credentials.json exists
+ADMIN_PASSWORD=change-me
 ADMIN_SESSION_SECRET=a-long-random-string
+
+# Supabase (required for persistence)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Google Gemini AI (chat assistant)
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_MODEL=gemini-flash-latest
 
 # Email (optional — for contact form notifications)
 RESEND_API_KEY=
@@ -191,6 +215,10 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 
 # 2FA (set on first setup via dashboard)
 TOTP_SECRET=
+
+# Telegram alerts (optional)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
 ```
 
 **In development**, if `ADMIN_PASSWORD` is missing, the fallback is `change-me`.
@@ -217,7 +245,8 @@ Navigate to **http://localhost:9002/dashboard**
 - Session is an HMAC-signed cookie (7-day expiry)
 - Passwords hashed with **scrypt** + random salt
 - 2FA uses **TOTP** (compatible with Google Authenticator, Authy, etc.)
-- Stored at `src/data/admin-credentials.json` (gitignored)
+- Admin credentials are stored in **Supabase** (`app_settings` table).
+- Local JSON fallback (`admin-credentials.json`) is available when Supabase isn't configured.
 
 ---
 
@@ -317,11 +346,16 @@ Add these in your Vercel project settings (or `.env.local` for self-hosted):
 | `ADMIN_SESSION_SECRET`   | Yes      | Long random string for cookie HMAC   |
 | `ADMIN_USERNAME`         | No       | Defaults to `admin`                  |
 | `ADMIN_PASSWORD`         | No       | Set on first dashboard login         |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes    | Supabase project URL                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key           |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes   | Supabase service-role key (server)   |
+| `GEMINI_API_KEY`         | No       | Google Gemini AI chat assistant      |
+| `GEMINI_MODEL`           | No       | Default: `gemini-flash-latest`          |
 | `RESEND_API_KEY`         | No       | For contact form email notifications |
-| `RESEND_FROM`            | No       | Sender address (e.g. `Portfolio <noreply@yourdomain.com>`) |
+| `RESEND_FROM`            | No       | Sender address                        |
 | `RESEND_TO`              | No       | Recipient for contact submissions    |
 | `TURNSTILE_SECRET_KEY`   | No       | Cloudflare Turnstile server key      |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | No | Cloudflare Turnstile site key    |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | No | Cloudflare Turnstile site key     |
 
 ---
 
@@ -331,13 +365,14 @@ Add these in your Vercel project settings (or `.env.local` for self-hosted):
 
 ```
 .env.local
-src/data/totp.json
-src/data/contact-log.json
-src/data/admin-credentials.json
 public/uploads/
 *.tsbuildinfo
 server.log
 ```
+
+> Legacy JSON data files (`content.json`, `contact-log.json`, `totp.json`, `captcha.json`)
+> have been **deleted** from the repo. All data is now stored in **Supabase**.
+> The only remaining file in `src/data/` is `README.md`.
 
 ### Security Headers
 

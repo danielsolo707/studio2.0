@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { NOINDEX } from '@/lib/seo/noindex';
 import { readContent } from '@/lib/cms/content';
 import { getSession } from '@/lib/auth/session';
 import { is2FAEnabled } from '@/lib/auth/totp';

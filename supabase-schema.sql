@@ -206,3 +206,43 @@ ON CONFLICT DO NOTHING;
 -- UPDATE storage.buckets SET public = true WHERE name IN ('project-media', 'uploads');
 -- Or create policies:
 -- CREATE POLICY "Public read access" ON storage.objects FOR SELECT USING (bucket_id IN ('project-media', 'uploads'));
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- AI Chat Sessions & Messages (admin + public)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- Extend app_settings with encrypted AI configuration columns
+ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS ai_public_model TEXT;
+ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS ai_admin_model TEXT;
+ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS ai_api_key_encrypted TEXT;
+ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS ai_api_key_iv TEXT;
+
+-- Chat sessions: one per conversation (grouped by visitor cookie for public, or single admin session)
+CREATE TABLE IF NOT EXISTS ai_chat_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  mode TEXT NOT NULL CHECK (mode IN ('public', 'admin')),
+  ip TEXT,
+  session_cookie TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Individual messages within a session
+CREATE TABLE IF NOT EXISTS ai_chat_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID NOT NULL REFERENCES ai_chat_sessions(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+  content TEXT NOT NULL,
+  model TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS: service_role only (no public access — these contain admin chats + visitor IPs)
+ALTER TABLE ai_chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_chat_messages ENABLE ROW LEVEL SECURITY;
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_ai_chat_sessions_mode ON ai_chat_sessions(mode);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_sessions_created_at ON ai_chat_sessions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_session_id ON ai_chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_created_at ON ai_chat_messages(created_at DESC);
