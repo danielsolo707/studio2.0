@@ -188,7 +188,7 @@ export function TypographicHero({ headline, description }: TypographicHeroProps)
   const yMove = useTransform(scrollYProgress, [0, 0.4], [0, -80]);
   const opacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 1.02]);
-  const resolvedHeadline = headline || 'MACHINE\nINTELLIGENCE';
+  const resolvedHeadline = headline || 'CREATIVE\nDEVELOPER';
   const headlineLines = resolvedHeadline.split('\n');
 
   return (

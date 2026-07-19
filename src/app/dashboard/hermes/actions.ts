@@ -6,6 +6,7 @@ import { getSession } from '@/lib/auth/session'
 import { addProject, readContent, updateHero, updateAbout, updateProject } from '@/lib/cms/content'
 import { appendReply, updateMessage, deleteMessage } from '@/lib/contact/contact-log'
 import { writeAiSettings } from '@/lib/ai/ai-settings'
+import { sendEmail } from '@/lib/email/resend'
 import type { HermesAction, HermesActionStatus } from '@/agents/hermes/tools/types'
 
 export type ApplyActionState = {
@@ -72,30 +73,7 @@ export async function applyHermesAction(action: HermesAction): Promise<ApplyActi
 
     switch (action.kind) {
       case 'draft_email_reply': {
-        // Try sending via Resend, fall back to draft-only if not configured
-        let sent = false
-        const apiKey = process.env.RESEND_API_KEY
-        const from = process.env.RESEND_FROM
-        if (apiKey && from) {
-          try {
-            const res = await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${apiKey}`,
-              },
-              body: JSON.stringify({
-                from,
-                to: action.to,
-                subject: action.subject,
-                text: action.body,
-              }),
-            })
-            sent = res.ok
-          } catch {
-            sent = false
-          }
-        }
+        const delivery = await sendEmail({ to: action.to, subject: action.subject, text: action.body })
 
         await appendReply(action.messageId, {
           id: createReplyId(),
@@ -103,12 +81,12 @@ export async function applyHermesAction(action: HermesAction): Promise<ApplyActi
           subject: action.subject,
           body: action.body,
           sentAt: new Date().toISOString(),
-          sent,
+          sent: delivery.ok,
         })
         await updateMessage(action.messageId, { isRead: true })
         revalidatePath('/dashboard/messages')
         revalidatePath('/dashboard')
-        return { status: 'applied' }
+        return delivery.ok ? { status: 'applied' } : { status: 'failed', error: delivery.error }
       }
 
       case 'create_project_draft': {

@@ -27,6 +27,13 @@ const starterPrompts = {
   ],
 }
 
+function publicFallback(question: string) {
+  const text = question.toLowerCase()
+  if (/(contact|reach|email|hire|talk)/.test(text)) return 'Use the Let’s Talk form to reach Daniel about a project.'
+  if (/(first|start|recommend|best)/.test(text)) return 'Start with the Arcade, then explore ALPHA-MATH and the Motion work.'
+  return 'Browse Works and Arcade, or use the contact form to start a conversation with Daniel.'
+}
+
 function getActionTitle(action: HermesAction): string {
   switch (action.kind) {
     case 'draft_email_reply':
@@ -229,11 +236,15 @@ export function HermesChatWidget({
     }
 
     try {
+      const controller = new AbortController()
+      const timeout = window.setTimeout(() => controller.abort(), mode === 'public' ? 14_000 : 26_000)
       const res = await fetch('/api/hermes/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ mode, messages: nextMessages, sessionId }),
+        signal: controller.signal,
       })
+      window.clearTimeout(timeout)
       const data = await res.json()
 
       if (!res.ok) {
@@ -245,7 +256,10 @@ export function HermesChatWidget({
         setSessionId(data.sessionId)
       }
 
-      setMessages([...nextMessages, data.message])
+      const assistantMessage = data.fallback && mode === 'public'
+        ? { role: 'assistant' as const, content: `The live assistant is resting — here’s a quick answer:\n\n${data.message?.content || publicFallback(trimmed)}` }
+        : data.message
+      setMessages([...nextMessages, assistantMessage])
 
       if (Array.isArray(data.actions) && data.actions.length > 0) {
         const incoming: HermesActionWithStatus[] = data.actions.map((action: HermesAction) => ({
@@ -260,6 +274,10 @@ export function HermesChatWidget({
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hermes request failed'
+      if (mode === 'public') {
+        setMessages([...nextMessages, { role: 'assistant', content: `The live assistant is resting — here’s a quick answer:\n\n${publicFallback(trimmed)}` }])
+        return
+      }
       setError(message)
       setMessages([...nextMessages, { role: 'assistant', content: `I could not reach Hermes: ${message}` }])
     } finally {

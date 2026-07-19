@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { addMessage } from '@/lib/contact/contact-log';
 import { notifyNewContactMessage } from '@/lib/integrations/telegram';
+import { sendEmail } from '@/lib/email/resend';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -48,10 +49,15 @@ export async function submitContact(
   }
 
   const data = result.data;
+  const notificationRecipient = process.env.RESEND_TO;
+  if (!notificationRecipient) {
+    return { success: false, message: 'Contact email notification is not configured.', errors: {} };
+  }
 
   try {
-    // Run DB save + email send in parallel (no sequential waiting)
-    await Promise.allSettled([
+    // Store the message even if email delivery has a provider outage. The
+    // visitor gets an accurate delivery state rather than a false success.
+    const [, delivery] = await Promise.all([
       addMessage({
         name: data.name,
         email: data.email,
@@ -61,33 +67,22 @@ export async function submitContact(
           console.error('Telegram notify error:', error);
         });
       }),
-      (async () => {
-        const apiKey = process.env.RESEND_API_KEY;
-        const from = process.env.RESEND_FROM;
-        const to = process.env.RESEND_TO;
-
-        if (!apiKey || !from || !to) return;
-
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            from,
-            to,
-            subject: `New contact from ${data.name}`,
-            reply_to: data.email,
-            text: `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`,
-          }),
-        });
-
-        if (!response.ok) {
-          console.error('Resend API error:', await response.text());
-        }
-      })(),
+      sendEmail({
+        to: notificationRecipient,
+        subject: `New contact from ${data.name}`,
+        replyTo: data.email,
+        text: `Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`,
+      }),
     ]);
+
+    if (!delivery.ok) {
+      console.error('Contact notification email failed:', delivery.error);
+      return {
+        success: true,
+        message: 'Your message was received. Email notification is temporarily unavailable, but Daniel can still see it.',
+        errors: {},
+      };
+    }
 
     return {
       success: true,

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Creative Code | Daniel Soleimani',
   description:
     'Machine Learning, Deep Learning, and AI-adjacent code projects by Daniel Soleimani. Research experiments, data pipelines, and intelligent system prototypes.',
+  alternates: { canonical: '/works/code' },
 }
 
 export default async function CodeWorksPage() {

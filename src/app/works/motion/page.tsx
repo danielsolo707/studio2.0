@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Motion Design | Daniel Soleimani',
   description:
     'High-end motion design and After Effects projects by Daniel Soleimani. Case studies, cinematic experiments, and visual explorations in motion graphics.',
+  alternates: { canonical: '/works/motion' },
 };
 
 export default async function MotionWorksPage() {

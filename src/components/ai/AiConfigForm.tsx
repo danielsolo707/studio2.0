@@ -35,12 +35,12 @@ export function AiConfigForm({
           name="publicModel"
           type="text"
           defaultValue={initialPublicModel}
-          placeholder="e.g. poolside/laguna-xs-2.1:free"
+          placeholder="e.g. @cf/google/gemma-4-26b-a4b-it"
           className={inputClass}
           required
         />
         <p className="text-[10px] text-white/35 font-body">
-          Model used by visitors on the public landing page.
+          Model used by visitors. Cloudflare environment variables take priority in production.
         </p>
       </div>
 
@@ -53,12 +53,12 @@ export function AiConfigForm({
           name="adminModel"
           type="text"
           defaultValue={initialAdminModel}
-          placeholder="e.g. poolside/laguna-xs-2.1:free"
+          placeholder="e.g. @cf/google/gemma-4-26b-a4b-it"
           className={inputClass}
           required
         />
         <p className="text-[10px] text-white/35 font-body">
-          Model used in this dashboard chat (can be stronger/different).
+          Model used in the dashboard when Cloudflare settings are not configured.
         </p>
       </div>
 

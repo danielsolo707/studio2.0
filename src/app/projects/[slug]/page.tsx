@@ -24,10 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const discipline = DISCIPLINE_LABELS[getProjectDiscipline(project)];
 
   return {
-    title: `${project.name} | Daniel Soleimani`,
+    title: project.name,
     description: `${discipline} — ${project.description}`,
+    alternates: { canonical: `/projects/${slug}` },
     openGraph: {
-      title: `${project.name} | Daniel Soleimani`,
+      title: project.name,
       description: `${discipline} — ${project.description}`,
       images: project.imageUrl ? [{ url: project.imageUrl, width: 1200, height: 630 }] : [],
     },

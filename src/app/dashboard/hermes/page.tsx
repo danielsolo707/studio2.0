@@ -6,6 +6,7 @@ import { AiConfigForm } from '@/components/ai/AiConfigForm'
 import { ChatHistory } from '@/components/ai/ChatHistory'
 import { readAiSettings } from '@/lib/ai/ai-settings'
 import { getChatHistory } from '@/lib/ai/ai-chat-db'
+import { getHermesConfig } from '@/agents/hermes/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,9 +18,10 @@ export default async function AssistantDashboardPage() {
   const hasApiKey = Boolean(aiSettings.apiKey)
 
   // Fetch chat history for both modes
-  const [publicChats, adminChats] = await Promise.all([
+  const [publicChats, adminChats, activeConfig] = await Promise.all([
     getChatHistory('public', 50),
     getChatHistory('admin', 50),
+    getHermesConfig('admin'),
   ])
 
   return (
@@ -80,7 +82,9 @@ export default async function AssistantDashboardPage() {
             <div className="mt-4 space-y-3 text-sm text-white/65">
               <div className="flex items-center justify-between gap-3">
                 <span>Provider</span>
-                <span className="text-white/85">Gemini (Google)</span>
+                <span className="text-white/85">
+                  {activeConfig.provider === 'cloudflare-workers-ai' ? 'Cloudflare Workers AI' : 'NVIDIA NIM'}
+                </span>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <span>API key</span>
@@ -97,7 +101,7 @@ export default async function AssistantDashboardPage() {
               <div className="flex items-center justify-between gap-3">
                 <span>Admin model</span>
                 <span className="max-w-[200px] truncate text-white/85" title={aiSettings.adminModel}>
-                  {aiSettings.adminModel}
+                  {activeConfig.model}
                 </span>
               </div>
             </div>

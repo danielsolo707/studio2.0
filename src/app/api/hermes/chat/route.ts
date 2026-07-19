@@ -5,6 +5,7 @@ import { runHermesChat } from '@/agents/hermes/runtime/runHermes'
 import { createChatSession, addChatMessage } from '@/lib/ai/ai-chat-db'
 import type { HermesChatRequest, HermesChatResponse } from '@/agents/hermes/schemas/chat'
 import type { HermesAction } from '@/agents/hermes/tools/types'
+import { getCannedAnswer } from '@/lib/ai/canned-answers'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,7 @@ const CHAT_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
 export type HermesChatApiResponse = HermesChatResponse & {
   actions?: HermesAction[]
   sessionId?: string
+  fallback?: boolean
 }
 
 function getClientIp(request: Request): string | null {
@@ -68,7 +70,32 @@ export async function POST(request: Request) {
     }
 
     // ─── Call AI ─────────────────────────────────────────────────
-    const result = await runHermesChat(mode, userMessages)
+    let result
+    let fallback = false
+    try {
+      result = await runHermesChat(mode, userMessages)
+    } catch (error) {
+      if (mode === 'admin') {
+        result = {
+          configured: true,
+          model: 'unavailable',
+          message: 'The live AI provider did not respond in time. No dashboard action was created. Please retry in a moment; your existing dashboard tools remain available.',
+        }
+      } else {
+        fallback = true
+        const lastQuestion = String(lastUserMsg?.content || '')
+        result = {
+          configured: true,
+          model: 'local-fallback',
+          message: getCannedAnswer(lastQuestion),
+        }
+      }
+    }
+
+    if (mode === 'public' && !result.configured) {
+      fallback = true
+      result = { ...result, configured: true, model: 'local-fallback', message: getCannedAnswer(String(lastUserMsg?.content || '')) }
+    }
 
     // ─── Save assistant message ─────────────────────────────────
     if (result.message && sessionId) {
@@ -85,6 +112,7 @@ export async function POST(request: Request) {
       actions: result.actions,
       error: result.error,
       sessionId: sessionId || undefined,
+      fallback,
     }
 
     return NextResponse.json(response)

@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { listMessages, updateMessage } from '@/lib/contact/contact-log'
+import { listMessages } from '@/lib/contact/contact-log'
 import { readContent } from '@/lib/cms/content'
 import type { Project, ProjectDiscipline, ProjectLinkType, ProjectStatus } from '@/types/project'
 import type { HermesAction, HermesToolCall, HermesToolResult } from './types'
@@ -246,10 +246,9 @@ async function executeMarkMessageRead(params: Record<string, unknown>): Promise<
     }
   }
 
-  await updateMessage(messageId, { isRead: true })
   const action: HermesAction = { kind: 'mark_message_read', id: createActionId(), messageId }
   return {
-    result: { type: 'applied', message: `Marked message from ${message.name} as read.` },
+    result: { type: 'draft', message: `Ready to mark message from ${message.name} as read.`, payload: action },
     action,
   }
 }
@@ -278,9 +277,12 @@ async function executeUpdateSiteCopyDraft(params: Record<string, unknown>): Prom
 async function executeSystemHealth(): Promise<{ result: HermesToolResult; action: HermesAction }> {
   const checks: string[] = []
 
-  // Gemini AI
-  checks.push(`Gemini key: ${process.env.GEMINI_API_KEY ? 'SET' : 'MISSING'}`)
-  checks.push(`Model: ${process.env.GEMINI_MODEL || process.env.HERMES_MODEL || 'gemini-flash-latest'}`)
+  // AI provider
+  const hasCloudflareAi = Boolean(
+    process.env.CLOUDFLARE_ACCOUNT_ID && (process.env.CLOUDFLARE_AI_API_TOKEN || process.env.CLOUDFLARE_API_TOKEN),
+  )
+  checks.push(`Workers AI: ${hasCloudflareAi ? 'CONFIGURED' : 'NOT SET (using fallback if available)'}`)
+  checks.push(`Model: ${process.env.CLOUDFLARE_AI_MODEL || process.env.HERMES_MODEL || 'not configured'}`)
 
   // Resend
   checks.push(`Resend key: ${process.env.RESEND_API_KEY ? 'SET' : 'MISSING'}`)

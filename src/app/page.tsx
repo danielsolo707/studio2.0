@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     description:
       'Official portfolio of Daniel Soleimani. Discover advanced architectural projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
   },
+  alternates: { canonical: '/' },
 };
 
 /**
