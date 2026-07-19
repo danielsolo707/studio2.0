@@ -240,7 +240,10 @@ export async function supabaseAddMessage(entry: {
   email: string;
   message: string;
 }): Promise<StoredMessage> {
-  const { data, error } = await supabaseBrowser()
+  // Contact submissions reach this function only through a server action.
+  // Use the service client so the insert-and-return operation is not blocked
+  // by the public role's intentionally insert-only RLS policy.
+  const { data, error } = await supabaseServer()
     .from(TABLES.CONTACT_MESSAGES)
     .insert({
       name: entry.name,

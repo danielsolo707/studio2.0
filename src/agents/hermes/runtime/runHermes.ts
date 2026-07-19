@@ -20,6 +20,14 @@ function cleanMessages(messages: HermesChatMessage[]) {
     })) as Array<{ role: 'user' | 'assistant'; content: string }>
 }
 
+function stripKimiThinking(text: string) {
+  // Some Kimi responses include a reasoning preamble even when thinking is
+  // disabled. It is not useful to the dashboard user and can precede the
+  // actual answer without an opening <think> tag.
+  const closingTag = text.lastIndexOf('</think>')
+  return closingTag === -1 ? text.trim() : text.slice(closingTag + '</think>'.length).trim()
+}
+
 export type HermesRunResult = {
   configured: boolean
   message: string
@@ -132,7 +140,8 @@ export async function runHermesChat(mode: HermesMode, messages: HermesChatMessag
       ...(mode === 'admin' ? { tools: createAdminTools(actions, toolResults), stopWhen: stepCountIs(3) } : {}),
     })
     const fallbackText = toolResults.map((item) => item.message).join('\n')
-    const message = (result.text.trim() || fallbackText || 'Done.').trim()
+    const outputText = config.model.includes('kimi-k2.7') ? stripKimiThinking(result.text) : result.text.trim()
+    const message = (outputText || fallbackText || 'Done.').trim()
     return {
       configured: true,
       message: mode === 'public' ? sanitizePublicHermesResponse(message) : message,
