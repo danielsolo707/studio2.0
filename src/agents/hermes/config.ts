@@ -22,7 +22,7 @@ export function getHermesConfigSync(): HermesConfig {
   if (cloudflareApiKey && cloudflareAccountId) {
     return {
       apiKey: cloudflareApiKey,
-      model: process.env.CLOUDFLARE_AI_MODEL || '@cf/google/gemma-4-26b-a4b-it',
+      model: process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.2-3b-instruct',
       publicName: process.env.NEXT_PUBLIC_HERMES_PUBLIC_NAME || hermesManifest.publicName,
       provider: 'cloudflare-workers-ai',
       baseURL: `https://api.cloudflare.com/client/v4/accounts/${cloudflareAccountId}/ai/v1`,
@@ -50,7 +50,7 @@ export async function getHermesConfig(mode: HermesMode = 'public'): Promise<Herm
       ...envConfig,
       model: mode === 'admin'
         ? process.env.CLOUDFLARE_AI_ADMIN_MODEL || envConfig.model
-        : process.env.CLOUDFLARE_AI_PUBLIC_MODEL || envConfig.model,
+        : process.env.CLOUDFLARE_AI_PUBLIC_MODEL || '@cf/meta/llama-3.2-3b-instruct',
     }
   }
 

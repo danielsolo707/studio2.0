@@ -65,6 +65,8 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
     ? [heroItem, ...gallery.filter((_, i) => i !== safeHeroIndex)]
     : gallery;
 
+  const imageGallery = orderedGallery.filter((item) => item.type === 'image');
+
   const discipline = getProjectDiscipline(project);
   const status = getProjectStatus(project);
   const role = getProjectRole(project);
@@ -411,8 +413,10 @@ const techStack = {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
-                    className="w-full cursor-pointer"
-                    onClick={() => handleOpenGallery(idx)}
+                    className={`w-full ${m.type === 'image' ? 'cursor-pointer' : ''}`}
+                    onClick={m.type === 'image'
+                      ? () => handleOpenGallery(imageGallery.findIndex((item) => item.url === m.url))
+                      : undefined}
                   >
                     <div className="relative w-full overflow-hidden">
                       {m.type === 'image' ? (
@@ -449,7 +453,7 @@ const techStack = {
       <GalleryModal
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
-        items={orderedGallery}
+        items={imageGallery}
         initialIndex={galleryIndex}
         isIOS={isIOS}
         projectName={project.name}

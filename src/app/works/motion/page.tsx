@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/works/motion' },
 };
 
+export const revalidate = 300;
+
 export default async function MotionWorksPage() {
   const content = await readContent();
   const motionProjects = content.projects.filter(

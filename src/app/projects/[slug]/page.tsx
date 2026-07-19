@@ -3,8 +3,14 @@ import type { Metadata } from 'next';
 import { readContent } from '@/lib/cms/content';
 import { DISCIPLINE_LABELS, getProjectDiscipline } from '@/lib/cms/project-meta';
 import { ProjectDetailClient } from '@/components/project-detail/ProjectDetailClient';
+import { cache } from 'react';
 
 export const revalidate = 3600;
+
+const getProject = cache(async (slug: string) => {
+  const content = await readContent();
+  return content.projects.find((project) => project.id === slug);
+});
 
 export async function generateStaticParams() {
   const content = await readContent();
@@ -18,8 +24,7 @@ interface Props {
 /** Per-project metadata for SEO & social sharing */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const content = await readContent();
-  const project = content.projects.find((p) => p.id === slug);
+  const project = await getProject(slug);
   if (!project) return { title: 'Project Not Found' };
   const discipline = DISCIPLINE_LABELS[getProjectDiscipline(project)];
 
@@ -37,8 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const content = await readContent();
-  const project = content.projects.find((p) => p.id === slug);
+  const project = await getProject(slug);
 
   if (!project) notFound();
 

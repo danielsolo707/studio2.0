@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     try {
       result = await runHermesChat(mode, userMessages)
     } catch (error) {
+      console.error(`[assistant] ${mode} provider request failed`, error)
       if (mode === 'admin') {
         result = {
           configured: true,

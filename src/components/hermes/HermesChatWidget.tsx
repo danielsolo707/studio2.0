@@ -237,7 +237,7 @@ export function HermesChatWidget({
 
     try {
       const controller = new AbortController()
-      const timeout = window.setTimeout(() => controller.abort(), mode === 'public' ? 14_000 : 26_000)
+      const timeout = window.setTimeout(() => controller.abort(), mode === 'public' ? 20_000 : 30_000)
       const res = await fetch('/api/hermes/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -256,10 +256,15 @@ export function HermesChatWidget({
         setSessionId(data.sessionId)
       }
 
-      const assistantMessage = data.fallback && mode === 'public'
-        ? { role: 'assistant' as const, content: `The live assistant is resting — here’s a quick answer:\n\n${data.message?.content || publicFallback(trimmed)}` }
-        : data.message
+      const assistantMessage = data.message || {
+        role: 'assistant' as const,
+        content: publicFallback(trimmed),
+      }
       setMessages([...nextMessages, assistantMessage])
+
+      if (data.fallback && mode === 'public') {
+        setError('Live AI is temporarily unavailable; this answer came from the local portfolio guide.')
+      }
 
       if (Array.isArray(data.actions) && data.actions.length > 0) {
         const incoming: HermesActionWithStatus[] = data.actions.map((action: HermesAction) => ({
@@ -275,7 +280,8 @@ export function HermesChatWidget({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Hermes request failed'
       if (mode === 'public') {
-        setMessages([...nextMessages, { role: 'assistant', content: `The live assistant is resting — here’s a quick answer:\n\n${publicFallback(trimmed)}` }])
+        setMessages([...nextMessages, { role: 'assistant', content: publicFallback(trimmed) }])
+        setError('Live AI is temporarily unavailable; this answer came from the local portfolio guide.')
         return
       }
       setError(message)

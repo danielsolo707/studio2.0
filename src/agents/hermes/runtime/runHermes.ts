@@ -133,7 +133,7 @@ export async function runHermesChat(mode: HermesMode, messages: HermesChatMessag
       model: provider(config.model),
       system,
       messages: cleanMessages(messages),
-      maxOutputTokens: mode === 'public' ? 500 : 700,
+      maxOutputTokens: mode === 'public' ? 220 : 700,
       temperature: 0.3,
       maxRetries: 0,
       abortSignal: controller.signal,

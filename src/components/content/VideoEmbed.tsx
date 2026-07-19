@@ -73,6 +73,8 @@ export function VideoEmbed({
           className="absolute inset-0 w-full h-full"
           allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
           allowFullScreen
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
           title="Video player"
         />
       </div>
