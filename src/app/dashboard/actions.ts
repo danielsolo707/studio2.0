@@ -8,7 +8,15 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { cookies, headers } from 'next/headers';
-import { clearSession, getSession, setSession, createHalfAuthToken, verifyHalfAuthToken } from '@/lib/auth/session';
+import {
+  clearSession,
+  getSession,
+  setSession,
+  createHalfAuthToken,
+  verifyHalfAuthToken,
+  isSessionSecretConfigured,
+  SESSION_SECRET_MISCONFIGURED_MESSAGE,
+} from '@/lib/auth/session';
 import { readContent, writeContent, addProject, updateProject, deleteProject } from '@/lib/cms/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/auth/totp';
 import { isCaptchaEnabled } from '@/lib/security/captcha-config';
@@ -144,14 +152,37 @@ export async function loginAction(
 
   resetRateLimit(loginLimitKey);
 
+  // Fail closed with a form error instead of a Server Component 500 when the
+  // production session HMAC secret is missing/too short/insecure.
+  if (!isSessionSecretConfigured()) {
+    console.error(SESSION_SECRET_MISCONFIGURED_MESSAGE);
+    return { error: SESSION_SECRET_MISCONFIGURED_MESSAGE };
+  }
+
   const twoFAEnabled = await is2FAEnabled();
   if (twoFAEnabled) {
     // Issue a short-lived half-auth token proving the password check passed.
     // The TOTP action requires this token, so 2FA cannot be used alone.
-    return { needs2FA: true, halfAuthToken: createHalfAuthToken(user) };
+    try {
+      return { needs2FA: true, halfAuthToken: createHalfAuthToken(user) };
+    } catch (error) {
+      console.error('Failed to issue half-auth token:', error);
+      return {
+        error:
+          error instanceof Error ? error.message : SESSION_SECRET_MISCONFIGURED_MESSAGE,
+      };
+    }
   }
 
-  await setSession(getAdminUsername());
+  try {
+    await setSession(getAdminUsername());
+  } catch (error) {
+    console.error('Failed to create admin session:', error);
+    return {
+      error:
+        error instanceof Error ? error.message : SESSION_SECRET_MISCONFIGURED_MESSAGE,
+    };
+  }
   redirect('/dashboard');
 }
 
@@ -193,7 +224,21 @@ export async function verify2FAAction(
   }
 
   resetRateLimit(twoFactorLimitKey);
-  await setSession(halfAuth.user);
+
+  if (!isSessionSecretConfigured()) {
+    console.error(SESSION_SECRET_MISCONFIGURED_MESSAGE);
+    return { error: SESSION_SECRET_MISCONFIGURED_MESSAGE };
+  }
+
+  try {
+    await setSession(halfAuth.user);
+  } catch (error) {
+    console.error('Failed to create admin session after 2FA:', error);
+    return {
+      error:
+        error instanceof Error ? error.message : SESSION_SECRET_MISCONFIGURED_MESSAGE,
+    };
+  }
   redirect('/dashboard');
 }
 

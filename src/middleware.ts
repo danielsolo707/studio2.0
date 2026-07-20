@@ -8,13 +8,35 @@ const INSECURE_PRODUCTION_SECRETS = new Set([
   'change-me',
 ]);
 
-function getSecret(): string | null {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-  if (
-    process.env.NODE_ENV === 'production' &&
-    (!secret || secret.length < 32 || INSECURE_PRODUCTION_SECRETS.has(secret))
-  ) return null;
-  return secret || 'dev-secret-change-me';
+function isExplicitSecretValid(secret: string | undefined): secret is string {
+  return Boolean(secret && secret.length >= 32 && !INSECURE_PRODUCTION_SECRETS.has(secret));
+}
+
+/**
+ * Keep in lockstep with `src/lib/auth/session.ts` resolveSessionSecret().
+ * Edge middleware has no Node crypto; SHA-256 is available via Web Crypto.
+ */
+async function resolveSessionSecret(): Promise<string | null> {
+  if (isExplicitSecretValid(process.env.ADMIN_SESSION_SECRET)) {
+    return process.env.ADMIN_SESSION_SECRET!;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    return process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-me';
+  }
+
+  const material =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.ADMIN_PASSWORD ||
+    '';
+  if (material.length < 32) return null;
+
+  const enc = new TextEncoder();
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    enc.encode(`portfolio-admin-session:${material}`),
+  );
+  return hexEncode(new Uint8Array(digest));
 }
 
 function hexEncode(bytes: Uint8Array): string {
@@ -47,7 +69,7 @@ async function isValidSession(token: string | undefined): Promise<boolean> {
     const sig = decoded.slice(dot + 1);
 
     const enc = new TextEncoder();
-    const secret = getSecret();
+    const secret = await resolveSessionSecret();
     if (!secret) return false;
     const key = await crypto.subtle.importKey(
       'raw',

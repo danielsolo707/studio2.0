@@ -9,14 +9,54 @@ const INSECURE_PRODUCTION_SECRETS = new Set([
   'change-me',
 ]);
 
-function getSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-  if (process.env.NODE_ENV === 'production') {
-    if (!secret || secret.length < 32 || INSECURE_PRODUCTION_SECRETS.has(secret)) {
-      throw new Error('ADMIN_SESSION_SECRET must be a unique value of at least 32 characters in production');
-    }
+/** User-facing copy when production has no usable session HMAC material. */
+export const SESSION_SECRET_MISCONFIGURED_MESSAGE =
+  'Server auth is misconfigured: set ADMIN_SESSION_SECRET in Vercel (Production) to a unique value of at least 32 characters, then redeploy.';
+
+function isExplicitSecretValid(secret: string | undefined): secret is string {
+  return Boolean(secret && secret.length >= 32 && !INSECURE_PRODUCTION_SECRETS.has(secret));
+}
+
+/**
+ * Prefer ADMIN_SESSION_SECRET. If it is missing in production, derive a stable
+ * HMAC key from SUPABASE_SERVICE_ROLE_KEY so login still works on a fully
+ * configured Supabase deployment without a separate secret.
+ */
+function resolveSessionSecret(): string | null {
+  if (isExplicitSecretValid(process.env.ADMIN_SESSION_SECRET)) {
+    return process.env.ADMIN_SESSION_SECRET!;
   }
-  return secret || 'dev-secret-change-me';
+
+  if (process.env.NODE_ENV !== 'production') {
+    return process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-me';
+  }
+
+  const material =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.ADMIN_PASSWORD ||
+    '';
+  if (material.length >= 32) {
+    // Deterministic derivation keeps existing sessions valid across cold starts.
+    return crypto.createHash('sha256').update(`portfolio-admin-session:${material}`).digest('hex');
+  }
+
+  return null;
+}
+
+/**
+ * True when we can sign/verify admin session cookies (explicit secret or
+ * production fallback material).
+ */
+export function isSessionSecretConfigured(): boolean {
+  return resolveSessionSecret() !== null;
+}
+
+function getSecret(): string {
+  const secret = resolveSessionSecret();
+  if (!secret) {
+    throw new Error(SESSION_SECRET_MISCONFIGURED_MESSAGE);
+  }
+  return secret;
 }
 
 export type SessionPayload = {
