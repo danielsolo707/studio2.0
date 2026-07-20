@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth/session';
 import { readContent, updateProject } from '@/lib/cms/content';
-import { uploadFile } from '@/lib/database/gridfs';
+import { uploadFile } from '@/lib/database/local-media';
 import type { Project } from '@/types/project';
 
 export const runtime = 'nodejs';

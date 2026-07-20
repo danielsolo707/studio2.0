@@ -3,7 +3,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-import { deleteGridFsFile } from '@/lib/database/gridfs';
+import { deleteFile as deleteLocalMediaFile } from '@/lib/database/local-media';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -611,8 +611,8 @@ export async function deleteMediaAction(formData: FormData) {
 
   await updateProject(id, updates);
 
-  if (fileId) await deleteGridFsFile(fileId);
-  if (thumbFileId) await deleteGridFsFile(thumbFileId);
+  if (fileId) await deleteLocalMediaFile(fileId);
+  if (thumbFileId) await deleteLocalMediaFile(thumbFileId);
 
   revalidatePath('/');
   revalidatePath('/dashboard');

@@ -7,21 +7,20 @@ import { isCaptchaEnabled } from '@/lib/security/captcha-config';
 import { listMessages } from '@/lib/contact/contact-log';
 import { runMigrations } from '@/lib/database/migrate';
 import Link from 'next/link';
-import { LoginForm } from '@/components/dashboard/LoginForm';
-import { MultiUploadField } from '@/components/dashboard/MultiUploadField';
-import { TwoFactorSetup } from '@/components/dashboard/TwoFactorSetup';
-import { CaptchaToggle } from '@/components/dashboard/CaptchaToggle';
-import { ChangePasswordForm } from '@/components/dashboard/ChangePasswordForm';
+import { LoginForm } from '@/components/dashboard/auth/LoginForm';
+import { TwoFactorSetup } from '@/components/dashboard/auth/TwoFactorSetup';
+import { CaptchaToggle } from '@/components/dashboard/auth/CaptchaToggle';
+import { ChangePasswordForm } from '@/components/dashboard/auth/ChangePasswordForm';
 import {
   loginAction,
   logoutAction,
 } from './actions';
-import { StatusBadge } from '@/components/dashboard/StatusBadge';
-import { AboutForm } from '@/components/dashboard/AboutForm';
-import AddProjectSection from '@/components/dashboard/AddProjectSection';
-import { ProjectOptions } from '@/components/dashboard/ProjectOptions';
-import { HeroForm } from '@/components/dashboard/HeroForm';
-import { ProjectList } from '@/components/dashboard/ProjectList';
+import { StatusBadge } from '@/components/dashboard/shared/StatusBadge';
+import { AboutForm } from '@/components/dashboard/content/AboutForm';
+import AddProjectSection from '@/components/dashboard/projects/AddProjectSection';
+import { ProjectOptions } from '@/components/dashboard/content/ProjectOptions';
+import { HeroForm } from '@/components/dashboard/content/HeroForm';
+import { ProjectList } from '@/components/dashboard/projects/ProjectList';
 import { AdminHermesFloatingButton } from '@/components/hermes/AdminHermesFloatingButton';
 import {
   getProjectRole,

@@ -2,8 +2,8 @@ import { listMessages } from '@/lib/contact/contact-log';
 import { getSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { MessagesPanel } from '@/components/dashboard/MessagesPanel';
-import { StatusBadge } from '@/components/dashboard/StatusBadge';
+import { MessagesPanel } from '@/components/dashboard/messages/MessagesPanel';
+import { StatusBadge } from '@/components/dashboard/shared/StatusBadge';
 
 export const dynamic = 'force-dynamic';
 

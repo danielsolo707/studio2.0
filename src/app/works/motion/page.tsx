@@ -1,6 +1,6 @@
 import { readContent } from '@/lib/cms/content';
-import { MotionProjectGallery } from '@/components/MotionProjectGallery';
-import { MotionHeader } from '@/components/works/MotionHeader';
+import { MotionProjectGallery } from '@/components/project/motion/MotionProjectGallery';
+import { MotionHeader } from '@/components/project/motion/MotionHeader';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

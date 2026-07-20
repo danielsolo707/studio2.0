@@ -5,16 +5,19 @@ import {
   verifySession,
 } from '@/lib/auth/session';
 
+// @types/node marks NODE_ENV as readonly; tests still need to toggle it.
+const env = process.env as NodeJS.ProcessEnv & { NODE_ENV?: string };
+
 describe('admin session tokens', () => {
-  const originalNodeEnv = process.env.NODE_ENV;
-  const originalSecret = process.env.ADMIN_SESSION_SECRET;
+  const originalNodeEnv = env.NODE_ENV;
+  const originalSecret = env.ADMIN_SESSION_SECRET;
 
   afterEach(() => {
-    process.env.NODE_ENV = originalNodeEnv;
+    env.NODE_ENV = originalNodeEnv;
     if (originalSecret === undefined) {
-      delete process.env.ADMIN_SESSION_SECRET;
+      delete env.ADMIN_SESSION_SECRET;
     } else {
-      process.env.ADMIN_SESSION_SECRET = originalSecret;
+      env.ADMIN_SESSION_SECRET = originalSecret;
     }
   });
 
@@ -31,27 +34,27 @@ describe('admin session tokens', () => {
   });
 
   it('reports production session secret misconfiguration', () => {
-    const originalServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const originalPassword = process.env.ADMIN_PASSWORD;
-    process.env.NODE_ENV = 'production';
-    delete process.env.ADMIN_SESSION_SECRET;
-    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-    delete process.env.ADMIN_PASSWORD;
+    const originalServiceKey = env.SUPABASE_SERVICE_ROLE_KEY;
+    const originalPassword = env.ADMIN_PASSWORD;
+    env.NODE_ENV = 'production';
+    delete env.ADMIN_SESSION_SECRET;
+    delete env.SUPABASE_SERVICE_ROLE_KEY;
+    delete env.ADMIN_PASSWORD;
     expect(isSessionSecretConfigured()).toBe(false);
 
-    process.env.ADMIN_SESSION_SECRET = 'dev-secret-change-me';
+    env.ADMIN_SESSION_SECRET = 'dev-secret-change-me';
     expect(isSessionSecretConfigured()).toBe(false);
 
-    process.env.ADMIN_SESSION_SECRET = 'a'.repeat(32);
+    env.ADMIN_SESSION_SECRET = 'a'.repeat(32);
     expect(isSessionSecretConfigured()).toBe(true);
 
-    delete process.env.ADMIN_SESSION_SECRET;
-    process.env.SUPABASE_SERVICE_ROLE_KEY = 's'.repeat(40);
+    delete env.ADMIN_SESSION_SECRET;
+    env.SUPABASE_SERVICE_ROLE_KEY = 's'.repeat(40);
     expect(isSessionSecretConfigured()).toBe(true);
 
-    if (originalServiceKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-    else process.env.SUPABASE_SERVICE_ROLE_KEY = originalServiceKey;
-    if (originalPassword === undefined) delete process.env.ADMIN_PASSWORD;
-    else process.env.ADMIN_PASSWORD = originalPassword;
+    if (originalServiceKey === undefined) delete env.SUPABASE_SERVICE_ROLE_KEY;
+    else env.SUPABASE_SERVICE_ROLE_KEY = originalServiceKey;
+    if (originalPassword === undefined) delete env.ADMIN_PASSWORD;
+    else env.ADMIN_PASSWORD = originalPassword;
   });
 });

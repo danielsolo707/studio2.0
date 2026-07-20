@@ -93,7 +93,7 @@ The app runs at **http://localhost:9002**
 ### Supabase Setup (required for persistence)
 
 1. Create a free project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** → open [`supabase-schema.sql`](./supabase-schema.sql) → **Run**
+2. Go to **SQL Editor** → open [`supabase/schema.sql`](./supabase/schema.sql) → **Run**
 3. Copy your project URL and keys into `.env.local`:
 
 ```env
@@ -117,71 +117,26 @@ npm start
 
 ## Project Structure
 
-```
-studio.2/
-├── src/
-│   ├── app/                    # Next.js App Router — pages & API routes only
-│   │   ├── page.tsx            #   Landing page
-│   │   ├── layout.tsx          #   Root layout (fonts, SEO, providers)
-│   │   ├── globals.css         #   Global styles + Tailwind
-│   │   ├── gateway/            #   Discipline selector page
-│   │   ├── works/              #   Motion & Code gallery pages
-│   │   ├── projects/[slug]/    #   Project detail page
-│   │   ├── arcade/             #   Arcade landing + game routes
-│   │   ├── dashboard/          #   Admin dashboard (page + server actions)
-│   │   │   ├── page.tsx        #     Dashboard page
-│   │   │   ├── actions.ts      #     Server actions (CRUD, auth)
-│   │   │   └── messages/       #     Message inbox page
-│   │   ├── api/                #   API routes (upload, 2fa, captcha, media)
-│   │   ├── actions/            #   Shared server actions (contact form)
-│   │   ├── robots.ts           #   robots.txt generator
-│   │   └── sitemap.ts          #   sitemap.xml generator
-│   │
-│   ├── components/             # React components — NO page shells
-│   │   ├── ui/                 #   shadcn/Radix primitives (50+ components)
-│   │   ├── three/              #   Three.js 3D components (particles, TiltCard)
-│   │   ├── project/            #   Project detail sub-components
-│   │   ├── project-detail/     #   Project detail client wrapper
-│   │   ├── arcade/             #   Arcade game frame + thumbnails
-│   │   ├── dashboard/          #   Dashboard forms, lists, panels (24 files)
-│   │   ├── works/              #   Gallery header components
-│   │   └── *.tsx               #   Landing page components (Hero, Featured, About, etc.)
-│   │
-│   ├── lib/                    # Pure TypeScript utilities — NO React, NO JSX
-│   │   ├── content.ts          #   Read/write portfolio content
-│   │   ├── auth/               #   Auth session, credentials, 2FA/TOTP
-│   │   ├── ai/                 #   AI chat DB + settings
-│   │   ├── cms/                #   Content management helpers
-│   │   ├── contact/            #   Contact message storage
-│   │   ├── database/           #   Supabase + migration
-│   │   ├── platform/           #   Env vars + settings helpers
-│   │   ├── security/           #   Captcha config
-│   │   ├── core/               #   Utility functions
-│   │   └── game2048.ts         #   2048 game logic
-│   │
-│   ├── hooks/                  # Custom React hooks (5 files)
-│   ├── types/                  # Shared TypeScript interfaces
-│   ├── data/                   # JSON fallback files (see README.md inside)
-│   ├── middleware.ts           # Auth middleware (protects /api/admin/*)
-│   └── __tests__/              # Vitest component tests
-│
-├── public/                     # Static assets
-│   ├── arcade/                 #   HTML5 game files (8 games)
-│   ├── sounds/                 #   Game sound effects
-│   └── uploads/                #   User-uploaded media (gitignored)
-│
-├── e2e/                        # Playwright end-to-end tests
-├── docs/                       # Design docs & brainstorming
-│
-├── next.config.ts              # Next.js configuration (security headers, images)
-├── tailwind.config.ts          # Tailwind theme (acid green accent, fonts, animations)
-├── playwright.config.ts        # E2E test config (3 viewports)
-├── tsconfig.json               # TypeScript configuration
-├── components.json             # shadcn/ui configuration
-└── ecosystem.config.js         # PM2 process manager config
-```
+Full map: **[STRUCTURE.md](./STRUCTURE.md)**
 
-> Each folder has its own `README.md` explaining what's inside in detail.
+```
+site/
+├── src/
+│   ├── app/              # Routes + API only
+│   ├── components/       # UI by domain (sections, project, dashboard, hermes…)
+│   ├── agents/hermes/    # AI agent runtime
+│   ├── lib/              # Auth, CMS, DB, security…
+│   ├── hooks/            # React hooks
+│   ├── types/            # Shared types
+│   ├── data/             # Offline JSON fallback
+│   ├── tests/            # Vitest
+│   └── middleware.ts
+├── public/               # Static + arcade games
+├── e2e/                  # Playwright
+├── docs/                 # Human docs
+├── supabase/             # schema.sql
+└── scripts/              # Dev utilities
+```
 
 ---
 

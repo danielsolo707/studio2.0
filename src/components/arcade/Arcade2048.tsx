@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Board, createEmptyBoard, addRandomTile, move, hasMoves, Direction, cloneBoard } from '@/lib/game/game2048';
-import { useLockScroll } from '@/hooks/useLockScroll';
+import { useLockScroll } from '@/hooks/use-lock-scroll';
 
 type GameState = {
   board: Board;

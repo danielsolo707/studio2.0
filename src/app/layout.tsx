@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     siteName: 'Daniel Soleimani Portfolio',
     images: [
       {
-        url: '/pickle-rick-plain.png',
+        url: '/images/pickle-rick-plain.png',
         width: 1200,
         height: 630,
         alt: 'Daniel Soleimani — AI & ML Portfolio',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     title: 'Daniel Soleimani | AI & Machine Learning Specialist',
     description:
       'Official portfolio of Daniel Soleimani. Discover advanced projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
-    images: ['/pickle-rick-plain.png'],
+    images: ['/images/pickle-rick-plain.png'],
   },
   metadataBase: new URL('https://www.danielsoleimani.ir'),
 };

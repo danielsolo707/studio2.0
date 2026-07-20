@@ -1,10 +1,9 @@
-# src/data/ — Legacy JSON storage (no longer used)
+# `src/data/` — offline fallback only
 
-> ⚠️ **All data has been migrated to Supabase.**
-> These files were the original runtime storage but are now **optional**.
-> The app reads/writes through Supabase (`site_content`, `contact_messages`,
-> `app_settings` tables). Local JSON files only serve as a **fallback** when
-> Supabase environment variables are not configured (local development).
+> **Production source of truth is Supabase**, not these files.
+> Live projects, hero, about, and options live in `projects` + `site_content`.
+> `content.json` is kept only so the app can boot without env vars (local/offline).
+> Do not treat it as your CMS — edit content in the dashboard or Supabase.
 
 ## What moved where
 
@@ -17,7 +16,7 @@
 
 ## First-time setup
 
-See [`supabase-schema.sql`](../../supabase-schema.sql) — run it in the
+See [`supabase/schema.sql`](../../supabase/schema.sql) — run it in the
 **Supabase SQL Editor** to create all tables.
 
 After that, the app connects automatically via `NEXT_PUBLIC_SUPABASE_URL`,
