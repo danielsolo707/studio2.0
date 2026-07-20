@@ -42,6 +42,7 @@ export function ContactForm({
           name="name"
           type="text"
           required
+          maxLength={100}
           autoComplete="name"
           placeholder="Your name"
           className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all"
@@ -63,6 +64,7 @@ export function ContactForm({
           name="email"
           type="email"
           required
+          maxLength={254}
           autoComplete="email"
           placeholder="your@email.com"
           className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all"
@@ -83,6 +85,7 @@ export function ContactForm({
           id="contact-message"
           name="message"
           required
+          maxLength={5000}
           rows={3}
           placeholder="Tell me about your project..."
           className="block box-border w-full bg-black/30 border border-white/15 px-4 py-3 text-white font-body text-sm placeholder:text-white/25 focus:border-[#DFFF00]/60 focus:outline-none focus:ring-1 focus:ring-[#DFFF00]/25 transition-all resize-none"

@@ -43,6 +43,19 @@ function safeEqualHex(a: string, b: string): boolean {
   return crypto.timingSafeEqual(left, right);
 }
 
+function verifyEnvironmentPassword(candidate: string): boolean {
+  const configured = process.env.ADMIN_PASSWORD;
+  if (!configured) {
+    return process.env.NODE_ENV !== 'production' && candidate === 'change-me';
+  }
+  if (process.env.NODE_ENV === 'production' && configured.length < 12) return false;
+
+  const left = Buffer.from(candidate, 'utf8');
+  const right = Buffer.from(configured, 'utf8');
+  if (left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
 /* ─── Supabase path ───
  * Returns null when the table isn't provisioned yet (silent) so the caller
  * falls back to env/local storage. */
@@ -67,9 +80,7 @@ export async function verifyAdminCredentials(username: string, password: string)
       return safeEqualHex(candidate, stored.passwordHash);
     }
     // No DB row yet (or table not provisioned) — fall through to env / dev defaults.
-    const envPassword = process.env.ADMIN_PASSWORD;
-    if (envPassword) return password === envPassword;
-    return process.env.NODE_ENV !== 'production' && password === 'change-me';
+    return verifyEnvironmentPassword(password);
   }
 
   // Fallback: local JSON file (dev without Supabase).
@@ -79,12 +90,7 @@ export async function verifyAdminCredentials(username: string, password: string)
     return safeEqualHex(candidate, stored.passwordHash);
   }
 
-  const envPassword = process.env.ADMIN_PASSWORD;
-  if (!envPassword) {
-    return process.env.NODE_ENV !== 'production' && password === 'change-me';
-  }
-
-  return password === envPassword;
+  return verifyEnvironmentPassword(password);
 }
 
 export async function updateAdminPassword(newPassword: string): Promise<void> {

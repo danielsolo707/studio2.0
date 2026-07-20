@@ -66,22 +66,31 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
   }, [token]);
 
   const disable2FA = useCallback(async () => {
+    if (token.length !== 6) {
+      setError('Enter the current 6-digit authenticator code');
+      return;
+    }
     if (!confirm('Are you sure you want to disable 2FA?')) return;
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/2fa', { method: 'DELETE' });
+      const res = await fetch('/api/admin/2fa', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to disable');
       setEnabled(false);
       setSetupData(null);
+      setToken('');
       setMessage('2FA disabled.');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to disable 2FA');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   return (
     <section className="overflow-hidden border border-white/10 p-6 bg-black/30 rounded-lg">
@@ -106,9 +115,21 @@ export function TwoFactorSetup({ initialEnabled }: { initialEnabled: boolean }) 
           <p className="text-xs text-white/50 font-body">
             Your admin panel is protected with two-factor authentication via authenticator app.
           </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            value={token}
+            onChange={(event) => setToken(event.target.value.replace(/\D/g, ''))}
+            placeholder="CURRENT 6-DIGIT CODE"
+            aria-label="Current authenticator code"
+            autoComplete="one-time-code"
+            className="w-full max-w-xs bg-transparent border border-white/10 px-4 py-3 text-white font-headline tracking-[0.25em] focus:border-red-500/50 focus:outline-none"
+          />
           <button
             onClick={disable2FA}
-            disabled={loading}
+            disabled={loading || token.length !== 6}
             className="px-4 py-2 border border-red-500/50 text-red-300 text-xs tracking-widest disabled:opacity-50"
           >
             {loading ? 'DISABLING...' : 'DISABLE 2FA'}

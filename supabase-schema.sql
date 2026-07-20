@@ -132,9 +132,10 @@ CREATE POLICY "Admin full access to site content" ON site_content
     )
   );
 
--- Contact messages: public insert (anyone can send), admin read/write
-CREATE POLICY "Public can insert contact messages" ON contact_messages
-  FOR INSERT WITH CHECK (true);
+-- Contact submissions go through the validated server action, which uses the
+-- service-role client. Do not expose direct anonymous inserts because they
+-- bypass rate limits, length checks, and notification safeguards.
+DROP POLICY IF EXISTS "Public can insert contact messages" ON contact_messages;
 
 CREATE POLICY "Admin full access to contact messages" ON contact_messages
   FOR ALL USING (

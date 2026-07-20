@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import fs from 'fs/promises';
+import { createReadStream } from 'fs';
 import path from 'path';
+import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const MIME_MAP: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -22,9 +25,12 @@ const MIME_MAP: Record<string, string> = {
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+    if (!UUID.test(id)) {
+      return NextResponse.json({ error: 'Invalid media id' }, { status: 400 });
+    }
 
     const files = await fs.readdir(UPLOAD_DIR);
-    const match = files.find((f) => f.startsWith(id));
+    const match = files.find((file) => file.startsWith(`${id}.`));
     if (!match) {
       return NextResponse.json({ error: 'Media not found' }, { status: 404 });
     }
@@ -56,11 +62,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           });
         }
         const chunkSize = end - start + 1;
-        const fd = await fs.open(filePath, 'r');
-        const buffer = Buffer.alloc(chunkSize);
-        await fd.read(buffer, 0, chunkSize, start);
-        await fd.close();
-        return new Response(buffer, {
+        const stream = Readable.toWeb(createReadStream(filePath, { start, end })) as ReadableStream;
+        return new Response(stream, {
           status: 206,
           headers: {
             ...headers,
@@ -71,8 +74,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
-    const buffer = await fs.readFile(filePath);
-    return new Response(buffer, {
+    const stream = Readable.toWeb(createReadStream(filePath)) as ReadableStream;
+    return new Response(stream, {
       headers: { ...headers, 'Content-Length': String(size) },
     });
   } catch (error) {

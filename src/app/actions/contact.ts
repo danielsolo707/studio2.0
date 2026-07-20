@@ -1,14 +1,23 @@
 "use server"
 
 import { z } from 'zod';
+import { headers } from 'next/headers';
 import { addMessage } from '@/lib/contact/contact-log';
 import { notifyNewContactMessage } from '@/lib/integrations/telegram';
 import { sendEmail } from '@/lib/email/resend';
+import { consumeRateLimit, getClientIp } from '@/lib/security/rate-limit';
 
 const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+  name: z
+    .string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be 100 characters or fewer')
+    .regex(/^[^\r\n\u0000-\u001f\u007f]+$/, 'Name contains unsupported characters'),
+  email: z.string().email('Invalid email address').max(254, 'Email address is too long'),
+  message: z
+    .string()
+    .min(10, 'Message must be at least 10 characters')
+    .max(5000, 'Message must be 5000 characters or fewer'),
 });
 
 export interface ContactState {
@@ -29,6 +38,16 @@ export async function submitContact(
   _prevState: ContactState,
   formData: FormData,
 ): Promise<ContactState> {
+  const clientIp = getClientIp(await headers());
+  const rateLimit = consumeRateLimit(`contact:${clientIp}`, 5, 60 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      message: `Too many messages. Please try again in ${rateLimit.retryAfterSeconds} seconds.`,
+      errors: {},
+    };
+  }
+
   // Sanitize input data
   const raw = {
     name: formData.get('name')?.toString().trim() || '',

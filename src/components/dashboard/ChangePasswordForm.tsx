@@ -46,7 +46,7 @@ export function ChangePasswordForm() {
           name="newPassword"
           type="password"
           autoComplete="new-password"
-          minLength={8}
+          minLength={12}
           className="block box-border w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm focus:border-[#DFFF00]/50 focus:outline-none"
           required
         />
@@ -64,7 +64,7 @@ export function ChangePasswordForm() {
           name="confirmPassword"
           type="password"
           autoComplete="new-password"
-          minLength={8}
+          minLength={12}
           className="block box-border w-full bg-transparent border border-white/10 px-4 py-3 text-white font-body text-sm focus:border-[#DFFF00]/50 focus:outline-none"
           required
         />

@@ -192,8 +192,8 @@ Create a `.env.local` file:
 ```env
 # Admin credentials
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=change-me
-ADMIN_SESSION_SECRET=a-long-random-string
+ADMIN_PASSWORD=<unique-password-manager-generated-password>
+ADMIN_SESSION_SECRET=<unique-random-secret-at-least-32-characters>
 
 # Supabase (required for persistence)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co

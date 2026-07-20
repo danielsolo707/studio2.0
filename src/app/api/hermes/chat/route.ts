@@ -1,16 +1,30 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { z } from 'zod'
 import { getSession } from '@/lib/auth/session'
 import { runHermesChat } from '@/agents/hermes/runtime/runHermes'
 import { createChatSession, addChatMessage } from '@/lib/ai/ai-chat-db'
 import type { HermesChatRequest, HermesChatResponse } from '@/agents/hermes/schemas/chat'
 import type { HermesAction } from '@/agents/hermes/tools/types'
 import { getCannedAnswer } from '@/lib/ai/canned-answers'
+import { consumeRateLimit, getClientIp } from '@/lib/security/rate-limit'
+import { readLimitedJson, RequestBodyTooLargeError } from '@/lib/security/request-body'
 
 export const dynamic = 'force-dynamic'
 
 const CHAT_COOKIE_NAME = 'chat_session_id'
 const CHAT_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
+const MAX_CHAT_BODY_BYTES = 32 * 1024
+const sessionIdSchema = z.string().uuid()
+
+const chatRequestSchema = z.object({
+  mode: z.enum(['public', 'admin']).default('public'),
+  messages: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string().min(1).max(4000),
+  })).min(1).max(6),
+  sessionId: z.string().uuid().optional(),
+}).strict()
 
 export type HermesChatApiResponse = HermesChatResponse & {
   actions?: HermesAction[]
@@ -18,16 +32,27 @@ export type HermesChatApiResponse = HermesChatResponse & {
   fallback?: boolean
 }
 
-function getClientIp(request: Request): string | null {
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0]?.trim() || null
-  return request.headers.get('x-real-ip') || null
-}
-
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as Partial<HermesChatRequest>
-    const mode = body.mode === 'admin' ? 'admin' : 'public'
+    const rawBody = await readLimitedJson(request, MAX_CHAT_BODY_BYTES)
+    const parsedBody = chatRequestSchema.safeParse(rawBody)
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Invalid chat request' }, { status: 400 })
+    }
+
+    const body = parsedBody.data as HermesChatRequest
+    const mode = body.mode
+    const clientIp = getClientIp(request.headers)
+
+    if (mode === 'public') {
+      const rateLimit = consumeRateLimit(`public-chat:${clientIp}`, 20, 10 * 60 * 1000)
+      if (!rateLimit.allowed) {
+        return NextResponse.json(
+          { error: 'Too many assistant requests. Please try again later.' },
+          { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) } },
+        )
+      }
+    }
 
     if (mode === 'admin') {
       const session = await getSession()
@@ -38,18 +63,22 @@ export async function POST(request: Request) {
 
     // ─── Session management ──────────────────────────────────────
     const cookieStore = await cookies()
-    let sessionId = body.sessionId || null
+    // Public callers cannot select an arbitrary database session. Their
+    // server-issued HttpOnly cookie is the only accepted conversation key.
+    let sessionId = mode === 'admin' ? body.sessionId || null : null
 
     // For public chats: use cookie-based session, create if missing
     if (!sessionId && mode === 'public') {
-      sessionId = cookieStore.get(CHAT_COOKIE_NAME)?.value || null
+      const cookieSessionId = cookieStore.get(CHAT_COOKIE_NAME)?.value
+      sessionId = sessionIdSchema.safeParse(cookieSessionId).success ? cookieSessionId! : null
     }
 
     // For admin chats: always create a new session per conversation batch
     // if no sessionId was sent from the client
     if (!sessionId) {
-      const ip = getClientIp(request)
-      sessionId = await createChatSession(mode, { ip: ip || undefined })
+      sessionId = await createChatSession(mode, {
+        ip: clientIp === 'unknown' ? undefined : clientIp,
+      })
 
       // Set cookie for public visitors so we can group their messages
       if (mode === 'public') {
@@ -58,6 +87,7 @@ export async function POST(request: Request) {
           maxAge: CHAT_COOKIE_MAX_AGE,
           path: '/',
           sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
         })
       }
     }
@@ -118,7 +148,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Assistant request failed'
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: 'Chat request is too large' }, { status: 413 })
+    }
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: 'Invalid JSON request' }, { status: 400 })
+    }
+    console.error('Assistant request failed', error)
+    const message = 'Assistant request failed'
     return NextResponse.json(
       {
         configured: true,

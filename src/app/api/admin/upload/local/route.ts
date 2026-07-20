@@ -1,161 +1,200 @@
-import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
-import { mkdir } from 'fs/promises'
-import crypto from 'crypto'
+import crypto from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
+import { getSession } from '@/lib/auth/session';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
+export const runtime = 'nodejs';
 
-// Ensure upload directory exists
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif',
+  '.mp4', '.webm', '.mov',
+]);
+const SAFE_UPLOAD_NAME = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.[a-z0-9]+$/i;
+
+class PayloadTooLargeError extends Error {}
+
+async function requireSession() {
+  return Boolean(await getSession());
+}
+
 async function ensureUploadDir() {
-  try {
-    await fs.access(UPLOAD_DIR)
-  } catch {
-    await mkdir(UPLOAD_DIR, { recursive: true })
-  }
+  await fs.mkdir(UPLOAD_DIR, { recursive: true });
 }
 
-// Get file ID from TUS header
-function getFileId(req: NextRequest): string | null {
-  return req.headers.get('tus-resumable') ? crypto.randomUUID() : null
+function parseBoundedInteger(value: string | null, maximum: number): number | null {
+  if (!value || !/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > maximum) return null;
+  return parsed;
 }
 
-// Handle TUS protocol
-export async function PATCH(req: NextRequest) {
-  await ensureUploadDir()
-
-  const uploadOffset = req.headers.get('upload-offset')
-  const uploadLength = req.headers.get('upload-length')
-  const uploadMetadata = req.headers.get('upload-metadata')
-
-  // Parse upload metadata to get filename
-  let filename = 'unknown'
-  if (uploadMetadata) {
-    const meta = uploadMetadata.split(',').find(m => m.startsWith('filename '))
-    if (meta) {
-      const base64 = meta.split(' ')[1]
-      filename = Buffer.from(base64, 'base64').toString('utf-8')
-    }
-  }
-
-  // Create unique file path
-  const ext = path.extname(filename) || ''
-  const baseName = path.basename(filename, ext)
-  const uniqueName = `${baseName}-${Date.now()}${ext}`
-  const filePath = path.join(UPLOAD_DIR, uniqueName)
-
-  try {
-    // If this is the first chunk, create the file
-    if (!uploadOffset || uploadOffset === '0') {
-      await fs.writeFile(filePath, Buffer.alloc(0))
-    }
-
-    // Append the chunk
-    const currentSize = (await fs.stat(filePath)).size
-    const arrayBuffer = await req.arrayBuffer()
-    const chunk = Buffer.from(arrayBuffer)
-
-    // Write at specific offset
-    const existing = await fs.readFile(filePath)
-    const newBuffer = Buffer.concat([existing.slice(0, currentSize), chunk])
-    await fs.writeFile(filePath, newBuffer)
-
-    const newOffset = currentSize + chunk.length
-    const totalLength = uploadLength ? parseInt(uploadLength) : newOffset
-
-    return new NextResponse(null, {
-      status: 204,
-      headers: {
-        'Upload-Offset': newOffset.toString(),
-        'Upload-Length': totalLength.toString(),
-        'Tus-Resumable': '1.0.0',
-      },
-    })
-  } catch (error) {
-    console.error('TUS PATCH error:', error)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
-  }
-}
-
-export async function HEAD(req: NextRequest) {
-  await ensureUploadDir()
-
-  const filename = req.headers.get('upload-metadata')
+function decodeFilename(metadata: string | null): string {
+  const encoded = metadata
     ?.split(',')
-    .find(m => m.startsWith('filename '))
-    ?.split(' ')[1]
-
-  if (!filename) {
-    return NextResponse.json({ error: 'No filename provided' }, { status: 400 })
-  }
-
-  const base64 = Buffer.from(filename, 'utf-8').toString('base64')
-  const ext = path.extname(filename) || ''
-  const baseName = path.basename(filename, ext)
-  const searchName = `${baseName}-*${ext}`
+    .map((item) => item.trim())
+    .find((item) => item.startsWith('filename '))
+    ?.slice('filename '.length);
+  if (!encoded || encoded.length > 1024) return 'upload';
 
   try {
-    const files = await fs.readdir(UPLOAD_DIR)
-    const matchingFile = files.find(f => f.startsWith(baseName) && f.endsWith(ext))
-
-    if (matchingFile) {
-      const stats = await fs.stat(path.join(UPLOAD_DIR, matchingFile))
-      return new NextResponse(null, {
-        headers: {
-          'Upload-Offset': stats.size.toString(),
-          'Upload-Length': stats.size.toString(),
-          'Tus-Resumable': '1.0.0',
-        },
-      })
-    }
+    return Buffer.from(encoded, 'base64').toString('utf8').slice(0, 255);
   } catch {
-    // File doesn't exist
+    return 'upload';
   }
-
-  return new NextResponse(null, {
-    status: 404,
-    headers: {
-      'Tus-Resumable': '1.0.0',
-    },
-  })
 }
 
-// POST - Create new upload
-export async function POST(req: NextRequest) {
-  await ensureUploadDir()
+function getSafeExtension(filename: string): string | null {
+  const extension = path.extname(path.basename(filename)).toLowerCase();
+  return ALLOWED_EXTENSIONS.has(extension) ? extension : null;
+}
 
-  const uploadLength = req.headers.get('upload-length')
-  const uploadMetadata = req.headers.get('upload-metadata')
+function getUploadTarget(req: NextRequest): { name: string; length: number; path: string } | null {
+  const name = req.nextUrl.searchParams.get('filename') || '';
+  const length = parseBoundedInteger(req.nextUrl.searchParams.get('length'), MAX_UPLOAD_BYTES);
+  const extension = path.extname(name).toLowerCase();
+  if (!SAFE_UPLOAD_NAME.test(name) || !ALLOWED_EXTENSIONS.has(extension) || length === null) return null;
+  return { name, length, path: path.join(UPLOAD_DIR, name) };
+}
 
-  if (!uploadLength) {
-    return NextResponse.json({ error: 'Upload-Length header required' }, { status: 400 })
-  }
+async function readBoundedBody(req: NextRequest, maximum: number): Promise<Buffer> {
+  if (!req.body) return Buffer.alloc(0);
+  const reader = req.body.getReader();
+  const chunks: Buffer[] = [];
+  let total = 0;
 
-  // Parse filename from metadata
-  let filename = 'upload'
-  if (uploadMetadata) {
-    const meta = uploadMetadata.split(',').find(m => m.startsWith('filename '))
-    if (meta) {
-      const base64 = meta.split(' ')[1]
-      filename = Buffer.from(base64, 'base64').toString('utf-8')
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maximum) {
+        await reader.cancel();
+        throw new PayloadTooLargeError();
+      }
+      chunks.push(Buffer.from(value));
     }
+  } finally {
+    reader.releaseLock();
   }
 
-  // Create empty file
-  const ext = path.extname(filename) || ''
-  const baseName = path.basename(filename, ext)
-  const uniqueName = `${baseName}-${Date.now()}${ext}`
-  const filePath = path.join(UPLOAD_DIR, uniqueName)
+  return Buffer.concat(chunks, total);
+}
 
-  await fs.writeFile(filePath, Buffer.alloc(0))
+export async function POST(req: NextRequest) {
+  if (!(await requireSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const uploadLength = parseBoundedInteger(req.headers.get('upload-length'), MAX_UPLOAD_BYTES);
+  if (uploadLength === null || uploadLength === 0) {
+    return NextResponse.json({ error: 'Upload-Length must be between 1 byte and 50 MB' }, { status: 400 });
+  }
+
+  const extension = getSafeExtension(decodeFilename(req.headers.get('upload-metadata')));
+  if (!extension) {
+    return NextResponse.json({ error: 'Unsupported media file extension' }, { status: 400 });
+  }
+
+  await ensureUploadDir();
+  const uniqueName = `${crypto.randomUUID()}${extension}`;
+  await fs.writeFile(path.join(UPLOAD_DIR, uniqueName), Buffer.alloc(0), { flag: 'wx' });
+  const location = `/api/admin/upload/local?filename=${encodeURIComponent(uniqueName)}&length=${uploadLength}`;
 
   return new NextResponse(uniqueName, {
     status: 201,
     headers: {
-      'Location': `/api/admin/upload/local?filename=${uniqueName}`,
+      Location: location,
       'Upload-Offset': '0',
-      'Upload-Length': uploadLength,
+      'Upload-Length': String(uploadLength),
       'Tus-Resumable': '1.0.0',
+      'Cache-Control': 'no-store',
     },
-  })
+  });
+}
+
+export async function HEAD(req: NextRequest) {
+  if (!(await requireSession())) {
+    return new NextResponse(null, { status: 401 });
+  }
+
+  const target = getUploadTarget(req);
+  if (!target) return new NextResponse(null, { status: 400 });
+
+  try {
+    const stats = await fs.stat(target.path);
+    if (!stats.isFile() || stats.size > target.length) return new NextResponse(null, { status: 409 });
+    return new NextResponse(null, {
+      headers: {
+        'Upload-Offset': String(stats.size),
+        'Upload-Length': String(target.length),
+        'Tus-Resumable': '1.0.0',
+        'Cache-Control': 'no-store',
+      },
+    });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return new NextResponse(null, { status: 404, headers: { 'Tus-Resumable': '1.0.0' } });
+    }
+    console.error('TUS HEAD failed', error);
+    return new NextResponse(null, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  if (!(await requireSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const target = getUploadTarget(req);
+  const uploadOffset = parseBoundedInteger(req.headers.get('upload-offset'), MAX_UPLOAD_BYTES);
+  if (!target || uploadOffset === null) {
+    return NextResponse.json({ error: 'Invalid upload target or offset' }, { status: 400 });
+  }
+
+  try {
+    const stats = await fs.stat(target.path);
+    if (!stats.isFile()) return NextResponse.json({ error: 'Upload not found' }, { status: 404 });
+    if (stats.size !== uploadOffset) {
+      return NextResponse.json(
+        { error: 'Upload offset mismatch' },
+        { status: 409, headers: { 'Upload-Offset': String(stats.size), 'Tus-Resumable': '1.0.0' } },
+      );
+    }
+
+    const remaining = target.length - stats.size;
+    if (remaining < 0) return NextResponse.json({ error: 'Upload exceeds declared length' }, { status: 409 });
+
+    const declaredChunkLength = req.headers.get('content-length');
+    if (declaredChunkLength) {
+      const chunkLength = parseBoundedInteger(declaredChunkLength, MAX_UPLOAD_BYTES);
+      if (chunkLength === null || chunkLength > remaining) throw new PayloadTooLargeError();
+    }
+
+    const chunk = await readBoundedBody(req, remaining);
+    const newOffset = stats.size + chunk.byteLength;
+    if (newOffset > target.length || newOffset > MAX_UPLOAD_BYTES) throw new PayloadTooLargeError();
+    if (chunk.byteLength > 0) await fs.appendFile(target.path, chunk);
+
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        'Upload-Offset': String(newOffset),
+        'Upload-Length': String(target.length),
+        'Tus-Resumable': '1.0.0',
+        'Cache-Control': 'no-store',
+      },
+    });
+  } catch (error) {
+    if (error instanceof PayloadTooLargeError) {
+      return NextResponse.json({ error: 'File too large (max 50 MB)' }, { status: 413 });
+    }
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return NextResponse.json({ error: 'Upload not found' }, { status: 404 });
+    }
+    console.error('TUS PATCH failed', error);
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+  }
 }

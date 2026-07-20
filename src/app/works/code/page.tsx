@@ -3,6 +3,9 @@ import { readContent } from '@/lib/cms/content'
 import { ProjectCardLink } from '@/components/project/ProjectCardLink'
 import type { Metadata } from 'next'
 
+// Keep in sync with Supabase CMS so newly added projects appear without a full redeploy.
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: 'Creative Code | Daniel Soleimani',
   description:

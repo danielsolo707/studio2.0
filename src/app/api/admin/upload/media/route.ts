@@ -9,10 +9,21 @@ export const runtime = 'nodejs';
 
 const THUMB_MAX_DIMENSION = 1600;
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
+const MIME_EXTENSIONS: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'image/avif': '.avif',
+  'video/mp4': '.mp4',
+  'video/webm': '.webm',
+  'video/quicktime': '.mov',
+};
 
-function detectKind(file: File): 'image' | 'video' | 'unknown' {
-  if (file.type.startsWith('image/')) return 'image';
-  if (file.type.startsWith('video/')) return 'video';
+function detectKind(mimeType: string): 'image' | 'video' | 'unknown' {
+  if (!MIME_EXTENSIONS[mimeType]) return 'unknown';
+  if (mimeType.startsWith('image/')) return 'image';
+  if (mimeType.startsWith('video/')) return 'video';
   return 'unknown';
 }
 
@@ -37,17 +48,24 @@ export async function POST(request: NextRequest) {
     }
 
     const projectId = (request.headers.get('x-project-id') || '').trim();
-    const filename = request.headers.get('x-file-name') || 'upload.bin';
-    const mimeType = request.headers.get('x-file-type') || request.headers.get('content-type') || 'application/octet-stream';
-    const kind = detectKind({ type: mimeType } as File);
-    if (!projectId) {
+    const filename = (request.headers.get('x-file-name') || 'upload.bin').slice(0, 255);
+    const mimeType = (request.headers.get('x-file-type') || request.headers.get('content-type') || '')
+      .split(';')[0]
+      .trim()
+      .toLowerCase();
+    const kind = detectKind(mimeType);
+    if (!projectId || projectId.length > 200) {
       return NextResponse.json({ error: 'Missing project id' }, { status: 400 });
     }
     if (kind === 'unknown') {
       return NextResponse.json({ error: `Unsupported file type: ${mimeType}` }, { status: 400 });
     }
 
-    const declaredLength = Number(request.headers.get('content-length') || 0);
+    const declaredLengthHeader = request.headers.get('content-length');
+    const declaredLength = Number(declaredLengthHeader);
+    if (!declaredLengthHeader || !Number.isSafeInteger(declaredLength) || declaredLength <= 0) {
+      return NextResponse.json({ error: 'Valid Content-Length header required' }, { status: 411 });
+    }
     if (declaredLength > MAX_UPLOAD_BYTES) {
       return NextResponse.json({ error: 'File too large (max 50MB)' }, { status: 413 });
     }
@@ -63,18 +81,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File too large (max 50MB)' }, { status: 413 });
     }
 
-    const fileId = await uploadFile(buffer, filename, mimeType);
-    const ext = filename.includes('.') ? filename.substring(filename.lastIndexOf('.')) : '';
+    const ext = MIME_EXTENSIONS[mimeType];
+    const fileId = await uploadFile(buffer, `upload${ext}`, mimeType);
     const url = `/uploads/${fileId}${ext}`;
     let thumbUrl: string | undefined;
 
     if (kind === 'image') {
       const thumb = await maybeMakeThumbnail(buffer, mimeType || 'image/jpeg');
       if (thumb) {
-        const thumbId = await uploadFile(thumb.buffer, `thumb-${filename}`, thumb.mime);
         // Use the actual output format's extension so the file is served with the
         // correct content-type (avoid saving a JPEG body under a .webp/.gif name).
         const thumbExt = thumb.mime === 'image/png' ? '.png' : '.jpg';
+        const thumbId = await uploadFile(thumb.buffer, `thumb${thumbExt}`, thumb.mime);
         thumbUrl = `/uploads/${thumbId}${thumbExt}`;
       }
     }
@@ -112,7 +130,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, files: saved });
   } catch (err) {
     console.error('Upload media failed', err);
-    const message = err instanceof Error ? err.message : 'Upload failed';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

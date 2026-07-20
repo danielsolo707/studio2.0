@@ -241,7 +241,7 @@ export function HermesChatWidget({
       const res = await fetch('/api/hermes/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mode, messages: nextMessages, sessionId }),
+        body: JSON.stringify({ mode, messages: nextMessages.slice(-6), sessionId }),
         signal: controller.signal,
       })
       window.clearTimeout(timeout)
@@ -375,6 +375,7 @@ export function HermesChatWidget({
           <textarea
             ref={inputRef}
             value={input}
+            maxLength={4000}
             onChange={(event) => {
               setInput(event.target.value)
               adjustTextareaHeight()

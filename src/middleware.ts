@@ -2,9 +2,19 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const COOKIE_NAME = 'admin_session';
+const INSECURE_PRODUCTION_SECRETS = new Set([
+  'dev-secret-change-me',
+  'dev-secret-change-me-in-production',
+  'change-me',
+]);
 
-function getSecret(): string {
-  return process.env.ADMIN_SESSION_SECRET || 'dev-secret-change-me';
+function getSecret(): string | null {
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (
+    process.env.NODE_ENV === 'production' &&
+    (!secret || secret.length < 32 || INSECURE_PRODUCTION_SECRETS.has(secret))
+  ) return null;
+  return secret || 'dev-secret-change-me';
 }
 
 function hexEncode(bytes: Uint8Array): string {
@@ -28,7 +38,7 @@ function timingSafeEqualHex(a: string, b: string): boolean {
  * so this is an early-reject defense-in-depth layer for /api/admin/*.
  */
 async function isValidSession(token: string | undefined): Promise<boolean> {
-  if (!token) return false;
+  if (!token || token.length > 4096) return false;
   try {
     const decoded = atob(token);
     const dot = decoded.lastIndexOf('.');
@@ -37,9 +47,11 @@ async function isValidSession(token: string | undefined): Promise<boolean> {
     const sig = decoded.slice(dot + 1);
 
     const enc = new TextEncoder();
+    const secret = getSecret();
+    if (!secret) return false;
     const key = await crypto.subtle.importKey(
       'raw',
-      enc.encode(getSecret()),
+      enc.encode(secret),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['sign'],
@@ -50,7 +62,8 @@ async function isValidSession(token: string | undefined): Promise<boolean> {
     if (!timingSafeEqualHex(sig, expected)) return false;
 
     const payload = JSON.parse(json) as { user?: string; exp?: number };
-    if (typeof payload.exp !== 'number') return false;
+    if (typeof payload.user !== 'string' || payload.user.length === 0 || payload.user.length > 200) return false;
+    if (typeof payload.exp !== 'number' || !Number.isSafeInteger(payload.exp)) return false;
     if (payload.exp < Math.floor(Date.now() / 1000)) return false;
     return true;
   } catch {

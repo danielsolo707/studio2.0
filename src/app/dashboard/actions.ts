@@ -7,7 +7,7 @@ import { deleteGridFsFile } from '@/lib/database/gridfs';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { clearSession, getSession, setSession, createHalfAuthToken, verifyHalfAuthToken } from '@/lib/auth/session';
 import { readContent, writeContent, addProject, updateProject, deleteProject } from '@/lib/cms/content';
 import { is2FAEnabled, readTotpConfig, verifyTotpToken } from '@/lib/auth/totp';
@@ -16,6 +16,7 @@ import { getAdminUsername, updateAdminPassword, verifyAdminCredentials } from '@
 import type { Project, ProjectLink, ProjectStatus } from '@/types/project';
 import { listMessages, updateMessage, deleteMessage, bulkDelete, appendReply } from '@/lib/contact/contact-log';
 import { STATUS_OPTIONS } from '@/lib/cms/project-meta';
+import { consumeRateLimit, getClientIp, resetRateLimit } from '@/lib/security/rate-limit';
 
 type ActionState = { error?: string; success?: boolean };
 
@@ -75,7 +76,7 @@ const heroSchema = z.object({
 const passwordChangeSchema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    newPassword: z.string().min(12, 'New password must be at least 12 characters'),
     confirmPassword: z.string().min(1, 'Confirm the new password'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -120,6 +121,13 @@ export async function loginAction(
 ) {
   const user = String(formData.get('username') || '').trim();
   const pass = String(formData.get('password') || '').trim();
+  const clientIp = getClientIp(await headers());
+  const loginLimitKey = `admin-login:${clientIp}`;
+  const loginLimit = consumeRateLimit(loginLimitKey, 5, 15 * 60 * 1000);
+  if (!loginLimit.allowed) {
+    return { error: `Too many sign-in attempts. Try again in ${loginLimit.retryAfterSeconds} seconds.` };
+  }
+
   const captchaEnabled = await isCaptchaEnabled();
   if (captchaEnabled) {
     const turnstileToken = String(formData.get('cf-turnstile-response') || '').trim();
@@ -133,6 +141,8 @@ export async function loginAction(
   if (!isValid) {
     return { error: 'Invalid username or password' };
   }
+
+  resetRateLimit(loginLimitKey);
 
   const twoFAEnabled = await is2FAEnabled();
   if (twoFAEnabled) {
@@ -156,6 +166,12 @@ export async function verify2FAAction(
 ) {
   const token = String(formData.get('totp') || '').trim();
   const halfAuthToken = String(formData.get('halfAuthToken') || '').trim();
+  const clientIp = getClientIp(await headers());
+  const twoFactorLimitKey = `admin-2fa:${clientIp}`;
+  const twoFactorLimit = consumeRateLimit(twoFactorLimitKey, 6, 5 * 60 * 1000);
+  if (!twoFactorLimit.allowed) {
+    return { error: `Too many verification attempts. Try again in ${twoFactorLimit.retryAfterSeconds} seconds.` };
+  }
 
   const halfAuth = verifyHalfAuthToken(halfAuthToken);
   if (!halfAuth) {
@@ -176,6 +192,7 @@ export async function verify2FAAction(
     return { error: 'Invalid code. Please try again.' };
   }
 
+  resetRateLimit(twoFactorLimitKey);
   await setSession(halfAuth.user);
   redirect('/dashboard');
 }
@@ -479,6 +496,9 @@ export async function addProjectAction(
 
   revalidatePath('/');
   revalidatePath('/projects');
+  revalidatePath(`/projects/${project.id}`);
+  revalidatePath('/works/code');
+  revalidatePath('/works/motion');
   revalidatePath('/dashboard');
   return { success: true };
 }

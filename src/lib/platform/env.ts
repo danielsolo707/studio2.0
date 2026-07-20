@@ -30,7 +30,7 @@ export function getRequiredEnvVar(name: string): string {
 // Environment configuration
 export const config = {
   // Authentication
-  adminSessionSecret: getEnvVar('ADMIN_SESSION_SECRET', 'dev-secret-change-me'),
+  adminSessionSecret: getEnvVar('ADMIN_SESSION_SECRET'),
   
   // Email
   resendApiKey: getEnvVar('RESEND_API_KEY', ''),
@@ -44,15 +44,16 @@ export const config = {
 // Validate critical environment variables in production
 export function validateEnvironment(): void {
   if (process.env.NODE_ENV === 'production') {
-    const requiredVars = [
-      'MONGODB_URI',
-      'ADMIN_SESSION_SECRET'
-    ];
+    const requiredVars = ['ADMIN_SESSION_SECRET'];
     
     const missing = requiredVars.filter(varName => !process.env[varName]);
     
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
+
+    if ((process.env.ADMIN_SESSION_SECRET?.length ?? 0) < 32) {
+      throw new Error('ADMIN_SESSION_SECRET must be at least 32 characters in production');
     }
   }
 }

@@ -8,6 +8,9 @@ import { ParticlesBackground } from '@/components/effects/ParticlesBackground';
 import { PublicAssistantFloatingButton } from '@/components/hermes/PublicAssistantFloatingButton';
 import { readContent } from '@/lib/cms/content';
 
+// Refresh featured project list from Supabase without requiring a full redeploy.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Daniel Soleimani | AI & Machine Learning Specialist',
   description:

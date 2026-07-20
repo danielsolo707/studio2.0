@@ -3,11 +3,18 @@ import { cookies } from 'next/headers';
 
 const COOKIE_NAME = 'admin_session';
 const DEFAULT_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
+const INSECURE_PRODUCTION_SECRETS = new Set([
+  'dev-secret-change-me',
+  'dev-secret-change-me-in-production',
+  'change-me',
+]);
 
 function getSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET;
-  if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('ADMIN_SESSION_SECRET environment variable is required in production');
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret || secret.length < 32 || INSECURE_PRODUCTION_SECRETS.has(secret)) {
+      throw new Error('ADMIN_SESSION_SECRET must be a unique value of at least 32 characters in production');
+    }
   }
   return secret || 'dev-secret-change-me';
 }
@@ -28,16 +35,22 @@ export function createSession(user: string): string {
 }
 
 export function verifySession(token: string | undefined): SessionPayload | null {
-  if (!token) return null;
+  if (!token || token.length > 4096) return null;
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [json, sig] = decoded.split('.');
+    const dot = decoded.lastIndexOf('.');
+    if (dot === -1) return null;
+    const json = decoded.slice(0, dot);
+    const sig = decoded.slice(dot + 1);
     if (!json || !sig) return null;
 
     const expected = crypto.createHmac('sha256', getSecret()).update(json).digest('hex');
+    if (sig.length !== expected.length) return null;
     if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
 
     const payload = JSON.parse(json) as SessionPayload;
+    if (typeof payload.user !== 'string' || payload.user.length === 0 || payload.user.length > 200) return null;
+    if (!Number.isSafeInteger(payload.exp)) return null;
     if (payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload;
   } catch {
@@ -81,10 +94,13 @@ function signJson(json: string): string {
 }
 
 function parseSignedToken<T>(token: string | undefined): T | null {
-  if (!token) return null;
+  if (!token || token.length > 4096) return null;
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [json, sig] = decoded.split('.');
+    const dot = decoded.lastIndexOf('.');
+    if (dot === -1) return null;
+    const json = decoded.slice(0, dot);
+    const sig = decoded.slice(dot + 1);
     if (!json || !sig) return null;
 
     const expected = signJson(json);
