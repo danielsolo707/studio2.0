@@ -61,5 +61,5 @@ site/
 
 ## Source of truth
 
-- **Content:** Supabase (`projects`, `site_content`) via `src/lib/cms` + `src/lib/database`
-- **Fallback:** `src/data/content.json` only when Supabase env is missing
+- **Content:** Supabase only (`projects`, `site_content`) via `src/lib/cms` + `src/lib/database`
+- **`src/data/content.json`:** intentionally empty — not read or written by the app
