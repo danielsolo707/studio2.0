@@ -10,12 +10,12 @@ export type AiSettings = {
   apiKey: string;
 };
 
-const DEFAULT_MODEL = 'google/diffusiongemma-26b-a4b-it';
+const DEFAULT_MODEL = 'deepseek-v4-flash';
 
 const ENV_FALLBACK: AiSettings = {
-  publicModel: process.env.NVIDIA_NIM_MODEL || DEFAULT_MODEL,
-  adminModel: process.env.NVIDIA_NIM_MODEL || DEFAULT_MODEL,
-  apiKey: process.env.NVIDIA_NIM_API_KEY || process.env.HERMES_API_KEY || '',
+  publicModel: DEFAULT_MODEL,
+  adminModel: DEFAULT_MODEL,
+  apiKey: process.env.DEEPSEEK_API_KEY || '',
 };
 
 // ─── AES-256-GCM encryption ────────────────────────────────────────────────

@@ -278,11 +278,9 @@ async function executeSystemHealth(): Promise<{ result: HermesToolResult; action
   const checks: string[] = []
 
   // AI provider
-  const hasCloudflareAi = Boolean(
-    process.env.CLOUDFLARE_ACCOUNT_ID && (process.env.CLOUDFLARE_AI_API_TOKEN || process.env.CLOUDFLARE_API_TOKEN),
-  )
-  checks.push(`Workers AI: ${hasCloudflareAi ? 'CONFIGURED' : 'NOT SET (using fallback if available)'}`)
-  checks.push(`Model: ${process.env.CLOUDFLARE_AI_MODEL || process.env.HERMES_MODEL || 'not configured'}`)
+  const hasDeepSeekAi = Boolean(process.env.DEEPSEEK_API_KEY)
+  checks.push(`DeepSeek AI: ${hasDeepSeekAi ? 'CONFIGURED' : 'NOT SET'}`)
+  checks.push(`Model: ${process.env.DEEPSEEK_AI_MODEL || 'deepseek-v4-flash'}`)
 
   // Resend
   checks.push(`Resend key: ${process.env.RESEND_API_KEY ? 'SET' : 'MISSING'}`)

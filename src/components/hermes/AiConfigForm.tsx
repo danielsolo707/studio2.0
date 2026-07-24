@@ -35,12 +35,12 @@ export function AiConfigForm({
           name="publicModel"
           type="text"
           defaultValue={initialPublicModel}
-          placeholder="e.g. @cf/google/gemma-4-26b-a4b-it"
+          placeholder="e.g. deepseek-v4-flash"
           className={inputClass}
           required
         />
         <p className="text-[10px] text-white/35 font-body">
-          Model used by visitors. Cloudflare environment variables take priority in production.
+          Model used by visitors.
         </p>
       </div>
 
@@ -53,12 +53,12 @@ export function AiConfigForm({
           name="adminModel"
           type="text"
           defaultValue={initialAdminModel}
-          placeholder="e.g. @cf/google/gemma-4-26b-a4b-it"
+          placeholder="e.g. deepseek-v4-flash"
           className={inputClass}
           required
         />
         <p className="text-[10px] text-white/35 font-body">
-          Model used in the dashboard when Cloudflare settings are not configured.
+          Model used in the dashboard.
         </p>
       </div>
 
@@ -70,12 +70,12 @@ export function AiConfigForm({
           id="ai-api-key"
           name="apiKey"
           type="password"
-          placeholder={hasApiKey ? '•••••••• (leave blank to keep current)' : 'nvapi-...'}
+          placeholder={hasApiKey ? '•••••••• (leave blank to keep current)' : 'sk-...'}
           className={inputClass}
           autoComplete="off"
         />
         <p className="text-[10px] text-white/35 font-body">
-          NVIDIA NIM API key. Encrypted (AES-256-GCM) before storage. Leave blank to keep existing.
+          DeepSeek API key. Encrypted (AES-256-GCM) before storage. Leave blank to keep existing.
         </p>
       </div>
 

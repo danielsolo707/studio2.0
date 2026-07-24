@@ -241,7 +241,7 @@ export function HermesChatWidget({
       const res = await fetch('/api/hermes/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mode, messages: nextMessages.slice(-6), sessionId }),
+        body: JSON.stringify({ mode, messages: nextMessages.slice(-6), ...(sessionId ? { sessionId } : {}) }),
         signal: controller.signal,
       })
       window.clearTimeout(timeout)

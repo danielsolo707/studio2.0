@@ -83,7 +83,7 @@ export default async function AssistantDashboardPage() {
               <div className="flex items-center justify-between gap-3">
                 <span>Provider</span>
                 <span className="text-white/85">
-                  {activeConfig.provider === 'cloudflare-workers-ai' ? 'Cloudflare Workers AI' : 'NVIDIA NIM'}
+                  {activeConfig.provider === 'deepseek' ? 'DeepSeek AI' : activeConfig.provider}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-3">

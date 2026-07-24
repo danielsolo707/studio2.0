@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth/session'
 import { runHermesChat } from '@/agents/hermes/runtime/runHermes'
+import { getHermesConfigSync } from '@/agents/hermes/config'
 import { createChatSession, addChatMessage } from '@/lib/ai/ai-chat-db'
 import type { HermesChatRequest, HermesChatResponse } from '@/agents/hermes/schemas/chat'
 import type { HermesAction } from '@/agents/hermes/tools/types'
@@ -23,7 +24,7 @@ const chatRequestSchema = z.object({
     role: z.enum(['user', 'assistant']),
     content: z.string().min(1).max(4000),
   })).min(1).max(6),
-  sessionId: z.string().uuid().optional(),
+  sessionId: z.string().uuid().optional().nullable().transform((val) => val ?? undefined),
 }).strict()
 
 export type HermesChatApiResponse = HermesChatResponse & {
@@ -102,8 +103,14 @@ export async function POST(request: Request) {
     // ─── Call AI ─────────────────────────────────────────────────
     let result
     let fallback = false
+
+    // Debug: log the current env config state
+    const syncConfig = getHermesConfigSync()
+    console.log(`[hermes] mode=${mode} hasApiKey=${Boolean(syncConfig.apiKey)} model=${syncConfig.model} provider=${syncConfig.provider}`)
+
     try {
       result = await runHermesChat(mode, userMessages)
+      console.log(`[hermes] result configured=${result.configured} fallback=${fallback} model=${result.model} msgLen=${result.message?.length}`)
     } catch (error) {
       console.error(`[assistant] ${mode} provider request failed`, error)
       if (mode === 'admin') {
