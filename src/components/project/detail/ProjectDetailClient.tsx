@@ -77,8 +77,19 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
     setLightboxOpen(true);
   };
 
+  const [brokenSet, setBrokenSet] = useState<Set<string>>(new Set());
+
   const handleLoaded = (url: string) => {
     setLoadedSet((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+  };
+
+  const handleBroken = (url: string) => {
+    setBrokenSet((prev) => {
       if (prev.has(url)) return prev;
       const next = new Set(prev);
       next.add(url);
@@ -420,12 +431,20 @@ const techStack = {
                   >
                     <div className="relative w-full overflow-hidden">
                       {m.type === 'image' ? (
-                        <img
-                          src={m.url}
-                          alt={`${project.name} view ${idx + 1}`}
-                          className="w-full h-auto object-contain"
-                          loading="lazy"
-                        />
+                        brokenSet.has(m.url) ? (
+                          <div className="w-full aspect-video bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-3 text-white/40">
+                            <span className="text-[10px] tracking-[0.3em] uppercase">Media unavailable</span>
+                            <span className="text-[10px] font-mono opacity-60">{m.url}</span>
+                          </div>
+                        ) : (
+                          <img
+                            src={m.url}
+                            alt={`${project.name} view ${idx + 1}`}
+                            className="w-full h-auto object-contain"
+                            loading="lazy"
+                            onError={() => handleBroken(m.url)}
+                          />
+                        )
                       ) : (
                         <div className="relative w-full aspect-video bg-black/50">
                           <VideoEmbed
