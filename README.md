@@ -82,8 +82,8 @@ This is a **personal portfolio website** for a creative developer. It features:
 ### Install & Run
 
 ```bash
-git clone <repo-url>
-cd studio.2
+git clone https://github.com/danielsolo707/studio2.0.git
+cd studio2.0
 npm install
 npm run dev
 ```
@@ -142,7 +142,11 @@ site/
 
 ## Environment Variables
 
-Create a `.env.local` file:
+Copy the safe template, then fill in only the integrations you use:
+
+```bash
+cp .env.example .env.local
+```
 
 ```env
 # Admin credentials
