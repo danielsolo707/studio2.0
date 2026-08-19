@@ -19,14 +19,14 @@ import {
 // Empty shell used only when Supabase is unavailable (local boot without env).
 const EMPTY_CONTENT: SiteContent = {
   hero: {
-    headline: 'CREATIVE\nDEVELOPER',
-    description: '',
+    headline: 'ML ENGINEER\n& AI BUILDER',
+    description: 'Applied AI, deep learning, and interactive systems built from experiment to usable product.',
   },
   about: {
-    label: 'ABOUT',
-    headline: 'CREATIVE DEVELOPER',
-    body: '',
-    skills: [],
+    label: 'APPLIED AI',
+    headline: 'MODELS MEET\nPRODUCT',
+    body: 'I design, evaluate, and ship machine-learning systems: from multimodal models and tool-using agents to reliable web experiences.',
+    skills: ['Python', 'PyTorch', 'LLM Agents', 'Deep Learning', 'Next.js', 'Three.js'],
   },
   projects: [],
   options: {

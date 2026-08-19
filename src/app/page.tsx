@@ -12,13 +12,13 @@ import { readContent } from '@/lib/cms/content';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Daniel Soleimani | AI & Machine Learning Specialist',
+  title: 'Daniel Soleimani | ML Engineer & Applied AI Builder',
   description:
-    'Official portfolio of Daniel Soleimani. Discover advanced architectural projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
+    'Portfolio of Daniel Soleimani: machine learning, multimodal systems, tool-using AI agents, and interactive products built from experiment to production-minded delivery.',
   openGraph: {
-    title: 'Daniel Soleimani | AI & Machine Learning Specialist',
+    title: 'Daniel Soleimani | ML Engineer & Applied AI Builder',
     description:
-      'Official portfolio of Daniel Soleimani. Discover advanced architectural projects in Machine Learning, Deep Learning, and high-end After Effects motion design.',
+      'Machine learning, multimodal systems, AI agents, and interactive products built from experiment to production-minded delivery.',
   },
   alternates: { canonical: '/' },
 };
@@ -53,7 +53,7 @@ export default async function Home() {
       {/* Page sections (always in DOM for SEO) */}
       <div id="main-content">
         <TypographicHero 
-          headline={content.hero?.headline || 'CREATIVE\nDEVELOPER'}
+          headline={content.hero?.headline || 'ML ENGINEER\n& AI BUILDER'}
           description={content.hero?.description || ''}
         />
         <FeaturedProjects projects={content.projects} maxProjects={3} />

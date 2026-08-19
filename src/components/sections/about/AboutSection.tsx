@@ -52,7 +52,7 @@ export function AboutSection({
             transition={{ delay: 0.1 }}
             className="font-body text-sm md:text-base text-white/60 max-w-xs leading-relaxed"
           >
-            Motion design, real-time systems, and experiments that translate intent into cinematic interaction.
+            Machine learning, interactive systems, and experiments that turn ideas into dependable products.
           </motion.p>
         </div>
 
